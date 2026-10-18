@@ -1,6 +1,6 @@
 # Regras locais — Liga GLC Roraima
 
-Atualizado em 16/10/2026.
+Atualizado em 18/10/2026.
 
 A liga segue as regras oficiais do Gym Leader Challenge (https://gymleaderchallenge.com). As regras abaixo são próprias da liga e prevalecem em caso de conflito.
 
@@ -32,6 +32,12 @@ Atualizado em 18/10/2026. Mesmas configurações usadas no Challonge.
   2. Buchholz, descartando o maior e o menor placar (Median-Buchholz);
   3. diferença de pontos (saldo de jogos);
   4. desempate manual.
+- Bye: vale 1,0 ponto e conta como 2-0 no saldo de jogos.
+- Buchholz mediano: enquanto o jogador tiver menos de 3 adversários, usa a soma simples (sem descartar).
+- Pareamento por pontos, sem revanche. O bye vai para o pior colocado que ainda não recebeu bye.
+- Rodadas sugeridas: log₂ do número de jogadores, arredondado para cima. O organizador pode mudar.
+- Jogador atrasado pode entrar depois da 1ª rodada. Cada rodada perdida conta como derrota (0 ponto, 0-2 no saldo).
+- Drop: o jogador sai das próximas rodadas e mantém os resultados anteriores.
 
 ## Outras regras locais
 
