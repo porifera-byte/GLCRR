@@ -1,0 +1,60 @@
+/* Painel GLC RR — complementa assets/css/style.css (tokens, botões, cartões e tabelas vêm de lá).
+   Cabeçalho em azul-marinho, toque mínimo de 44 px, celular primeiro. */
+:root{--marinho:#12263A;--erro:#B3261E}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--erro:#FF8A80}}
+:root[data-theme="dark"]{--erro:#FF8A80}
+
+body.adm{min-height:100dvh;display:flex;flex-direction:column}
+body.adm::before{background:var(--marinho)}
+.adm-head{background:var(--marinho)}
+.adm-bar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.adm-bar .brand{min-width:0;padding-block:10px}
+.adm-bar .brand b{font-size:1.2rem}
+.adm-sessao{display:flex;align-items:center;gap:10px;min-width:0}
+.adm-quem{font-family:var(--f-mono);font-size:.85rem;opacity:.9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adm-sair{min-height:44px;background:transparent;color:#fff;border-color:rgba(255,255,255,.45)}
+.adm-sair:hover{border-color:var(--ouro)}
+
+.adm-nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-block:2px 10px}
+.adm-nav::-webkit-scrollbar{display:none}
+.adm-nav a{flex:none;display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:999px;color:#fff;text-decoration:none;
+  font-weight:800;font-size:.92rem;transition:background .2s,color .2s}
+.adm-nav a:hover{background:rgba(255,255,255,.12)}
+.adm-nav a[aria-current="page"]{background:var(--ouro);color:#111}
+@media (prefers-reduced-motion:reduce){.adm-nav a{transition:none}}
+
+.adm-main{flex:1;width:100%}
+.adm-page h1{font-size:clamp(1.8rem,6vw,2.4rem)}
+.adm-page h1:focus{outline:none}
+
+/* Formulários */
+.adm-form{display:grid;gap:14px}
+.campo{display:grid;gap:6px;font-weight:800;font-size:.9rem}
+.campo input,.campo textarea,.campo select{font:inherit;font-weight:400;font-size:1rem;color:var(--fg);background:var(--surface);
+  border:2px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;width:100%}
+.campo input:focus,.campo textarea:focus,.campo select:focus{border-color:var(--ceu);outline:none;box-shadow:0 0 0 3px rgba(62,142,208,.25)}
+.campo small{font-weight:400;color:var(--muted)}
+.campo textarea{font-family:var(--f-mono);font-size:.82rem;min-height:120px;resize:vertical}
+.adm-btn{min-height:44px;justify-content:center;width:100%;font-size:1rem}
+.adm-btn:disabled{opacity:.6;cursor:progress}
+.adm-msg{margin:0;min-height:1.5em;font-weight:600;color:var(--muted)}
+.adm-msg.erro{color:var(--erro)}
+.adm-msg.ok{color:var(--verde-ink)}
+.adm-nota{font-size:.88rem;color:var(--muted);margin:0}
+
+/* Login */
+.adm-login{width:min(420px,100%);margin:0 auto;padding-block:40px 48px;display:grid;gap:18px}
+
+/* Cartões de resumo enquanto carregam */
+.adm-carregando b{color:var(--line)}
+@media (prefers-reduced-motion:no-preference){.adm-carregando{animation:pisca 1.2s ease-in-out infinite}}
+@keyframes pisca{50%{opacity:.55}}
+
+/* Gerador de acesso */
+.adm-passos{margin:0;padding-left:1.3em;display:grid;gap:6px;color:var(--muted)}
+.adm-passos b{color:var(--fg)}
+.adm-cartao{padding:18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);display:grid;gap:14px}
+.adm-largo{width:min(640px,100%);margin:0 auto}
+
+@media (max-width:479px){.adm-bar .brand small{display:none}.adm-quem{max-width:9ch}}
+@media (min-width:640px){.adm-btn{width:fit-content;padding-inline:28px}}

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <title>Gerar acesso · Painel GLC RR</title>
+  <meta name="theme-color" content="#12263A">
+  <link rel="icon" type="image/png" href="../assets/icons/GLCRR-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body class="adm">
+  <header class="adm-head">
+    <div class="wrap adm-bar">
+      <a class="brand" href="index.html">
+        <span class="logo logo-top"><span class="badge" aria-hidden="true"></span><img src="../assets/icons/GLCRR-logo.png" alt=""></span>
+        <div><b>Painel GLC RR</b><small>Gerar acesso</small></div>
+      </a>
+    </div>
+  </header>
+
+  <main class="wrap adm-main">
+    <div class="page adm-largo">
+      <div>
+        <p class="eyebrow">Primeiro acesso</p>
+        <h1>Gerar seu registro de acesso</h1>
+      </div>
+      <p class="lead">Tudo acontece neste navegador. A senha e a chave não são enviadas a lugar nenhum: a página só mostra o registro cifrado, que você manda no chat do projeto.</p>
+
+      <section class="adm-cartao" aria-labelledby="t-chave">
+        <h2 id="t-chave">1. A chave do GitHub</h2>
+        <p class="adm-nota">Quem cria a chave é o organizador principal, na conta <b>porifera-byte</b>. Uma chave por organizador.</p>
+        <ol class="adm-passos">
+          <li>Abra <b>Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token</b>.</li>
+          <li>Nome: <b>painel-</b> + o usuário do organizador. Validade: <b>1 ano</b> (anote a data para renovar).</li>
+          <li>Repository access: <b>Only select repositories</b> → <b>GLCRR</b> e <b>GLC-privado</b>.</li>
+          <li>Permissions → Repository permissions → <b>Contents: Read and write</b>. Nada mais.</li>
+          <li><b>Generate token</b> e copie a chave (começa com <code>github_pat_</code>).</li>
+        </ol>
+      </section>
+
+      <section class="adm-cartao" aria-labelledby="t-dados">
+        <h2 id="t-dados">2. Seus dados de entrada</h2>
+        <form class="adm-form" id="form-gerar" novalidate>
+          <label class="campo">
+            <span>Usuário</span>
+            <input name="usuario" autocomplete="off" autocapitalize="none" spellcheck="false" required>
+            <small>De 3 a 20 letras minúsculas, números ou hífen. Ex.: italo</small>
+          </label>
+          <label class="campo">
+            <span>Senha</span>
+            <input name="senha" type="password" autocomplete="new-password" minlength="12" required>
+            <small>12 caracteres ou mais. Prefira uma frase, ex.: "mesa verde do torneio de sabado".</small>
+          </label>
+          <label class="campo">
+            <span>Repita a senha</span>
+            <input name="senha2" type="password" autocomplete="new-password" required>
+          </label>
+          <label class="campo">
+            <span>Chave do GitHub</span>
+            <input name="chave" type="password" autocomplete="off" spellcheck="false" required>
+          </label>
+          <button class="btn btn-ouro adm-btn" type="submit">Gerar registro</button>
+          <p class="adm-msg" id="msg-gerar" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="adm-cartao" id="resultado" aria-labelledby="t-registro" hidden>
+        <h2 id="t-registro">3. Seu registro cifrado</h2>
+        <label class="campo">
+          <span>Copie e mande no chat do projeto</span>
+          <textarea id="registro" readonly rows="6"></textarea>
+        </label>
+        <button class="btn btn-ceu adm-btn" type="button" id="copiar">Copiar registro</button>
+        <p class="adm-msg" id="msg-copiar" role="status" aria-live="polite"></p>
+        <p class="adm-nota">O registro sozinho não abre nada: sem a sua senha, ele é inútil. Guarde a senha; ela não pode ser recuperada.</p>
+      </section>
+    </div>
+  </main>
+
+  <noscript><p class="wrap">Esta página precisa de JavaScript ativado.</p></noscript>
+
+  <script src="cripto.js"></script>
+  <script src="github.js"></script>
+  <script src="gerar-acesso.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Estrutura do site — Liga GLC Roraima (v2)
 
-Atualizado em 16/10/2026 (rev. 2).
+Atualizado em 18/10/2026 (rev. 3: painel administrativo, etapa 1).
 
 Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página única: cada seção é uma âncora em `index.html` e a troca entre seções desliza na ordem do menu.
 
@@ -53,7 +53,27 @@ data/
 docs/
   ESTRUTURA.md             este arquivo
   REGRAS-LOCAIS.md         regras próprias da liga e regra do ranking
+admin/                     painel administrativo (fora do menu, noindex)
+  index.html               login e telas do painel
+  admin.css                estilos do painel (usa os tokens de style.css)
+  admin.js                 login, sessão, roteamento interno e telas
+  cripto.js                cifra da chave do GitHub com a senha (PBKDF2 + AES-GCM)
+  github.js                leitura e gravação pela API de conteúdo do GitHub
+  gerar-acesso.html/.js    gerador do registro cifrado de cada organizador
+  usuarios.json            registros cifrados dos organizadores
+  testes/                  testes no Node (node --test admin/testes/*.test.js)
 ```
+
+## Painel administrativo (`admin/`)
+
+Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site não baixam o código do painel.
+
+- **Login:** cada organizador tem um registro em `usuarios.json` com usuário, salt, iv e a chave fine-grained do GitHub cifrada com a senha (PBKDF2-SHA256, 600 mil iterações, AES-GCM). Senha errada não decifra nada. O registro é gerado em `gerar-acesso.html`, no navegador do próprio organizador; a senha e a chave nunca saem do aparelho.
+- **Sessão:** a chave decifrada fica no `sessionStorage` e some ao fechar a aba. Chave recusada pelo GitHub (expirada ou revogada) encerra a sessão.
+- **Gravação:** commit direto na `main` pela API de conteúdo, com o `sha` atual e mensagem `[painel:<usuario>] ...`. Em conflito, relê, reaplica e tenta de novo (até 3 vezes). O JSON é validado antes de gravar.
+- **Dados:** públicos em `data/` (GLCRR); nome real e nascimento em `jogadores-privado.json` e rascunhos do suíço em `rascunhos/` (repositório privado GLC-privado).
+- **Segurança extra:** CSP restrita (só scripts próprios e `api.github.com`), sem referrer, não abre dentro de moldura.
+- **Telas:** Início (resumo dos dados) pronta. Jogadores, Eventos, Resultados e Torneio suíço chegam nas próximas etapas.
 
 ## Carrossel de fotos
 
