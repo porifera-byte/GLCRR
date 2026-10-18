@@ -1,0 +1,4 @@
+# Nunca subir para o repositório público
+*.zip
+README.txt
+.DS_Store
