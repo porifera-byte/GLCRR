@@ -70,6 +70,22 @@ const vde = c => `${c.vitorias ?? 0}-${c.derrotas ?? 0}-${c.empates ?? 0}`;
 /* Tipo do deck: vem da linha do resultado (todos os jogadores); decklists antigas podem trazer o próprio */
 const tipoDoDeck = (colocacao, decklist) => (colocacao && colocacao.tipo_pokemon) || (decklist && decklist.tipo_pokemon) || "";
 
+/* Ícone do tipo do deck (assets/img/tipos/<slug>.png, arte própria da liga) com tooltip.
+   base: prefixo do caminho ("../" no painel). comTexto: mostra o nome ao lado do ícone.
+   Tipo sem ícone aparece só como texto. */
+const TIPOS_COM_ICONE = ["planta", "fogo", "agua", "eletrico", "psiquico", "lutador", "escuridao", "metal", "dragao", "incolor"];
+const slugTipo = tipo => String(tipo || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+  .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+function htmlTipo(tipo, opcoes) {
+  const { base = "", comTexto = false } = opcoes || {};
+  if (!tipo) return "";
+  const s = slugTipo(tipo);
+  const texto = `<span class="tipo-nome">${esc(tipo)}</span>`;
+  if (!TIPOS_COM_ICONE.includes(s)) return texto;
+  return `<span class="tipo-ic" tabindex="0" role="img" aria-label="Tipo ${esc(tipo)}" data-tip="${esc(tipo)}">` +
+    `<img src="${base}assets/img/tipos/${s}.png" alt="" width="22" height="22" loading="lazy" decoding="async"></span>${comTexto ? texto : ""}`;
+}
+
 /* Decklist do Top 3 sempre disponível: sem cadastro, ou sem imagem e sem lista em texto,
    devolve a imagem de reserva até a organização enviar a foto pelo painel */
 const IMAGEM_RESERVA_DECKLIST = "assets/img/decklists/sem-imagem.svg";

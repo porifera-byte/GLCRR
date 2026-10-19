@@ -157,7 +157,7 @@
           <label class="campo adm-num"><span>V</span><input name="vitorias" type="number" inputmode="numeric" min="0" max="30" value="${esc(l.vitorias)}" placeholder="0"></label>
           <label class="campo adm-num"><span>D</span><input name="derrotas" type="number" inputmode="numeric" min="0" max="30" value="${esc(l.derrotas)}" placeholder="0"></label>
           <label class="campo adm-num"><span>E</span><input name="empates" type="number" inputmode="numeric" min="0" max="30" value="${esc(l.empates)}" placeholder="0"></label>
-          <label class="campo adm-tipo"><span>Tipo do deck</span>${tiposPokemon.length
+          <label class="campo adm-tipo"><span class="adm-tipo-rotulo">Tipo do deck <span class="adm-tipo-ic">${htmlTipo(l.tipo_pokemon, { base: "../" })}</span></span>${tiposPokemon.length
             ? `<select name="tipo_pokemon">${opcoesTipo(l.tipo_pokemon)}</select>`
             : `<input name="tipo_pokemon" maxlength="30" autocomplete="off" placeholder="Ex.: Fogo" value="${esc(l.tipo_pokemon || "")}">`}</label>
           <label class="campo adm-obs"><span>Obs.</span><select name="obs">${R.OBS.map(o => `<option value="${o}" ${l.obs === o ? "selected" : ""}>${o || "—"}</option>`).join("")}</select></label>
@@ -178,6 +178,7 @@
       const li = e.target.closest("[data-i]");
       if (!li || !e.target.name) return;
       linhas[Number(li.dataset.i)][e.target.name] = e.target.value;
+      if (e.target.name === "tipo_pokemon") li.querySelector(".adm-tipo-ic").innerHTML = htmlTipo(e.target.value, { base: "../" });
       rascunho.gravar(ev.id, linhas);
     });
     caixaLinhas.addEventListener("click", e => {
@@ -230,7 +231,7 @@
         <h2 tabindex="-1" id="t-conferencia">📋 Conferência — ${esc(ev.nome)}, ${dataBR(ev.data)}</h2>
         <div class="table-box" role="region" aria-labelledby="t-conferencia" tabindex="0">
           <table><thead><tr><th>Pos.</th><th>Jogador</th><th>V-D-E</th><th>Tipo</th><th>Obs</th></tr></thead>
-          <tbody>${colocacoes.map(c => `<tr><td>${c.posicao}º</td><td>${esc(apelido(c.jogador_id))}</td><td>${c.vitorias}-${c.derrotas}-${c.empates}</td><td>${esc(c.tipo_pokemon || "")}</td><td>${esc(c.obs || "")}</td></tr>`).join("")}</tbody></table>
+          <tbody>${colocacoes.map(c => `<tr><td>${c.posicao}º</td><td>${esc(apelido(c.jogador_id))}</td><td>${c.vitorias}-${c.derrotas}-${c.empates}</td><td>${htmlTipo(c.tipo_pokemon, { base: "../", comTexto: true })}</td><td>${esc(c.obs || "")}</td></tr>`).join("")}</tbody></table>
         </div>
         ${avisos.length ? `<div class="adm-alerta"><p><b>⚠️ Confira:</b></p><ul>${avisos.map(a => `<li>${esc(a)}</li>`).join("")}</ul></div>` : ""}
         ${existente ? `<p class="adm-nota">Este evento já tem resultado publicado: ele será substituído por esta tabela.</p>` : ""}
@@ -325,7 +326,7 @@
           <input type="checkbox" name="imagem_ok">
           <span>Confirmo que a imagem <b>não mostra nome completo, documento, rosto</b> nem outro dado pessoal.</span>
         </label>
-        <p class="adm-nota">Tipo do deck: <b>${esc(c.tipo_pokemon || "não informado")}</b> (vem da linha do resultado, acima).</p>
+        <p class="adm-nota tipo-linha">Tipo do deck: ${c.tipo_pokemon ? htmlTipo(c.tipo_pokemon, { base: "../", comTexto: true }) : "<b>não informado</b>"} (vem da linha do resultado, acima).</p>
         <details class="adm-mais"${atual && atual.lista_texto ? " open" : ""}>
           <summary>Lista em texto (opcional)</summary>
           <label class="campo">
