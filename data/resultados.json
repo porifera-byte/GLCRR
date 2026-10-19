@@ -7,49 +7,56 @@
         "jogador_id": "vinicius",
         "vitorias": 3,
         "derrotas": 0,
-        "empates": 0
+        "empates": 0,
+        "tipo_pokemon": "Dragão"
       },
       {
         "posicao": 2,
         "jogador_id": "davi-lopes",
         "vitorias": 2,
         "derrotas": 1,
-        "empates": 0
+        "empates": 0,
+        "tipo_pokemon": "Planta"
       },
       {
         "posicao": 3,
         "jogador_id": "rosso",
         "vitorias": 2,
         "derrotas": 1,
-        "empates": 0
+        "empates": 0,
+        "tipo_pokemon": "Psíquico"
       },
       {
         "posicao": 4,
         "jogador_id": "kaio-macedo",
         "vitorias": 2,
         "derrotas": 1,
-        "empates": 0
+        "empates": 0,
+        "tipo_pokemon": "Lutador"
       },
       {
         "posicao": 5,
         "jogador_id": "miguel-rasia",
         "vitorias": 1,
         "derrotas": 2,
-        "empates": 0
+        "empates": 0,
+        "tipo_pokemon": "Água"
       },
       {
         "posicao": 6,
         "jogador_id": "rodrigo-bernardino",
         "vitorias": 1,
         "derrotas": 2,
-        "empates": 0
+        "empates": 0,
+        "tipo_pokemon": "Água"
       },
       {
         "posicao": 7,
         "jogador_id": "saymon",
         "vitorias": 1,
         "derrotas": 2,
-        "empates": 0
+        "empates": 0,
+        "tipo_pokemon": "Dragão"
       }
     ]
   }
