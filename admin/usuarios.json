@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "usuario": "rosso",
+    "salt": "XK9iptPYdwcPdQ13cYEHzg==",
+    "iv": "NYSfh2WbXw61ml4v",
+    "iter": 600000,
+    "chave_cifrada": "Cp6wPLVhivLfau/D5CT9G3CSQJWwaiPAYOSoYpfglPB1IwOKe7wPG8JuTrDKyGCMy8mnOevXsJkDr0WODeSUiPKHt03OhN5q1YGnoV2RvyhNyRMqEdcjgPQlLi0fsa3MgYBmGo9+ofk/kT51hw=="
+  }
+]
