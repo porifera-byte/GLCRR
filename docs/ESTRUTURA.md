@@ -126,7 +126,7 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 1. O site pede à API do GitHub a lista de arquivos de `assets/img/fotos/` (`pasta_fotos` em `config.json`; só vale uma pasta dentro de `assets/`). Dono e repositório vêm de `config.json` (`github.owner` e `github.repo`); se estiverem vazios, são deduzidos do endereço `<usuario>.github.io/<repo>`.
 2. Se a API falhar (limite de 60 consultas por hora por visitante, ou domínio próprio), usa `data/fotos.json`.
 3. Ordem: nome do arquivo. Para controlar a ordem, nomeie `foto-01.jpg`, `foto-02.jpg`...
-4. Fotos com menos de 500 KB e sem rosto identificável de jogadores.
+4. Fotos deitadas em 4:3 (1200 × 900 px ou menor), com menos de 500 KB, sem metadados e sem rosto identificável de jogadores (exceção: adultos que autorizaram a publicação, com confirmação do organizador). O quadro do carrossel é 4:3 com `object-fit: cover`: foto em outra proporção é cortada no centro.
 
 ## Campos dos JSON
 

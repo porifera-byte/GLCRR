@@ -11,7 +11,7 @@ Como enviar:
 Antes de enviar:
 
 - Nenhum rosto identificável (há jogadores menores de idade).
-- Cerca de 1200 px de largura e menos de 500 KB.
+- Deitada, na proporção 4:3 (ex.: 1200 × 900 px), e com menos de 500 KB. O carrossel tem esse formato: foto em pé ou em outra proporção é cortada no centro e pode cortar as pessoas. Recorte antes, com as pessoas no meio, ou mande no chat para ajustar.
 - Formatos: .jpg, .jpeg, .png ou .webp.
 - Nomes em ordem: foto-01.jpg, foto-02.jpg...
 
