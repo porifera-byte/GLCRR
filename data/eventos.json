@@ -1,5 +1,17 @@
 [
   {
+    "id": "2026-09-20-4-torneio-pokemon-tcg-glc-2026",
+    "nome": "4º Torneio Pokémon TCG GLC - 2026",
+    "data": "2026-09-20",
+    "horario": "15:00",
+    "local": "Loot Arena",
+    "vagas": 8,
+    "tipo": "Amistoso",
+    "status": "Encerrado",
+    "inscricao_url": "",
+    "descricao": ""
+  },
+  {
     "id": "2026-10-18-teste",
     "nome": "teste",
     "data": "2026-10-18",
