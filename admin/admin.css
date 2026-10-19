@@ -103,5 +103,38 @@ body.adm::before{background:var(--marinho)}
 .adm-confirma{display:grid;gap:10px}
 .adm-confirma p{margin:0}
 
+/* Eventos e resultados */
+.adm-grupos{display:grid;gap:14px}
+.adm-ev{color:var(--fg);text-decoration:none;transition:border-color .2s,box-shadow .2s,transform .2s var(--ease)}
+.adm-ev:hover,.adm-ev:focus-visible{border-color:var(--ceu);box-shadow:var(--shadow);transform:translateY(-2px)}
+@media (prefers-reduced-motion:reduce){.adm-ev{transition:none}.adm-ev:hover{transform:none}}
+.adm-ev h3{color:var(--fg)}
+.campo textarea.adm-texto{font-family:var(--f-body);font-size:1rem}
+.adm-mais summary{cursor:pointer;font-weight:800;min-height:44px;display:flex;align-items:center}
+.adm-mais .list{margin-top:8px}
+.adm-alerta-erro{border-color:var(--erro)}
+.adm-alerta:focus{outline:none}
+
+/* Linhas da classificação: cartão no celular, linha única no computador */
+.adm-colocacoes{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.adm-colocacao{display:grid;grid-template-columns:72px 1fr;gap:8px 10px;align-items:end;padding:12px;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r)}
+.adm-colocacao .campo{gap:2px;font-size:.78rem}
+.adm-colocacao .campo input,.adm-colocacao .campo select{padding:8px 10px}
+#etapa-digitar,#etapa-conferir{display:grid;gap:14px}
+#etapa-conferir[hidden],#etapa-digitar[hidden]{display:none}
+.adm-mover{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end}
+.adm-mover .btn{min-width:44px;min-height:44px;justify-content:center;padding:0 10px;font-size:1.1rem}
+.adm-mover .btn:disabled{opacity:.35;cursor:default}
+@media (max-width:639px){
+  .adm-colocacao{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .adm-colocacao .adm-pos{grid-column:1}
+  .adm-colocacao .adm-sel-jogador{grid-column:2/-1}
+}
+@media (min-width:640px){
+  .adm-colocacao{grid-template-columns:72px minmax(140px,1fr) 64px 64px 64px 118px auto}
+  .adm-mover{grid-column:auto}
+}
+
 @media (max-width:479px){.adm-bar .brand small{display:none}.adm-quem{max-width:9ch}}
 @media (min-width:640px){.adm-btn{width:fit-content;padding-inline:28px}}
