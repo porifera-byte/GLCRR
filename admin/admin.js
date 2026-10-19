@@ -15,7 +15,7 @@
 
   const SECOES = [
     { id: "inicio", nome: "Início" },
-    { id: "jogadores", nome: "Jogadores", etapa: 2 },
+    { id: "jogadores", nome: "Jogadores" },
     { id: "eventos", nome: "Eventos", etapa: 3 },
     { id: "resultados", nome: "Resultados", etapa: 3 },
     { id: "suico", nome: "Torneio suíço", etapa: 5 }
@@ -116,14 +116,15 @@
     $("#nav").innerHTML = SECOES.map(s => `<a href="#${s.id}" data-id="${s.id}">${esc(s.nome)}</a>`).join("");
   }
 
-  function secaoAtual() {
-    const id = location.hash.replace(/^#/, "").split("/")[0];
-    return SECOES.find(s => s.id === id) || SECOES[0];
+  /* #secao ou #secao/param */
+  function rotaAtual() {
+    const [id, ...resto] = location.hash.replace(/^#/, "").split("/");
+    return { secao: SECOES.find(s => s.id === id) || SECOES[0], param: resto.join("/") };
   }
 
   function rotear() {
     if (!lerSessao()) return;
-    const secao = secaoAtual();
+    const { secao, param } = rotaAtual();
     document.querySelectorAll("#nav a").forEach(a => {
       if (a.dataset.id === secao.id) a.setAttribute("aria-current", "page");
       else a.removeAttribute("aria-current");
@@ -133,7 +134,7 @@
     tela.className = "page adm-page";
     tela.setAttribute("aria-labelledby", "titulo-tela");
     $("#tela").replaceChildren(tela);
-    (TELAS[secao.id] || telaEmConstrucao)(tela, secao);
+    (TELAS[secao.id] || telaEmConstrucao)(tela, secao, param);
     tela.querySelector("h1").focus({ preventScroll: true });
   }
 
@@ -143,7 +144,8 @@
       <div class="empty"><b>Em construção</b>Esta tela chega na etapa ${secao.etapa} do plano do painel.</div>`;
   }
 
-  const TELAS = {
+  /* Telas de outros arquivos (tela-*.js) se registram em window.TELAS_PAINEL */
+  const TELAS = Object.assign({
     inicio(tela) {
       tela.innerHTML = `
         <div>
@@ -159,7 +161,7 @@
         <p class="adm-nota">Gravações feitas pelo painel vão direto para o site. Ele atualiza em cerca de 1 minuto.</p>`;
       carregarResumo(tela);
     }
-  };
+  }, window.TELAS_PAINEL || {});
 
   async function carregarResumo(tela) {
     const caixa = tela.querySelector("#resumo");
@@ -185,7 +187,7 @@
         el.querySelector("b").textContent = numeros[i];
       });
       const semPrivado = jog.dados.filter(j => !j.teste && !priv.dados.some(p => p.id === j.id)).length;
-      msg.textContent = semPrivado ? `${semPrivado} jogador(es) sem cadastro privado (nome e nascimento).` : "";
+      msg.innerHTML = semPrivado ? `${semPrivado} jogador(es) sem dados privados (nome e nascimento). <a href="#jogadores">Ver jogadores</a>` : "";
     } catch (e) {
       if (!tela.isConnected) return;
       msg.textContent = e.message;

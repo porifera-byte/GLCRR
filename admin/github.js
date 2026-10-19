@@ -100,7 +100,7 @@
       throw new ErroGitHub(`Dados inválidos para ${arquivo}; nada foi gravado.`, 0);
     }
     const corpo = {
-      message: `[painel:${autor}] ${mensagem}`,
+      message: `[painel:${autor}] ${typeof mensagem === "function" ? mensagem() : mensagem}`,
       content: Cripto.paraB64(utf8.encode(texto)),
       branch: RAMO
     };
@@ -110,7 +110,8 @@
   }
 
   /* Lê, aplica a alteração e grava. Em conflito, relê e reaplica (até 3 vezes).
-     alterar(dados) devolve os dados novos; pode lançar erro para cancelar. */
+     alterar(dados) devolve os dados novos; pode lançar erro para cancelar.
+     mensagem pode ser texto ou função (chamada depois de alterar). */
   async function atualizarJSON(repo, arquivo, alterar, mensagem, padrao = []) {
     for (let tentativa = 1; ; tentativa++) {
       const { dados, sha } = await lerJSON(repo, arquivo, padrao);
