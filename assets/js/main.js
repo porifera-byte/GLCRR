@@ -34,6 +34,10 @@ const logoHTML = (classe, alt) =>
 const linkPerfil = id => `#jogadores/${encodeURIComponent(id)}`;
 const melhorTxt = n => Number.isFinite(n) ? `${n}º` : "—";
 const inicial = nome => esc((nome || "?").trim().charAt(0).toUpperCase());
+/* Avatar: ícone do jogador (assets/img/jogadores/) ou a inicial do apelido */
+const ICONE_VALIDO = /^assets\/img\/jogadores\/[a-z0-9-]+\.(png|webp|jpg)$/;
+const avatar = j => `<span class="avatar" aria-hidden="true">${ICONE_VALIDO.test(j.icone || "")
+  ? `<img src="${esc(j.icone)}" alt="" loading="lazy" decoding="async">` : inicial(j.apelido)}</span>`;
 
 function dataBox(iso) {
   const [a, m, d] = iso.split("-");
@@ -165,7 +169,7 @@ function listaJogadores() {
     ${lista.length ? `<div class="players">${lista.map(j => {
       const s = estatisticasDe(j.id);
       return `<a class="player" href="${linkPerfil(j.id)}">
-        <span class="avatar" aria-hidden="true">${inicial(j.apelido)}</span>
+        ${avatar(j)}
         <b>${esc(j.apelido)}</b>
         <span class="mini"><span><b>${s.eventos}</b> eventos</span><span><b>${s.top3}</b> Top 3</span><span>Melhor <b>${melhorTxt(s.melhor)}</b></span></span>
       </a>`;
@@ -199,7 +203,7 @@ function perfilJogador(id) {
     </article>`).join("");
   return interna(`<a class="link-voltar" href="#jogadores">‹ Todos os jogadores</a>
     <div class="perfil-head">
-      <span class="avatar" aria-hidden="true">${inicial(j.apelido)}</span>
+      ${avatar(j)}
       <div><span class="eyebrow">Jogador</span><h1>${esc(j.apelido)}</h1>
         <p class="lead">${[j.cidade, j.desde ? `Na liga desde ${esc(j.desde)}` : ""].filter(Boolean).map(esc).join(" · ")}</p></div>
     </div>

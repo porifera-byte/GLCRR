@@ -128,6 +128,31 @@
     }
   }
 
+  /* sha atual de um arquivo, ou null se não existir */
+  async function shaDe(repo, arquivo) {
+    try {
+      return (await pedir("GET", `${caminhoConteudo(repo, arquivo)}?ref=${RAMO}`)).sha;
+    } catch (e) {
+      if (e.status === 404) return null;
+      throw e;
+    }
+  }
+
+  /* Grava um arquivo binário (imagem). bytes: Uint8Array. */
+  async function gravarBinario(repo, arquivo, bytes, mensagem) {
+    const corpo = { message: `[painel:${autor}] ${mensagem}`, content: Cripto.paraB64(bytes), branch: RAMO };
+    const sha = await shaDe(repo, arquivo);
+    if (sha) corpo.sha = sha;
+    await pedir("PUT", caminhoConteudo(repo, arquivo), corpo);
+  }
+
+  /* Apaga um arquivo. Se já não existir, não faz nada. */
+  async function apagarArquivo(repo, arquivo, mensagem) {
+    const sha = await shaDe(repo, arquivo);
+    if (!sha) return;
+    await pedir("DELETE", caminhoConteudo(repo, arquivo), { message: `[painel:${autor}] ${mensagem}`, sha, branch: RAMO });
+  }
+
   /* Confere se a chave lê o conteúdo dos dois repositórios. Devolve a lista de problemas (vazia = ok).
      A permissão de escrita só aparece na primeira gravação: a API não informa o escopo da chave. */
   const ARQUIVO_TESTE = { publico: "data/config.json", privado: "README.md" };
@@ -144,5 +169,5 @@
     return problemas;
   }
 
-  raiz.GitHub = { DONO, REPOS, ErroGitHub, configurar, lerArquivo, lerJSON, gravarJSON, atualizarJSON, verificarAcesso };
+  raiz.GitHub = { DONO, REPOS, ErroGitHub, configurar, lerArquivo, lerJSON, gravarJSON, atualizarJSON, gravarBinario, apagarArquivo, verificarAcesso };
 })(typeof globalThis !== "undefined" ? globalThis : this);

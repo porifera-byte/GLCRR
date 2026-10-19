@@ -1,8 +1,1 @@
-[
-  { "evento_id": "2026-10-10-campeonato-glc-temporada-1", "jogador_id": "rosso", "posicao": 1, "tipo_pokemon": "Fogo", "lista_texto": "", "imagem": "assets/img/decklists/2026-10-10-campeonato-glc-temporada-1-1-rosso.png", "teste": true },
-  { "evento_id": "2026-10-10-campeonato-glc-temporada-1", "jogador_id": "kaio", "posicao": 2, "tipo_pokemon": "Água", "lista_texto": "", "imagem": "assets/img/decklists/2026-10-10-campeonato-glc-temporada-1-2-kaio.png", "teste": true },
-  { "evento_id": "2026-10-10-campeonato-glc-temporada-1", "jogador_id": "vinicius", "posicao": 3, "tipo_pokemon": "Planta", "lista_texto": "", "imagem": "assets/img/decklists/2026-10-10-campeonato-glc-temporada-1-3-vinicius.png", "teste": true },
-  { "evento_id": "2026-09-05-encontro-da-comunidade", "jogador_id": "kaio", "posicao": 1, "tipo_pokemon": "Água", "lista_texto": "", "imagem": "assets/img/decklists/2026-09-05-encontro-da-comunidade-1-kaio.png", "teste": true },
-  { "evento_id": "2026-09-05-encontro-da-comunidade", "jogador_id": "saymon", "posicao": 2, "tipo_pokemon": "Psíquico", "lista_texto": "", "imagem": "assets/img/decklists/2026-09-05-encontro-da-comunidade-2-saymon.png", "teste": true },
-  { "evento_id": "2026-09-05-encontro-da-comunidade", "jogador_id": "rosso", "posicao": 3, "tipo_pokemon": "Fogo", "lista_texto": "", "imagem": "assets/img/decklists/2026-09-05-encontro-da-comunidade-3-rosso.png", "teste": true }
-]
+[]
