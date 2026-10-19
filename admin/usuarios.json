@@ -5,5 +5,12 @@
     "iv": "NYSfh2WbXw61ml4v",
     "iter": 600000,
     "chave_cifrada": "Cp6wPLVhivLfau/D5CT9G3CSQJWwaiPAYOSoYpfglPB1IwOKe7wPG8JuTrDKyGCMy8mnOevXsJkDr0WODeSUiPKHt03OhN5q1YGnoV2RvyhNyRMqEdcjgPQlLi0fsa3MgYBmGo9+ofk/kT51hw=="
+  },
+  {
+    "usuario": "kaiomacedo97",
+    "salt": "PlAPajpvtIgxYDjvV3FNgg==",
+    "iv": "NA0dlcHmdx0t7JFj",
+    "iter": 600000,
+    "chave_cifrada": "1vAdRtdzKpqaJaZQvJZd1MVOBGJSjakYAFXNOR1TSriJTsnmm4wNofAcco45iQXqnCIhNm+k1lLGQD6d0rtWMlTqmgK0JCPQBEAjo0WvOJDsk5wQgtUDzGHKf9Xl9M8myIS7AZZYsqn9GuTpwg=="
   }
 ]
