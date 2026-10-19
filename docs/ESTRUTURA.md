@@ -1,6 +1,6 @@
 # Estrutura do site — Liga GLC Roraima (v2)
 
-Atualizado em 18/10/2026 (rev. 3: painel administrativo, etapa 1).
+Atualizado em 19/10/2026 (rev. 4: painel administrativo, etapa 2 — jogadores).
 
 Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página única: cada seção é uma âncora em `index.html` e a troca entre seções desliza na ordem do menu.
 
@@ -59,6 +59,8 @@ admin/                     painel administrativo (fora do menu, noindex)
   admin.js                 login, sessão, roteamento interno e telas
   cripto.js                cifra da chave do GitHub com a senha (PBKDF2 + AES-GCM)
   github.js                leitura e gravação pela API de conteúdo do GitHub
+  regras-jogadores.js      regras do cadastro de jogadores (slug, apelido parecido, validação, idade), sem DOM
+  tela-jogadores.js        tela Jogadores: lista, busca, cadastro e edição
   gerar-acesso.html/.js    gerador do registro cifrado de cada organizador
   usuarios.json            registros cifrados dos organizadores
   testes/                  testes no Node (node --test admin/testes/*.test.js)
@@ -73,7 +75,9 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 - **Gravação:** commit direto na `main` pela API de conteúdo, com o `sha` atual e mensagem `[painel:<usuario>] ...`. Em conflito, relê, reaplica e tenta de novo (até 3 vezes). O JSON é validado antes de gravar.
 - **Dados:** públicos em `data/` (GLCRR); nome real e nascimento em `jogadores-privado.json` e rascunhos do suíço em `rascunhos/` (repositório privado GLC-privado).
 - **Segurança extra:** CSP restrita (só scripts próprios e `api.github.com`), sem referrer, não abre dentro de moldura.
-- **Telas:** Início (resumo dos dados) pronta. Jogadores, Eventos, Resultados e Torneio suíço chegam nas próximas etapas.
+- **Rotas internas:** `#inicio`, `#jogadores`, `#jogadores/novo`, `#jogadores/<id>`. Cada tela fica em `tela-<nome>.js` e se registra em `window.TELAS_PAINEL`.
+- **Jogadores:** apelido, cidade e "desde" vão para `data/jogadores.json` (público); nome completo e nascimento vão para `jogadores-privado.json` (GLC-privado). O id é o slug do apelido e não muda. Apelido parecido com outro jogador pede confirmação antes de gravar. A idade aparece só no painel. Mensagens de commit levam só o id do jogador.
+- **Telas:** Início e Jogadores prontas. Eventos, Resultados e Torneio suíço chegam nas próximas etapas.
 
 ## Carrossel de fotos
 

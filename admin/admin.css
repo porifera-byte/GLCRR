@@ -56,5 +56,34 @@ body.adm::before{background:var(--marinho)}
 .adm-cartao{padding:18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);display:grid;gap:14px}
 .adm-largo{width:min(640px,100%);margin:0 auto}
 
+/* Cabeçalho de tela com botão de ação */
+.adm-topo{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.adm-btn-topo{min-height:44px}
+.adm-busca{max-width:420px}
+
+/* Lista de jogadores (reaproveita .players/.player/.avatar/.mini do site) */
+.adm-jogador{gap:6px}
+.adm-jogador .avatar{margin-bottom:4px}
+.adm-privado{font-size:.85rem;color:var(--muted);overflow-wrap:anywhere}
+.adm-jogador .pills:empty{display:none}
+.adm-main .pill.warn{color:var(--erro);border-color:var(--erro)}
+
+/* Formulário em grupos público/privado */
+.adm-grupo{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:16px;margin:0;display:grid;gap:14px;min-width:0}
+.adm-grupo legend{font-family:var(--f-display);font-weight:800;font-size:1.1rem;padding:0 6px}
+.adm-grupo legend small{font-family:var(--f-body);font-weight:600;font-size:.78rem;color:var(--muted);margin-left:4px}
+.adm-grupo-privado{border-style:dashed;border-color:var(--ceu)}
+.adm-linha{display:grid;gap:14px}
+.adm-id{font-family:var(--f-mono);font-size:.78rem!important;overflow-wrap:anywhere}
+.adm-erro{color:var(--erro)!important;font-weight:600!important}
+.adm-erro:empty{display:none}
+.campo input[aria-invalid="true"]{border-color:var(--erro)}
+.adm-acoes{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.adm-alerta{padding:14px 16px;border-radius:var(--r);border:2px solid var(--ouro);background:var(--surface);display:grid;gap:10px}
+.adm-alerta p,.adm-alerta ul{margin:0}
+.adm-alerta ul{padding-left:1.2em;display:grid;gap:6px}
+.adm-alerta a{font-weight:800}
+@media (min-width:560px){.adm-linha{grid-template-columns:2fr 1fr}}
+
 @media (max-width:479px){.adm-bar .brand small{display:none}.adm-quem{max-width:9ch}}
 @media (min-width:640px){.adm-btn{width:fit-content;padding-inline:28px}}
