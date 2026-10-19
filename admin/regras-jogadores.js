@@ -95,7 +95,17 @@
     return { dados, erros };
   }
 
-  const api = { semAcento, chaveComparacao, slug, idUnico, distancia, apelidosParecidos, parecidosCom, dataValida, idade, validar };
+  /* Ícone: assets/img/jogadores/<id>-<AAAAMMDDhhmmss>.<ext>
+     O carimbo de data muda o nome a cada troca, então o navegador não mostra o ícone antigo do cache. */
+  const ICONE_VALIDO = /^assets\/img\/jogadores\/[a-z0-9-]+\.(png|webp|jpg)$/;
+  function caminhoIcone(id, extensao, agora) {
+    const d = agora || new Date();
+    const p = n => String(n).padStart(2, "0");
+    const carimbo = `${d.getUTCFullYear()}${p(d.getUTCMonth() + 1)}${p(d.getUTCDate())}${p(d.getUTCHours())}${p(d.getUTCMinutes())}${p(d.getUTCSeconds())}`;
+    return `assets/img/jogadores/${id}-${carimbo}.${extensao}`;
+  }
+
+  const api = { ICONE_VALIDO, caminhoIcone, semAcento, chaveComparacao, slug, idUnico, distancia, apelidosParecidos, parecidosCom, dataValida, idade, validar };
   if (typeof module === "object" && module.exports) module.exports = api;
   raiz.RegrasJogadores = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

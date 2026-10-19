@@ -39,6 +39,14 @@ test("idade", () => {
   assert.strictEqual(R.idade("", "2026-10-19"), null);
 });
 
+test("caminho do ícone", () => {
+  const c = R.caminhoIcone("ash-rr", "webp", new Date(Date.UTC(2026, 9, 19, 8, 5, 3)));
+  assert.strictEqual(c, "assets/img/jogadores/ash-rr-20261019080503.webp");
+  assert.ok(R.ICONE_VALIDO.test(c));
+  assert.ok(!R.ICONE_VALIDO.test("https://exemplo.com/a.png"));
+  assert.ok(!R.ICONE_VALIDO.test("assets/img/jogadores/../../index.png"));
+});
+
 test("validação", () => {
   const hoje = "2026-10-19";
   const ok = R.validar({ apelido: " Ash  RR ", cidade: "", desde: "2026", nome: "", nascimento: "" }, hoje);

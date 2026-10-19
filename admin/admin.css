@@ -85,5 +85,23 @@ body.adm::before{background:var(--marinho)}
 .adm-alerta a{font-weight:800}
 @media (min-width:560px){.adm-linha{grid-template-columns:2fr 1fr}}
 
+/* Ícone do jogador */
+.adm-icone{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.adm-icone .avatar{width:76px;height:76px;font-size:2.2rem}
+.adm-icone-acoes{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.adm-rotulo{width:100%;font-weight:800;font-size:.9rem}
+.adm-btn-arquivo{position:relative;min-height:44px;cursor:pointer;font-family:inherit}
+.adm-btn-arquivo:focus-within{outline:3px solid var(--ouro);outline-offset:2px}
+.adm-arquivo{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.adm-check{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;cursor:pointer}
+.adm-check input{width:22px;height:22px;flex:none;margin:1px 0 0;accent-color:var(--verde)}
+
+/* Exclusão */
+.adm-perigo{margin-top:12px;padding:16px;border:2px solid var(--erro);border-radius:var(--r);display:grid;gap:12px}
+.adm-perigo h2{font-size:1.2rem}
+.adm-btn-perigo{background:var(--erro);color:var(--bg);border-color:var(--erro)}
+.adm-confirma{display:grid;gap:10px}
+.adm-confirma p{margin:0}
+
 @media (max-width:479px){.adm-bar .brand small{display:none}.adm-quem{max-width:9ch}}
 @media (min-width:640px){.adm-btn{width:fit-content;padding-inline:28px}}

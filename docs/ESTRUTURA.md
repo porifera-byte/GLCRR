@@ -1,6 +1,6 @@
 # Estrutura do site — Liga GLC Roraima (v2)
 
-Atualizado em 19/10/2026 (rev. 4: painel administrativo, etapa 2 — jogadores).
+Atualizado em 19/10/2026 (rev. 5: ícone de jogador, exclusão no painel e limpeza dos dados de teste).
 
 Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página única: cada seção é uma âncora em `index.html` e a troca entre seções desliza na ordem do menu.
 
@@ -29,7 +29,7 @@ O histórico de cada jogador é montado a partir de `resultados.json` (colocaç�
 
 ## Dados de teste
 
-Os jogadores Kaio, Rosso, Saymon e Vinicius, os resultados dos 2 eventos e as 6 decklists em `assets/img/decklists/` são de teste. Todos têm `"teste": true` no JSON. Para limpar, apague esses registros e as imagens.
+Os dados de teste foram removidos em 19/10/2026. Registros de teste novos levam `"teste": true`.
 
 ## Arquivos
 
@@ -42,6 +42,7 @@ assets/
   icons/GLCRR-logo.png     logo da liga (cabeçalho, Início e ícone da aba)
   images/fotos/            fotos do carrossel (.jpg, .jpeg, .png, .webp)
   img/decklists/           imagens de decklist: [evento_id]-[posicao]-[jogador_id].png/.jpg
+  img/jogadores/           ícones dos jogadores, enviados pelo painel: [jogador_id]-[AAAAMMDDhhmmss].webp/.png (256 px)
 data/
   config.json              temporada, Instagram, pasta de fotos, repositório GitHub, tipos de evento
   eventos.json             eventos
@@ -76,6 +77,8 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 - **Dados:** públicos em `data/` (GLCRR); nome real e nascimento em `jogadores-privado.json` e rascunhos do suíço em `rascunhos/` (repositório privado GLC-privado).
 - **Segurança extra:** CSP restrita (só scripts próprios e `api.github.com`), sem referrer, não abre dentro de moldura.
 - **Rotas internas:** `#inicio`, `#jogadores`, `#jogadores/novo`, `#jogadores/<id>`. Cada tela fica em `tela-<nome>.js` e se registra em `window.TELAS_PAINEL`.
+- **Ícone do jogador:** opcional, enviado pelo painel. O painel recorta em quadrado, reduz para 256 px e regrava a imagem (some o GPS e outros dados ocultos). O organizador confirma que não há rosto nem arte, carta ou logo oficial da Pokémon. O nome do arquivo leva data e hora, para o navegador não mostrar o ícone antigo; o arquivo anterior é apagado. Sem ícone, o avatar mostra a inicial.
+- **Exclusão de jogador:** só para quem não aparece em nenhum resultado ou decklist. Apaga o registro público, o privado e o ícone, com confirmação.
 - **Jogadores:** apelido, cidade e "desde" vão para `data/jogadores.json` (público); nome completo e nascimento vão para `jogadores-privado.json` (GLC-privado). O id é o slug do apelido e não muda. Apelido parecido com outro jogador pede confirmação antes de gravar. A idade aparece só no painel. Mensagens de commit levam só o id do jogador.
 - **Telas:** Início e Jogadores prontas. Eventos, Resultados e Torneio suíço chegam nas próximas etapas.
 
@@ -90,7 +93,7 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 
 - **eventos.json**: `id` (AAAA-MM-DD-slug), `nome`, `data` (AAAA-MM-DD), `horario`, `local`, `vagas`, `tipo` (Torneio Anual, Amistoso, Encontro da comunidade), `status` (vazio = calculado; ou Agendado, Inscrições abertas, Encerrado), `inscricao_url`, `descricao`.
 - **resultados.json**: `evento_id`, `colocacoes` [{`posicao`, `jogador_id`, `vitorias`, `derrotas`, `empates`, `obs` (opcional: empate, drop)}].
-- **jogadores.json**: `id`, `apelido`, `cidade` (opcional), `desde` (ano).
+- **jogadores.json**: `id`, `apelido`, `cidade` (opcional), `desde` (ano), `icone` (opcional: caminho em `assets/img/jogadores/`).
 - **decklists.json**: `evento_id`, `jogador_id`, `posicao` (1 a 3), `tipo_pokemon`, `lista_texto` (opcional), `imagem` (opcional).
 - **banlist.json**: `atualizado_em`, `fonte`, `cartas` [{`nome`, `colecao`, `numero`}].
 
