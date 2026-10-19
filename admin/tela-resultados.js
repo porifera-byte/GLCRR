@@ -61,7 +61,7 @@
 
   /* ---------- Formulário ---------- */
 
-  const linhaVazia = pos => ({ posicao: pos, jogador_id: "", vitorias: "", derrotas: "", empates: "", obs: "" });
+  const linhaVazia = pos => ({ posicao: pos, jogador_id: "", vitorias: "", derrotas: "", empates: "", tipo_pokemon: "", obs: "" });
 
   async function formulario(tela, eventoId) {
     tela.innerHTML = `
@@ -89,6 +89,7 @@
     const jogadores = [...d.jogadores].sort((a, b) => a.apelido.localeCompare(b.apelido, "pt-BR"));
     const apelido = id => (d.jogadores.find(j => j.id === id) || {}).apelido || id;
 
+    const valoresAntigos = new Set(existente ? existente.colocacoes.map(c => c.tipo_pokemon).filter(Boolean) : []);
     let linhas;
     const salvo = rascunho.ler(ev.id);
     if (recado) {
@@ -100,7 +101,8 @@
       mostrarMensagem(msgTopo, "Rascunho desta aba restaurado.", "ok");
     } else if (existente) {
       linhas = [...existente.colocacoes].sort((a, b) => a.posicao - b.posicao)
-        .map(c => ({ posicao: c.posicao, jogador_id: c.jogador_id, vitorias: c.vitorias ?? 0, derrotas: c.derrotas ?? 0, empates: c.empates ?? 0, obs: c.obs || "" }));
+        .map(c => ({ posicao: c.posicao, jogador_id: c.jogador_id, vitorias: c.vitorias ?? 0, derrotas: c.derrotas ?? 0, empates: c.empates ?? 0,
+          tipo_pokemon: c.tipo_pokemon || "", obs: c.obs || "" }));
     } else {
       linhas = [linhaVazia(1), linhaVazia(2), linhaVazia(3), linhaVazia(4)];
     }
@@ -136,6 +138,12 @@
       jogadores.map(j => `<option value="${esc(j.id)}" ${j.id === sel ? "selected" : ""}>${esc(j.apelido)}</option>`).join("") +
       (sel && !jogadores.some(j => j.id === sel) ? `<option value="${esc(sel)}" selected>${esc(sel)} (não cadastrado)</option>` : "");
 
+    /* Tipos de config.json; um valor antigo fora da lista continua aparecendo para não se perder */
+    const tiposPokemon = d.tiposPokemon || [];
+    const opcoesTipo = sel => `<option value="">—</option>` +
+      tiposPokemon.map(t => `<option ${t === sel ? "selected" : ""}>${esc(t)}</option>`).join("") +
+      (sel && !tiposPokemon.includes(sel) ? `<option selected>${esc(sel)}</option>` : "");
+
     function desenhar(focar) {
       caixaLinhas.innerHTML = linhas.map((l, i) => `
         <li class="adm-colocacao" data-i="${i}">
@@ -144,6 +152,7 @@
           <label class="campo adm-num"><span>V</span><input name="vitorias" type="number" inputmode="numeric" min="0" max="30" value="${esc(l.vitorias)}" placeholder="0"></label>
           <label class="campo adm-num"><span>D</span><input name="derrotas" type="number" inputmode="numeric" min="0" max="30" value="${esc(l.derrotas)}" placeholder="0"></label>
           <label class="campo adm-num"><span>E</span><input name="empates" type="number" inputmode="numeric" min="0" max="30" value="${esc(l.empates)}" placeholder="0"></label>
+          <label class="campo adm-tipo"><span>Tipo do deck</span><select name="tipo_pokemon">${opcoesTipo(l.tipo_pokemon)}</select></label>
           <label class="campo adm-obs"><span>Obs.</span><select name="obs">${R.OBS.map(o => `<option value="${o}" ${l.obs === o ? "selected" : ""}>${o || "—"}</option>`).join("")}</select></label>
           <div class="adm-mover">
             <button type="button" class="btn btn-line" data-acao="subir" aria-label="Subir linha ${i + 1}" ${i === 0 ? "disabled" : ""}>↑</button>
@@ -191,7 +200,8 @@
     /* Conferir: valida e mostra a tabela antes de publicar */
     corpo.querySelector("#conferir").addEventListener("click", () => {
       const preenchidas = linhas.filter(l => l.jogador_id || String(l.vitorias) + l.derrotas + l.empates !== "");
-      const { colocacoes, erros, avisos } = R.validarResultado(preenchidas, d.jogadores.map(j => j.id), ev.data, hojeBV());
+      const { colocacoes, erros, avisos } = R.validarResultado(preenchidas, d.jogadores.map(j => j.id), ev.data, hojeBV(),
+        tiposPokemon.concat(preenchidas.map(l => l.tipo_pokemon).filter(t => t && !tiposPokemon.includes(t) && valoresAntigos.has(t))));
       if (erros.length) {
         caixaErros.innerHTML = `<p><b>Corrija antes de conferir:</b></p><ul>${erros.map(e => `<li>${esc(e)}</li>`).join("")}</ul>`;
         caixaErros.hidden = false;
@@ -212,8 +222,8 @@
       etapaConferir.innerHTML = `
         <h2 tabindex="-1" id="t-conferencia">📋 Conferência — ${esc(ev.nome)}, ${dataBR(ev.data)}</h2>
         <div class="table-box" role="region" aria-labelledby="t-conferencia" tabindex="0">
-          <table><thead><tr><th>Pos.</th><th>Jogador</th><th>V-D-E</th><th>Obs</th></tr></thead>
-          <tbody>${colocacoes.map(c => `<tr><td>${c.posicao}º</td><td>${esc(apelido(c.jogador_id))}</td><td>${c.vitorias}-${c.derrotas}-${c.empates}</td><td>${esc(c.obs || "")}</td></tr>`).join("")}</tbody></table>
+          <table><thead><tr><th>Pos.</th><th>Jogador</th><th>V-D-E</th><th>Tipo</th><th>Obs</th></tr></thead>
+          <tbody>${colocacoes.map(c => `<tr><td>${c.posicao}º</td><td>${esc(apelido(c.jogador_id))}</td><td>${c.vitorias}-${c.derrotas}-${c.empates}</td><td>${esc(c.tipo_pokemon || "")}</td><td>${esc(c.obs || "")}</td></tr>`).join("")}</tbody></table>
         </div>
         ${avisos.length ? `<div class="adm-alerta"><p><b>⚠️ Confira:</b></p><ul>${avisos.map(a => `<li>${esc(a)}</li>`).join("")}</ul></div>` : ""}
         ${existente ? `<p class="adm-nota">Este evento já tem resultado publicado: ele será substituído por esta tabela.</p>` : ""}
@@ -308,11 +318,7 @@
           <input type="checkbox" name="imagem_ok">
           <span>Confirmo que a imagem <b>não mostra nome completo, documento, rosto</b> nem outro dado pessoal.</span>
         </label>
-        <label class="campo">
-          <span>Tipo do deck</span>
-          <input name="tipo_pokemon" maxlength="30" autocomplete="off" placeholder="Ex.: Fogo" value="${esc(atual ? atual.tipo_pokemon || "" : "")}">
-          <small class="adm-erro" data-erro="tipo_pokemon"></small>
-        </label>
+        <p class="adm-nota">Tipo do deck: <b>${esc(c.tipo_pokemon || "não informado")}</b> (vem da linha do resultado, acima).</p>
         <details class="adm-mais"${atual && atual.lista_texto ? " open" : ""}>
           <summary>Lista em texto (opcional)</summary>
           <label class="campo">
@@ -387,7 +393,7 @@
     form.addEventListener("submit", async e => {
       e.preventDefault();
       form.querySelectorAll("[data-erro]").forEach(el => { el.textContent = ""; });
-      const { dados, erros } = R.validarDecklist({ tipo_pokemon: form.tipo_pokemon.value, lista_texto: form.lista_texto.value });
+      const { dados, erros } = R.validarDecklist({ lista_texto: form.lista_texto.value });
       if (nova && !form.imagem_ok.checked) erros.imagem = "Marque a confirmação sobre a imagem.";
       if (Object.keys(erros).length) {
         Object.entries(erros).forEach(([k, v]) => { form.querySelector(`[data-erro="${k}"]`).textContent = v; });
@@ -397,7 +403,7 @@
       const antiga = temImagemGravada() ? R.semVersao(atual.imagem) : "";
       let imagem = removerImagem ? "" : atual ? atual.imagem || "" : "";
       const igual = !nova && imagem === (atual ? atual.imagem || "" : "") &&
-        dados.tipo_pokemon === (atual ? atual.tipo_pokemon || "" : "") && dados.lista_texto === (atual ? atual.lista_texto || "" : "");
+        dados.lista_texto === (atual ? atual.lista_texto || "" : "");
       if (igual) { mostrarMensagem(msg, "Nada mudou.", "ok"); return; }
       const botoes = form.querySelectorAll("button");
       botoes.forEach(b => { b.disabled = true; });
@@ -410,12 +416,12 @@
           imagem = `${caminhoNovo}?v=${R.carimbo()}`;
         }
         const registro = { evento_id: ev.id, jogador_id: c.jogador_id, posicao: c.posicao,
-          tipo_pokemon: dados.tipo_pokemon, lista_texto: dados.lista_texto, imagem };
-        const vazio = !imagem && !dados.tipo_pokemon && !dados.lista_texto;
+          lista_texto: dados.lista_texto, imagem };
+        const vazio = !imagem && !dados.lista_texto;
         await GitHub.atualizarJSON("publico", "data/decklists.json", lista => {
           const i = lista.findIndex(x => x.evento_id === ev.id && x.jogador_id === c.jogador_id);
           if (vazio) { if (i >= 0) lista.splice(i, 1); return lista; }
-          if (i >= 0) lista[i] = { ...lista[i], ...registro }; else lista.push(registro);
+          if (i >= 0) { lista[i] = { ...lista[i], ...registro }; delete lista[i].tipo_pokemon; } else lista.push(registro);
           return lista;
         }, `Decklist de ${c.jogador_id} no evento ${ev.id}`);
         if (antiga && antiga !== caminhoNovo && (nova || removerImagem)) {
@@ -455,7 +461,6 @@
         if (antiga) await GitHub.apagarArquivo("publico", antiga, `Remove imagem da decklist de ${c.jogador_id}`).catch(() => {});
         atual = null;
         d.decklists = d.decklists.filter(x => !(x.evento_id === ev.id && x.jogador_id === c.jogador_id));
-        form.tipo_pokemon.value = "";
         form.lista_texto.value = "";
         if (nova) { URL.revokeObjectURL(nova.url); nova = undefined; }
         removerImagem = false;

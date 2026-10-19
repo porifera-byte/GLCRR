@@ -51,7 +51,7 @@
   /* Confere a classificação digitada.
      linhas: [{ posicao, jogador_id, vitorias, derrotas, empates, obs }] na ordem da tela.
      Devolve { colocacoes, erros: [texto], avisos: [texto] }. */
-  function validarResultado(linhas, idsJogadores, dataEvento, hoje) {
+  function validarResultado(linhas, idsJogadores, dataEvento, hoje, tiposPokemon) {
     const erros = [];
     const avisos = [];
     const existentes = new Set(idsJogadores);
@@ -79,6 +79,11 @@
       ["vitorias", "derrotas", "empates"].forEach(k => {
         if (c[k] === null) erros.push(`Linha ${n}: ${k} deve ser um número de 0 a 30.`);
       });
+      /* Tipo do deck: opcional, para todos os jogadores; da lista de config.json quando houver */
+      const tipo = limpar(l.tipo_pokemon);
+      if (tipo.length > 30) erros.push(`Linha ${n}: tipo do deck com mais de 30 caracteres.`);
+      else if (tipo && tiposPokemon && tiposPokemon.length && !tiposPokemon.includes(tipo)) erros.push(`Linha ${n}: tipo do deck "${tipo}" fora da lista.`);
+      else if (tipo) c.tipo_pokemon = tipo;
       const obs = String(l.obs || "");
       if (!OBS.includes(obs)) erros.push(`Linha ${n}: observação inválida.`);
       else if (obs) c.obs = obs;
@@ -125,9 +130,9 @@
   const semVersao = caminho => String(caminho || "").split("?")[0];
 
   function validarDecklist(entrada) {
-    const dados = { tipo_pokemon: limpar(entrada.tipo_pokemon), lista_texto: String(entrada.lista_texto || "").trim().replace(/\r\n/g, "\n") };
+    /* O tipo do deck fica na linha do resultado (resultados.json), não na decklist */
+    const dados = { lista_texto: String(entrada.lista_texto || "").trim().replace(/\r\n/g, "\n") };
     const erros = {};
-    if (dados.tipo_pokemon.length > 30) erros.tipo_pokemon = "Use até 30 caracteres.";
     if (dados.lista_texto.length > 3000) erros.lista_texto = `Use até 3000 caracteres (agora: ${dados.lista_texto.length}).`;
     return { dados, erros };
   }

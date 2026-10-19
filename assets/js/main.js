@@ -194,7 +194,7 @@ function perfilJogador(id) {
           ${evento.tipo ? `<span class="pill">${esc(evento.tipo)}</span>` : ""}
         </div>
         <div class="meta"><span><strong>Data:</strong> ${dataBR(evento.data)}</span><span><strong>V-D-E:</strong> ${vde(c)}</span>
-          ${decklist?.tipo_pokemon ? `<span><strong>Tipo do deck:</strong> ${esc(decklist.tipo_pokemon)}</span>` : ""}</div>
+          ${tipoDoDeck(c, decklist) ? `<span><strong>Tipo do deck:</strong> ${esc(tipoDoDeck(c, decklist))}</span>` : ""}</div>
         <div class="actions">
           ${decklist ? `<button type="button" class="btn btn-ouro" data-decklist="${esc(evento.id)}|${esc(j.id)}">Ver decklist</button>` : ""}
           <button type="button" class="btn btn-line" data-resultados="${esc(evento.id)}">Classificação do evento</button>
@@ -269,7 +269,7 @@ function htmlResultados(eventoId) {
     const existe = !!jogadorPorId(c.jogador_id);
     return `<li>
       <span class="pos ${c.posicao <= 3 ? "p" + c.posicao : ""}">${c.posicao}º</span>
-      <span class="quem"><b>${esc(apelidoDe(c.jogador_id))}</b><small>${vde(c)} (V-D-E)${c.obs ? ` · ${esc(c.obs)}` : ""}</small></span>
+      <span class="quem"><b>${esc(apelidoDe(c.jogador_id))}</b><small>${vde(c)} (V-D-E)${tipoDoDeck(c, deck) ? ` · ${esc(tipoDoDeck(c, deck))}` : ""}${c.obs ? ` · ${esc(c.obs)}` : ""}</small></span>
       <span class="acoes">
         ${existe ? `<a class="btn btn-line btn-sm" href="${linkPerfil(c.jogador_id)}">Perfil</a>` : ""}
         ${deck ? `<button type="button" class="btn btn-ouro btn-sm" data-decklist="${esc(ev.id)}|${esc(c.jogador_id)}|lista">Decklist</button>` : ""}
@@ -289,7 +289,7 @@ function htmlDecklist(eventoId, jogadorId, veioDaLista) {
   const nome = apelidoDe(jogadorId);
   return `${veioDaLista ? `<button type="button" class="link-voltar" data-resultados="${esc(eventoId)}">‹ Voltar à classificação</button>` : ""}
     <div><span class="eyebrow">Decklist · ${d.posicao}º lugar</span><h2 id="modal-titulo">${esc(nome)}</h2>
-      <p class="lead">${[ev.nome, dataBR(ev.data), d.tipo_pokemon ? `Tipo ${d.tipo_pokemon}` : ""].filter(Boolean).map(esc).join(" · ")}</p></div>
+      <p class="lead">${[ev.nome, dataBR(ev.data), tipoDoDeck(colocacao, d) ? `Tipo ${tipoDoDeck(colocacao, d)}` : ""].filter(Boolean).map(esc).join(" · ")}</p></div>
     ${d.reserva ? `<img class="deck-img deck-reserva" src="${esc(d.imagem)}" alt="Decklist em breve: a imagem desta lista ainda não foi enviada.">`
       : d.imagem ? `<a href="${esc(d.imagem)}" target="_blank" rel="noopener" title="Abrir imagem em tamanho real">
         <img class="deck-img" src="${esc(d.imagem)}" alt="Decklist usada por ${esc(nome)} em ${esc(ev.nome)}"

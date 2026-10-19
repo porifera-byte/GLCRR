@@ -1,6 +1,6 @@
 # Estrutura do site — Liga GLC Roraima (v2)
 
-Atualizado em 19/10/2026 (rev. 7: decklists do Top 3 pelo painel e imagem de reserva).
+Atualizado em 19/10/2026 (rev. 8: tipo do deck de todos os jogadores no resultado).
 
 Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página única: cada seção é uma âncora em `index.html` e a troca entre seções desliza na ordem do menu.
 
@@ -49,7 +49,7 @@ assets/
                            e sem-imagem.svg (reserva "Decklist em breve")
   img/jogadores/           ícones dos jogadores, enviados pelo painel: [jogador_id]-[AAAAMMDDhhmmss].webp/.png (256 px)
 data/
-  config.json              temporada, Instagram, pasta de fotos, repositório GitHub, tipos de evento
+  config.json              temporada, Instagram, pasta de fotos, repositório GitHub, tipos de evento, tipos de deck (tipos_pokemon)
   eventos.json             eventos
   resultados.json          colocações por evento
   jogadores.json           perfis (só apelido e cidade)
@@ -91,7 +91,8 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 - **Jogadores:** apelido, cidade e "desde" vão para `data/jogadores.json` (público); nome completo e nascimento vão para `jogadores-privado.json` (GLC-privado). O id é o slug do apelido e não muda. Apelido parecido com outro jogador pede confirmação antes de gravar. A idade aparece só no painel. Mensagens de commit levam só o id do jogador.
 - **Eventos:** grava `data/eventos.json` (ordenado por data). O id (`AAAA-MM-DD-slug`) acompanha data e nome enquanto o evento não tem resultado nem decklist; depois fica fixo. Status vazio = automático. Link que não é de Google Forms gera aviso. Exclusão só sem resultado nem decklist.
 - **Resultados:** uma linha por jogador (posição, jogador, V, D, E, obs), com subir/descer e "Numerar pela ordem". Posição repetida exige "empate" em todos os empatados. "Conferir" mostra a tabela no formato da conferência (Template B) com avisos (buraco na classificação, vitórias ≠ derrotas, data futura); só então "Publicar" grava `data/resultados.json`, substituindo o resultado anterior do evento. A digitação fica em rascunho no `sessionStorage` da aba (só ids e números). Apagar resultado só se o evento não tiver decklist.
-- **Decklists do Top 3:** na tela do resultado publicado, um cartão por jogador do Top 3 com envio de imagem (PNG, JPEG ou WEBP; o painel reduz para no máximo 1600 px e grava JPEG sem metadados), tipo do deck e lista em texto. O organizador confirma que a imagem não mostra nome completo, documento, rosto nem outro dado pessoal. Enviar de novo substitui a imagem. "Usar a reserva" tira a imagem; "Apagar decklist" remove o registro. Ao corrigir um resultado, a posição das decklists acompanha; quem tem decklist e sai do Top 3 bloqueia a publicação até a decklist ser apagada.
+- **Tipo do deck:** cada linha do resultado tem o seletor "Tipo do deck" (opcional, para todos os jogadores), com a lista `tipos_pokemon` de `config.json`. Um tipo antigo fora da lista continua aceito no mesmo resultado. O site mostra o tipo na classificação do pop-up, no perfil e na decklist (`tipoDoDeck()` em `assets/js/data.js`: primeiro o da linha do resultado, depois o de decklists antigas).
+- **Decklists do Top 3:** na tela do resultado publicado, um cartão por jogador do Top 3 com envio de imagem (PNG, JPEG ou WEBP; o painel reduz para no máximo 1600 px e grava JPEG sem metadados) e lista em texto; o tipo vem da linha do resultado. O organizador confirma que a imagem não mostra nome completo, documento, rosto nem outro dado pessoal. Enviar de novo substitui a imagem. "Usar a reserva" tira a imagem; "Apagar decklist" remove o registro. Ao corrigir um resultado, a posição das decklists acompanha; quem tem decklist e sai do Top 3 bloqueia a publicação até a decklist ser apagada.
 - **Telas:** Início, Jogadores, Eventos e Resultados prontas. Torneio suíço chega nas etapas 4 e 5.
 
 ## Carrossel de fotos
@@ -104,9 +105,9 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 ## Campos dos JSON
 
 - **eventos.json**: `id` (AAAA-MM-DD-slug), `nome`, `data` (AAAA-MM-DD), `horario`, `local`, `vagas`, `tipo` (Torneio Anual, Amistoso, Encontro da comunidade), `status` (vazio = calculado; ou Agendado, Inscrições abertas, Encerrado), `inscricao_url`, `descricao`.
-- **resultados.json**: `evento_id`, `colocacoes` [{`posicao`, `jogador_id`, `vitorias`, `derrotas`, `empates`, `obs` (opcional: empate, drop)}].
+- **resultados.json**: `evento_id`, `colocacoes` [{`posicao`, `jogador_id`, `vitorias`, `derrotas`, `empates`, `tipo_pokemon` (opcional, para qualquer colocação), `obs` (opcional: empate, drop)}].
 - **jogadores.json**: `id`, `apelido`, `cidade` (opcional), `desde` (ano), `icone` (opcional: caminho em `assets/img/jogadores/`).
-- **decklists.json**: `evento_id`, `jogador_id`, `posicao` (1 a 3), `tipo_pokemon`, `lista_texto` (opcional), `imagem` (opcional; o painel grava `caminho.jpg?v=AAAAMMDDhhmmss` para o navegador não mostrar a imagem antiga do cache).
+- **decklists.json**: `evento_id`, `jogador_id`, `posicao` (1 a 3), `lista_texto` (opcional), `imagem` (opcional; o painel grava `caminho.jpg?v=AAAAMMDDhhmmss` para o navegador não mostrar a imagem antiga do cache).
 - **banlist.json**: `atualizado_em`, `fonte`, `cartas` [{`nome`, `colecao`, `numero`}].
 
 Status calculado: data passada = Encerrado; futura com link real de Google Forms = Inscrições abertas; futura sem link = Agendado.

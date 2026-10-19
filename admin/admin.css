@@ -127,12 +127,14 @@ body.adm::before{background:var(--marinho)}
 .adm-mover .btn{min-width:44px;min-height:44px;justify-content:center;padding:0 10px;font-size:1.1rem}
 .adm-mover .btn:disabled{opacity:.35;cursor:default}
 @media (max-width:639px){
-  .adm-colocacao{grid-template-columns:repeat(4,minmax(0,1fr))}
-  .adm-colocacao .adm-pos{grid-column:1}
-  .adm-colocacao .adm-sel-jogador{grid-column:2/-1}
+  .adm-colocacao{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .adm-colocacao .adm-pos{grid-column:span 2}
+  .adm-colocacao .adm-sel-jogador{grid-column:span 4}
+  .adm-colocacao .adm-num{grid-column:span 2}
+  .adm-colocacao .adm-tipo,.adm-colocacao .adm-obs{grid-column:span 3}
 }
 @media (min-width:640px){
-  .adm-colocacao{grid-template-columns:72px minmax(140px,1fr) 64px 64px 64px 118px auto}
+  .adm-colocacao{grid-template-columns:64px minmax(120px,1fr) 56px 56px 56px 128px 104px auto}
   .adm-mover{grid-column:auto}
 }
 
