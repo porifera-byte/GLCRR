@@ -35,12 +35,28 @@ function montar(jogadores, rodadas, previstas) {
 /* Joga a rodada aberta com placares sorteados e fecha */
 function jogar(e, sorteio) {
   const r = S.rodadaAberta(e);
-  r.mesas.forEach(m => { if (m.placar !== "bye") e = S.registrarPlacar(e, r.numero, m.mesa, S.PLACARES[Math.floor(sorteio() * 5)]); });
+  r.mesas.forEach(m => { if (m.placar !== "bye") e = S.registrarPlacar(e, r.numero, m.mesa, S.PLACARES[Math.floor(sorteio() * S.PLACARES.length)]); });
   return S.fecharRodada(e);
 }
 
 const linha = (cl, id) => cl.find(l => l.jogador_id === id);
 const ordem = cl => cl.map(l => l.jogador_id);
+
+test("placares de melhor de 3: 2-0, 2-1, 1-0, 1-1, 0-0 e inversos", () => {
+  assert.deepStrictEqual(S.PLACARES, ["2-0", "2-1", "1-0", "1-1", "0-0", "0-1", "1-2", "0-2"]);
+  let e = S.parear(S.novoTorneio(EVENTO, ids(4), { rodadas: 1 }), rng(1));
+  ["2-2", "3-0", "2-3", "0-3"].forEach(p => assert.throws(() => S.registrarPlacar(e, 1, 1, p), /Placar inválido/, p));
+
+  /* 1-0 é vitória (saldo +1); 0-0 é empate (0,5 ponto, saldo 0) */
+  const cl = S.classificacao(montar(ids(4), [[["j1", "j2", "1-0"], ["j3", "j4", "0-0"]]]));
+  const l = id => cl.find(x => x.jogador_id === id);
+  assert.deepStrictEqual([l("j1").pontos, l("j1").vitorias, l("j1").saldo], [1, 1, 1]);
+  assert.deepStrictEqual([l("j2").pontos, l("j2").derrotas, l("j2").saldo], [0, 1, -1]);
+  assert.deepStrictEqual([l("j3").pontos, l("j3").empates, l("j3").saldo], [0.5, 1, 0]);
+  assert.deepStrictEqual([l("j4").pontos, l("j4").empates, l("j4").saldo], [0.5, 1, 0]);
+  const v = S.validarEstado(montar(ids(4), [[["j1", "j2", "0-1"], ["j3", "j4", "0-0"]]]));
+  assert.ok(v.ok, v.erros.join(" "));
+});
 
 test("rodadas sugeridas = ⌈log₂ n⌉", () => {
   const esperado = { 0: 0, 1: 0, 2: 1, 3: 2, 4: 2, 5: 3, 7: 3, 8: 3, 9: 4, 16: 4, 17: 5, 32: 5 };

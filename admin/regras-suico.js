@@ -8,7 +8,9 @@
   "use strict";
 
   const VERSAO = 1;
-  const PLACARES = ["2-0", "2-1", "1-1", "1-2", "0-2"];
+  /* Melhor de 3 (quem faz 2 jogos já venceu). Vitória: 2-0, 2-1 ou 1-0; empate: 1-1 ou 0-0.
+     Na ordem da tela: vitórias do jogador da esquerda, empates, vitórias do da direita. */
+  const PLACARES = ["2-0", "2-1", "1-0", "1-1", "0-0", "0-1", "1-2", "0-2"];
   const MAX_RODADAS = 20;
   const LIMITE_BUSCA = 200000;
   const ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
