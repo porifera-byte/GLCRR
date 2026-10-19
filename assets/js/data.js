@@ -67,6 +67,17 @@ const decklistDe = (eventoId, jogadorId) =>
   DADOS.decklists.find(d => d.evento_id === eventoId && d.jogador_id === jogadorId && d.posicao >= 1 && d.posicao <= 3);
 const vde = c => `${c.vitorias ?? 0}-${c.derrotas ?? 0}-${c.empates ?? 0}`;
 
+/* Decklist do Top 3 sempre disponível: sem cadastro, ou sem imagem e sem lista em texto,
+   devolve a imagem de reserva até a organização enviar a foto pelo painel */
+const IMAGEM_RESERVA_DECKLIST = "assets/img/decklists/sem-imagem.svg";
+function decklistTop3(eventoId, jogadorId, posicao) {
+  if (!(posicao >= 1 && posicao <= 3)) return null;
+  const d = decklistDe(eventoId, jogadorId);
+  if (d && (d.imagem || d.lista_texto)) return d;
+  return { evento_id: eventoId, jogador_id: jogadorId, posicao, tipo_pokemon: d ? d.tipo_pokemon || "" : "",
+    lista_texto: "", imagem: IMAGEM_RESERVA_DECKLIST, reserva: true };
+}
+
 /* Histórico de um jogador, do evento mais recente para o mais antigo.
    Montado a partir de resultados.json e decklists.json (fonte única dos dados). */
 function historicoDe(jogadorId) {
@@ -74,7 +85,7 @@ function historicoDe(jogadorId) {
   DADOS.resultados.forEach(r => {
     const c = (r.colocacoes || []).find(x => x.jogador_id === jogadorId);
     const ev = eventoPorId(r.evento_id);
-    if (c && ev) itens.push({ evento: ev, colocacao: c, decklist: decklistDe(ev.id, jogadorId) });
+    if (c && ev) itens.push({ evento: ev, colocacao: c, decklist: decklistTop3(ev.id, jogadorId, c.posicao) });
   });
   return itens.sort((a, b) => b.evento.data.localeCompare(a.evento.data));
 }

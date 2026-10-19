@@ -59,3 +59,29 @@ test("resultado: avisos de buraco, bye e data futura", () => {
   assert.strictEqual(r.avisos.length, 3);
   assert.strictEqual(r.colocacoes[1].obs, "drop");
 });
+
+test("decklists: caminho, versão e validação", () => {
+  const c = R.caminhoDecklist("2026-09-20-etapa", 1, "vinicius");
+  assert.strictEqual(c, "assets/img/decklists/2026-09-20-etapa-1-vinicius.jpg");
+  const v = `${c}?v=${R.carimbo(new Date(Date.UTC(2026, 9, 19, 9, 5, 0)))}`;
+  assert.strictEqual(v, "assets/img/decklists/2026-09-20-etapa-1-vinicius.jpg?v=20261019090500");
+  assert.ok(R.DECKLIST_VALIDA.test(v));
+  assert.ok(!R.DECKLIST_VALIDA.test("https://x.com/a.jpg"));
+  assert.strictEqual(R.semVersao(v), c);
+  assert.ok(R.validarDecklist({ tipo_pokemon: "a".repeat(31) }).erros.tipo_pokemon);
+  assert.deepStrictEqual(R.validarDecklist({ tipo_pokemon: " Fogo ", lista_texto: "x" }).dados, { tipo_pokemon: "Fogo", lista_texto: "x" });
+});
+
+test("decklists: ajuste depois de corrigir o resultado", () => {
+  const dl = [
+    { evento_id: "ev", jogador_id: "ash", posicao: 1 },
+    { evento_id: "ev", jogador_id: "misty", posicao: 2 },
+    { evento_id: "outro", jogador_id: "ash", posicao: 3 }
+  ];
+  const ok = R.ajustarDecklists(dl, "ev", [linha(1, "misty", 3, 0), linha(2, "ash", 2, 1)]);
+  assert.deepStrictEqual(ok.erros, []);
+  assert.ok(ok.mudou);
+  assert.deepStrictEqual(ok.lista.map(d => d.posicao), [2, 1, 3]);
+  const ruim = R.ajustarDecklists(dl, "ev", [linha(1, "misty", 3, 0), linha(4, "ash", 0, 3)]);
+  assert.strictEqual(ruim.erros.length, 1);
+});

@@ -109,9 +109,50 @@
     return { colocacoes: erros.length ? [] : colocacoes, erros, avisos };
   }
 
+  /* ---------- Decklists do Top 3 ---------- */
+
+  /* assets/img/decklists/[evento_id]-[posicao]-[jogador_id].jpg; no JSON vai com ?v=<data e hora> para o navegador
+     não mostrar a imagem antiga do cache quando ela é trocada */
+  const DECKLIST_VALIDA = /^assets\/img\/decklists\/[a-z0-9-]+\.(png|jpg|jpeg|webp)(\?v=\d{14})?$/;
+  function caminhoDecklist(eventoId, posicao, jogadorId, extensao) {
+    return `assets/img/decklists/${eventoId}-${posicao}-${jogadorId}.${extensao || "jpg"}`;
+  }
+  function carimbo(agora) {
+    const d = agora || new Date();
+    const p = n => String(n).padStart(2, "0");
+    return `${d.getUTCFullYear()}${p(d.getUTCMonth() + 1)}${p(d.getUTCDate())}${p(d.getUTCHours())}${p(d.getUTCMinutes())}${p(d.getUTCSeconds())}`;
+  }
+  const semVersao = caminho => String(caminho || "").split("?")[0];
+
+  function validarDecklist(entrada) {
+    const dados = { tipo_pokemon: limpar(entrada.tipo_pokemon), lista_texto: String(entrada.lista_texto || "").trim().replace(/\r\n/g, "\n") };
+    const erros = {};
+    if (dados.tipo_pokemon.length > 30) erros.tipo_pokemon = "Use até 30 caracteres.";
+    if (dados.lista_texto.length > 3000) erros.lista_texto = `Use até 3000 caracteres (agora: ${dados.lista_texto.length}).`;
+    return { dados, erros };
+  }
+
+  /* Depois de corrigir um resultado: atualiza a posição das decklists do evento.
+     Quem saiu do Top 3 (ou do resultado) com decklist cadastrada bloqueia a publicação. */
+  function ajustarDecklists(decklists, eventoId, colocacoes, apelido) {
+    const erros = [];
+    let mudou = false;
+    const lista = decklists.map(d => {
+      if (d.evento_id !== eventoId) return d;
+      const c = colocacoes.find(x => x.jogador_id === d.jogador_id);
+      if (!c || c.posicao > 3) {
+        erros.push(`${apelido ? apelido(d.jogador_id) : d.jogador_id} tem decklist cadastrada, mas ${c ? `ficou em ${c.posicao}º` : "saiu do resultado"}. Apague a decklist antes.`);
+        return d;
+      }
+      if (c.posicao !== d.posicao) { mudou = true; return { ...d, posicao: c.posicao }; }
+      return d;
+    });
+    return { lista, erros, mudou };
+  }
+
   const pos1 = colocacoes => colocacoes.filter(c => c.posicao === 1).length;
 
-  const api = { STATUS, OBS, idEvento, formReal, validarEvento, validarResultado };
+  const api = { STATUS, OBS, idEvento, formReal, validarEvento, validarResultado, DECKLIST_VALIDA, caminhoDecklist, carimbo, semVersao, validarDecklist, ajustarDecklists };
   if (typeof module === "object" && module.exports) module.exports = api;
   raiz.RegrasEventos = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

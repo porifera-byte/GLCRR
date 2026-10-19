@@ -136,5 +136,19 @@ body.adm::before{background:var(--marinho)}
   .adm-mover{grid-column:auto}
 }
 
+/* Decklists do Top 3 */
+.adm-decklists{display:grid;gap:12px;margin-top:8px}
+.adm-decks{display:grid;gap:14px}
+.adm-deck{display:grid;gap:14px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.adm-deck h3{display:flex;align-items:center;gap:10px}
+.adm-deck h3 .pos{width:36px;height:36px;font-size:.95rem}
+.adm-deck-previa{margin:0;display:grid;gap:6px;justify-items:center}
+.adm-deck-previa img{display:block;width:100%;max-width:260px;max-height:340px;object-fit:contain;border-radius:12px;border:1px solid var(--line);background:var(--chip)}
+.adm-deck-previa figcaption{font-size:.8rem;color:var(--muted);text-align:center}
+.adm-deck-form{gap:12px}
+.adm-btn-texto-perigo{color:var(--erro);border-color:var(--erro)}
+.adm-oculto{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (min-width:640px){.adm-deck{grid-template-columns:220px 1fr;align-items:start}}
+
 @media (max-width:479px){.adm-bar .brand small{display:none}.adm-quem{max-width:9ch}}
 @media (min-width:640px){.adm-btn{width:fit-content;padding-inline:28px}}
