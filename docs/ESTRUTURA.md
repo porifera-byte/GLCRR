@@ -1,6 +1,6 @@
 # Estrutura do site — Liga GLC Roraima (v2)
 
-Atualizado em 19/10/2026 (rev. 10: ícones dos tipos de deck com tooltip).
+Atualizado em 19/10/2026 (rev. 11: CSP no site público e validação dos dados na hora de exibir).
 
 Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página única: cada seção é uma âncora em `index.html` e a troca entre seções desliza na ordem do menu.
 
@@ -31,11 +31,23 @@ Os ícones são desenhos próprios da liga (selo quadrado colorido com símbolo 
 
 ## Decklist de reserva
 
-Todo jogador do Top 3 de um evento com resultado tem o botão "Decklist" no pop-up e "Ver decklist" no perfil. Sem imagem nem lista em texto cadastradas, o site mostra `assets/img/decklists/sem-imagem.svg` ("Decklist em breve"). Se a imagem enviada ainda não foi publicada pelo GitHub Pages, também aparece a reserva. A função é `decklistTop3()` em `assets/js/data.js`.
+Todo jogador do Top 3 de um evento com resultado tem o botão "Decklist" no pop-up e "Ver decklist" no perfil. Sem imagem nem lista em texto cadastradas, o site mostra `assets/img/decklists/sem-imagem.svg` ("Decklist em breve"). Se a imagem enviada ainda não foi publicada pelo GitHub Pages, também aparece a reserva, e o mesmo vale para uma `imagem` fora do formato de caminho do painel (`DECKLIST_VALIDA`). A função é `decklistTop3()` em `assets/js/data.js`.
 
 ## Histórico dos jogadores
 
 O histórico de cada jogador é montado a partir de `resultados.json` (colocações por evento) e `decklists.json`. Os dados ficam em um só lugar: ao registrar um evento, o perfil de todos os participantes se atualiza sozinho.
+
+## Segurança do site público (CSP)
+
+`index.html` tem uma CSP (`<meta http-equiv="Content-Security-Policy">`) no mesmo padrão da do painel: só scripts e estilos do próprio site (mais o CSS do Google Fonts), fontes do Google Fonts, imagens só do próprio site, conexões só com o próprio site e com `api.github.com` (carrossel), sem formulários, sem `<base>` e sem plugins. Com ela, um link `javascript:` ou um `onerror=` que entrasse por um JSON não executa.
+
+Para não quebrar a CSP:
+- Nada de `<script>` inline, `onclick=`, `onerror=` e afins, nem `style=` no HTML gerado. Eventos vão com `addEventListener`; estilos ficam em `style.css` (`el.style.x = ...` pelo JS continua permitido).
+- Imagem que pode faltar leva `data-falha="remover"` (some) ou `data-falha="reserva"` (decklist vira "Decklist em breve"); quem trata é `tratarFalhaImagem()` em `main.js`, com um ouvinte de `error` na fase de captura.
+- Todo link ou caminho de imagem vindo dos JSON é validado de novo na hora de exibir, mesmo que o painel já valide: `ICONE_VALIDO` e `DECKLIST_VALIDA` (só caminhos em `assets/img/`, iguais aos do painel; o teste `admin/testes/site-dados.test.js` confere), `urlSegura()` (só http/https: fonte da banlist e Instagram), `formValido()` (inscrição) e `dataBR()` (só AAAA-MM-DD). Todo texto passa por `esc()`.
+- Recurso externo novo (outro CDN, imagem de outro site, API nova) precisa entrar na CSP do `index.html` no mesmo PR; senão o navegador bloqueia e avisa no console ("Refused to ... Content Security Policy").
+
+A CSP não protege contra quem tem uma chave do painel (ela pode alterar o próprio código do site); ela fecha a injeção de script pelos dados, que passa despercebida numa revisão de JSON.
 
 ## Dados de teste
 
@@ -44,10 +56,10 @@ Os dados de teste foram removidos em 19/10/2026. Registros de teste novos levam 
 ## Arquivos
 
 ```
-index.html                 estrutura fixa: cabeçalho, palco das seções, rodapé
+index.html                 estrutura fixa: cabeçalho, palco das seções, rodapé; CSP
 assets/
   css/style.css            estilos, cores do logo em variáveis, modo claro e escuro
-  js/data.js               carrega data/*.json e utilitários (datas, status, escape)
+  js/data.js               carrega data/*.json e utilitários (datas, status, escape, validação de links e caminhos de imagem)
   js/main.js               menu, roteador com slide, páginas, pop-up de resultados e carrossel
   icons/GLCRR-logo.png     logo da liga (cabeçalho, Início e ícone da aba)
   images/fotos/            fotos do carrossel (.jpg, .jpeg, .png, .webp)
@@ -83,7 +95,7 @@ admin/                     painel administrativo (fora do menu, noindex)
   imagens.js               preparo de imagens no navegador (recorte, redução, regravação sem metadados)
   gerar-acesso.html/.js    gerador do registro cifrado de cada organizador
   usuarios.json            registros cifrados dos organizadores
-  testes/                  testes no Node (node --test admin/testes/*.test.js)
+  testes/                  testes no Node (node --test admin/testes/*.test.js); site-dados.test.js cobre as validações de data.js
 ```
 
 ## Painel administrativo (`admin/`)
