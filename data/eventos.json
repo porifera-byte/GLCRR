@@ -34,5 +34,17 @@
     "status": "Encerrado",
     "inscricao_url": "",
     "descricao": ""
+  },
+  {
+    "id": "2026-10-31-5-torneio-pokemon-tcg-glc-2026",
+    "nome": "5º Torneio Pokémon TCG GLC - 2026",
+    "data": "2026-10-31",
+    "horario": "15:00",
+    "local": "Tidi Play",
+    "vagas": "",
+    "tipo": "Amistoso",
+    "status": "Inscrições abertas",
+    "inscricao_url": "",
+    "descricao": ""
   }
 ]
