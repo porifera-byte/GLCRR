@@ -1,1 +1,56 @@
-[]
+[
+  {
+    "evento_id": "2026-09-20-4-torneio-pokemon-tcg-glc-2026",
+    "colocacoes": [
+      {
+        "posicao": 1,
+        "jogador_id": "vinicius",
+        "vitorias": 3,
+        "derrotas": 0,
+        "empates": 0
+      },
+      {
+        "posicao": 2,
+        "jogador_id": "davi-lopes",
+        "vitorias": 2,
+        "derrotas": 1,
+        "empates": 0
+      },
+      {
+        "posicao": 3,
+        "jogador_id": "rosso",
+        "vitorias": 2,
+        "derrotas": 1,
+        "empates": 0
+      },
+      {
+        "posicao": 4,
+        "jogador_id": "kaio-macedo",
+        "vitorias": 2,
+        "derrotas": 1,
+        "empates": 0
+      },
+      {
+        "posicao": 5,
+        "jogador_id": "miguel-rasia",
+        "vitorias": 1,
+        "derrotas": 2,
+        "empates": 0
+      },
+      {
+        "posicao": 6,
+        "jogador_id": "rodrigo-bernardino",
+        "vitorias": 1,
+        "derrotas": 2,
+        "empates": 0
+      },
+      {
+        "posicao": 7,
+        "jogador_id": "saymon",
+        "vitorias": 1,
+        "derrotas": 2,
+        "empates": 0
+      }
+    ]
+  }
+]
