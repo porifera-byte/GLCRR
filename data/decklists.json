@@ -47,5 +47,12 @@
     "posicao": 3,
     "lista_texto": "",
     "imagem": "assets/img/decklists/2026-07-26-2-torneio-pokemon-tcg-glc-2026-3-vinicius.jpg?v=20261019214229"
+  },
+  {
+    "evento_id": "2026-09-20-4-torneio-pokemon-tcg-glc-2026",
+    "jogador_id": "davi-lopes",
+    "posicao": 2,
+    "lista_texto": "",
+    "imagem": "assets/img/decklists/2026-09-20-4-torneio-pokemon-tcg-glc-2026-2-davi-lopes.jpg?v=20261019220255"
   }
 ]
