@@ -93,8 +93,8 @@ const PAGES = {
     return `<div class="home">
       <div class="home-top">
         <div class="home-side">
-          <span class="eyebrow">Liga roraimense de Pokémon TCG</span>
           <div class="home-titulo">
+            <span class="eyebrow">Liga roraimense de Pokémon TCG</span>
             <h1>Torne-se um <em>Líder de Ginásio!</em></h1>
             ${logoHTML("logo-home", "Logo da Liga GLC Roraima")}
           </div>
@@ -389,17 +389,26 @@ function montarSlides(root, fotos) {
   root.querySelector(".dots").innerHTML = fotos.map((_, i) => `<button aria-label="Ir para a foto ${i + 1}"></button>`).join("");
 }
 
-/* Logo do Início com a mesma altura do título (o título pode quebrar em mais linhas no celular).
+/* Logo do Início com a mesma altura do título: no celular, só o h1 (que pode quebrar em mais linhas);
+   no PC (≥760 px), o bloco inteiro, do "Liga roraimense..." até o fim do h1.
    Ajuste pelo CSSOM (--logo-h), permitido pela CSP; sem JS vale a altura de 2 linhas definida no CSS. */
 let logoObs = null;
+const PC_HOME = window.matchMedia("(min-width:760px)");
 function ajustarLogoHome() {
   logoObs?.disconnect();
-  const h1 = document.querySelector(".home-titulo h1");
-  const titulo = h1?.parentElement;
-  if (!h1 || !("ResizeObserver" in window)) return;
-  logoObs = new ResizeObserver(() => titulo.style.setProperty("--logo-h", `${h1.offsetHeight}px`));
+  const titulo = document.querySelector(".home-titulo");
+  const h1 = titulo?.querySelector("h1");
+  const sobre = titulo?.querySelector(".eyebrow");
+  if (!h1 || !sobre || !("ResizeObserver" in window)) return;
+  const medir = () => {
+    const topo = PC_HOME.matches ? sobre.getBoundingClientRect().top : h1.getBoundingClientRect().top;
+    titulo.style.setProperty("--logo-h", `${Math.round(h1.getBoundingClientRect().bottom - topo)}px`);
+  };
+  logoObs = new ResizeObserver(medir);
   logoObs.observe(h1);
+  logoObs.observe(sobre);
 }
+PC_HOME.addEventListener("change", () => ajustarLogoHome());
 
 /* Autoplay 5 s, pausa com mouse/foco, setas, pontos e arraste no celular */
 let carTimer = null;
