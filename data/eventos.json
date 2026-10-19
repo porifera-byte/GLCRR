@@ -1,5 +1,17 @@
 [
   {
+    "id": "2026-07-26-2-torneio-pokemon-tcg-glc-2026",
+    "nome": "2º Torneio Pokémon TCG GLC - 2026",
+    "data": "2026-07-26",
+    "horario": "15:00",
+    "local": "Tidi Play",
+    "vagas": 10,
+    "tipo": "Amistoso",
+    "status": "Encerrado",
+    "inscricao_url": "",
+    "descricao": ""
+  },
+  {
     "id": "2026-09-20-4-torneio-pokemon-tcg-glc-2026",
     "nome": "4º Torneio Pokémon TCG GLC - 2026",
     "data": "2026-09-20",
