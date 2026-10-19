@@ -8,7 +8,7 @@ Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página 
 
 | Âncora | Conteúdo | Dados usados |
 |---|---|---|
-| `#inicio` | Logo, texto principal, botão do Instagram, carrossel de fotos e menu de botões flutuantes | `config.json`, pasta de fotos |
+| `#inicio` | Logo, texto principal, botões do Instagram e do YouTube, carrossel de fotos e menu de botões flutuantes | `config.json`, pasta de fotos |
 | `#calendario` | Próximos eventos e eventos realizados | `eventos.json` |
 | `#ranking` | Participações e colocações da temporada (sem pontos até a regra ser definida) | `resultados.json`, `eventos.json`, `jogadores.json`, `config.json` |
 | `#regras` | Resumo do GLC, regras locais e banlist | `banlist.json` |
@@ -44,7 +44,7 @@ O histórico de cada jogador é montado a partir de `resultados.json` (colocaç�
 Para não quebrar a CSP:
 - Nada de `<script>` inline, `onclick=`, `onerror=` e afins, nem `style=` no HTML gerado. Eventos vão com `addEventListener`; estilos ficam em `style.css` (`el.style.x = ...` pelo JS continua permitido).
 - Imagem que pode faltar leva `data-falha="remover"` (some) ou `data-falha="reserva"` (decklist vira "Decklist em breve"); quem trata é `tratarFalhaImagem()` em `main.js`, com um ouvinte de `error` na fase de captura.
-- Todo link ou caminho de imagem vindo dos JSON é validado de novo na hora de exibir, mesmo que o painel já valide: `ICONE_VALIDO` e `DECKLIST_VALIDA` (só caminhos em `assets/img/`, iguais aos do painel; o teste `admin/testes/site-dados.test.js` confere), `urlSegura()` (só http/https: fonte da banlist e Instagram), `formValido()` (inscrição) e `dataBR()` (só AAAA-MM-DD). Todo texto passa por `esc()`.
+- Todo link ou caminho de imagem vindo dos JSON é validado de novo na hora de exibir, mesmo que o painel já valide: `ICONE_VALIDO` e `DECKLIST_VALIDA` (só caminhos em `assets/img/`, iguais aos do painel; o teste `admin/testes/site-dados.test.js` confere), `urlSegura()` (só http/https: fonte da banlist, Instagram e YouTube), `formValido()` (inscrição) e `dataBR()` (só AAAA-MM-DD). Todo texto passa por `esc()`.
 - Recurso externo novo (outro CDN, imagem de outro site, API nova) precisa entrar na CSP do `index.html` no mesmo PR; senão o navegador bloqueia e avisa no console ("Refused to ... Content Security Policy").
 
 A CSP não protege contra quem tem uma chave do painel (ela pode alterar o próprio código do site); ela fecha a injeção de script pelos dados, que passa despercebida numa revisão de JSON.
@@ -69,7 +69,7 @@ assets/
                            fonte/[slug].svg é o original editável
   img/jogadores/           ícones dos jogadores, enviados pelo painel: [jogador_id]-[AAAAMMDDhhmmss].webp/.png (256 px)
 data/
-  config.json              temporada, Instagram, pasta de fotos, repositório GitHub, tipos de evento, tipos de deck (tipos_pokemon)
+  config.json              temporada, Instagram, YouTube (youtube_url; sem link válido, o botão some), pasta de fotos, repositório GitHub, tipos de evento, tipos de deck (tipos_pokemon)
   eventos.json             eventos
   resultados.json          colocações por evento
   jogadores.json           perfis (só apelido e cidade)

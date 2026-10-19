@@ -79,6 +79,7 @@ h3{font-size:1.15rem}
 .home-side h1{font-size:clamp(2.2rem,5vw,3.6rem);line-height:.98}
 .home-side h1 em{font-style:normal;color:var(--verde-ink);display:block}
 .home-side .lead{font-size:1.05rem;max-width:42ch}
+.home-redes{display:flex;flex-wrap:wrap;gap:10px}
 
 /* Botões flutuantes do menu do Início */
 .float-menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding-block:8px}
@@ -101,6 +102,7 @@ h3{font-size:1.15rem}
 @media (min-width:640px){.float-menu{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .btn{display:inline-flex;align-items:center;gap:8px;font-weight:800;text-decoration:none;padding:10px 16px;border-radius:10px;border:2px solid transparent;font-size:.95rem;width:fit-content}
 .btn-ouro{background:var(--ouro);color:#111}
+.btn-verm{background:var(--vermelho);color:#fff}
 .btn-line{border-color:var(--line);color:var(--fg);background:transparent}
 .btn svg{width:18px;height:18px}
 .btn-ceu{background:var(--ceu);color:#fff;cursor:pointer}
