@@ -78,6 +78,7 @@ admin/                     painel administrativo (fora do menu, noindex)
   regras-eventos.js        regras de eventos (id, validação) e de resultados (classificação, empates), sem DOM
   tela-eventos.js          tela Eventos: lista, cadastro, edição e exclusão
   tela-resultados.js       tela Resultados: lançamento manual com conferência, correção, exclusão e decklists do Top 3
+  regras-suico.js          motor do torneio suíço (pareamento, placares, drop, atrasado, classificação e desempates), sem DOM
   imagens.js               preparo de imagens no navegador (recorte, redução, regravação sem metadados)
   gerar-acesso.html/.js    gerador do registro cifrado de cada organizador
   usuarios.json            registros cifrados dos organizadores
@@ -101,7 +102,8 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 - **Resultados:** uma linha por jogador (posição, jogador, V, D, E, obs), com subir/descer e "Numerar pela ordem". Posição repetida exige "empate" em todos os empatados. "Conferir" mostra a tabela no formato da conferência (Template B) com avisos (buraco na classificação, vitórias ≠ derrotas, data futura); só então "Publicar" grava `data/resultados.json`, substituindo o resultado anterior do evento. A digitação fica em rascunho no `sessionStorage` da aba (só ids e números). Apagar resultado só se o evento não tiver decklist.
 - **Tipo do deck:** cada linha do resultado tem o seletor "Tipo do deck" (opcional, para todos os jogadores), com a lista `tipos_pokemon` de `config.json`. Um tipo antigo fora da lista continua aceito no mesmo resultado. O site mostra o tipo na classificação do pop-up, no perfil e na decklist (`tipoDoDeck()` em `assets/js/data.js`: primeiro o da linha do resultado, depois o de decklists antigas).
 - **Decklists do Top 3:** na tela do resultado publicado, um cartão por jogador do Top 3 com envio de imagem (PNG, JPEG ou WEBP; o painel reduz para no máximo 1600 px e grava JPEG sem metadados) e lista em texto; o tipo vem da linha do resultado. O organizador confirma que a imagem não mostra nome completo, documento, rosto nem outro dado pessoal. Enviar de novo substitui a imagem. "Usar a reserva" tira a imagem; "Apagar decklist" remove o registro. Ao corrigir um resultado, a posição das decklists acompanha; quem tem decklist e sai do Top 3 bloqueia a publicação até a decklist ser apagada.
-- **Telas:** Início, Jogadores, Eventos e Resultados prontas. Torneio suíço chega nas etapas 4 e 5.
+- **Torneio suíço (motor):** `regras-suico.js` guarda o torneio num estado só com ids e números (`evento_id`, `versao`, `rodadas_previstas`, `jogadores` [{`id`, `entrou_na_rodada`, `drop_apos_rodada`, `tipo_pokemon`}], `rodadas` [{`numero`, `fechada`, `mesas` [{`mesa`, `a`, `b`, `placar`}]}], `desempate_manual`). Placares: 2-0, 2-1, 1-1, 1-2, 0-2 e bye. 1ª rodada aleatória; depois, por pontos, sem revanche (com volta atrás quando o caminho direto trava). `paraResultado()` entrega as colocações no formato de `resultados.json` (bye conta como vitória; drop vira `obs: "drop"`). `validarEstado()` recusa rascunho com campo desconhecido. Regras em `docs/REGRAS-LOCAIS.md`.
+- **Telas:** Início, Jogadores, Eventos e Resultados prontas. A tela do torneio suíço chega na etapa 5 (o motor ainda não é carregado por `admin/index.html`).
 
 ## Carrossel de fotos
 
