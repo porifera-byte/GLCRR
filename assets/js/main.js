@@ -9,6 +9,8 @@ const MENU = [
 ];
 
 const LOGO = "assets/icons/GLCRR-logo.png";
+/* Carrossel do Início: false oculta a seção (o código e as fotos continuam no repositório) */
+const CARROSSEL_ATIVO = false;
 
 const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const ICONES = {
@@ -91,26 +93,30 @@ const PAGES = {
     return `<div class="home">
       <div class="home-top">
         <div class="home-side">
-          ${logoHTML("logo-home", "Logo da Liga GLC Roraima")}
-          <span class="eyebrow">Liga roraimense de Pokémon TCG</span>
-          <h1>Torne-se um <em>Líder de Ginásio!</em></h1>
-          <p class="lead">Um tipo de Pokémon, uma cópia de cada carta, sessenta cartas no deck. Venha jogar, conhecer a comunidade e acompanhar os próximos eventos.</p>
-          <div class="home-redes">
-            <a class="btn btn-ouro" href="${esc(instagram)}" target="_blank" rel="noopener">${IG_SVG} Siga no Instagram</a>
-            ${youtube ? `<a class="btn btn-verm" href="${esc(youtube)}" target="_blank" rel="noopener">${YT_SVG} Canal no YouTube</a>` : ""}
+          <div class="home-titulo">
+            <div>
+              <span class="eyebrow">Liga roraimense de Pokémon TCG</span>
+              <h1>Torne-se um <em>Líder de Ginásio!</em></h1>
+            </div>
+            ${logoHTML("logo-home", "Logo da Liga GLC Roraima")}
           </div>
+          <p class="lead">Um tipo de Pokémon, uma cópia de cada carta, sessenta cartas no deck. Venha jogar, conhecer a comunidade e acompanhar os próximos eventos.</p>
         </div>
-        <section class="carousel" aria-roledescription="carrossel" aria-label="Fotos da liga" id="carousel">
+        ${CARROSSEL_ATIVO ? `<section class="carousel" aria-roledescription="carrossel" aria-label="Fotos da liga" id="carousel">
           <div class="track"></div>
           <button class="car-btn prev" aria-label="Foto anterior">‹</button>
           <button class="car-btn next" aria-label="Próxima foto">›</button>
           <div class="dots"></div>
-        </section>
+        </section>` : ""}
       </div>
       <nav class="float-menu" aria-label="Menu principal">
         ${MENU.slice(1).map(([id, nome]) =>
           `<a href="#${id}"><span class="ic">${ICONES[id]}</span>${nome}</a>`).join("")}
       </nav>
+      <div class="home-redes">
+        <a class="btn btn-ouro" href="${esc(instagram)}" target="_blank" rel="noopener">${IG_SVG} Siga no Instagram</a>
+        ${youtube ? `<a class="btn btn-verm" href="${esc(youtube)}" target="_blank" rel="noopener">${YT_SVG} Canal no YouTube</a>` : ""}
+      </div>
     </div>`;
   },
 
