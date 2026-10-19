@@ -23,7 +23,7 @@ Enquanto não for definida, a página de Ranking mostra só participações, qua
 
 ## Torneio suíço
 
-Atualizado em 18/10/2026. Mesmas configurações usadas no Challonge.
+Atualizado em 19/10/2026. Mesmas configurações usadas no Challonge.
 
 - Partidas em melhor de 3.
 - Pontos: vitória 1,0 · empate 0,5 · bye 1,0. Jogos (games) não somam pontos.
@@ -38,6 +38,10 @@ Atualizado em 18/10/2026. Mesmas configurações usadas no Challonge.
 - Rodadas sugeridas: log₂ do número de jogadores, arredondado para cima. O organizador pode mudar.
 - Jogador atrasado pode entrar depois da 1ª rodada. Cada rodada perdida conta como derrota (0 ponto, 0-2 no saldo).
 - Drop: o jogador sai das próximas rodadas e mantém os resultados anteriores.
+- 1ª rodada: pareamento aleatório (decisão de 19/10/2026).
+- Vitórias contra empatados: com 3 ou mais empatados, contam as vitórias contra qualquer jogador do grupo (19/10/2026).
+- No V-D-E publicado, o bye conta como vitória e cada rodada perdida pelo atrasado conta como derrota (19/10/2026).
+- Sem corte eliminatório: a classificação final é a do suíço (19/10/2026).
 
 ## Outras regras locais
 
