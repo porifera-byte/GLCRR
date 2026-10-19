@@ -184,6 +184,20 @@ body.modal-aberto{overflow:hidden}
 @media (max-width:480px){.podio li{grid-template-columns:auto 1fr}.acoes{grid-column:1/-1;justify-content:flex-start}}
 .deck-img{display:block;width:100%;border-radius:12px;border:1px solid var(--line);background:var(--chip)}
 .deck-reserva{max-width:360px;margin:0 auto}
+
+/* Ícone do tipo do deck com tooltip (mouse, teclado e toque) */
+.tipo-ic{position:relative;display:inline-flex;flex:none;vertical-align:middle;border-radius:6px;cursor:help;outline-offset:2px}
+.tipo-ic img{display:block;width:22px;height:22px;border-radius:5px;box-shadow:0 0 0 1px var(--line)}
+.tipo-ic::after,.tipo-ic::before{position:absolute;left:50%;opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:6}
+.tipo-ic::after{content:attr(data-tip);bottom:calc(100% + 8px);transform:translate(-50%,4px);background:var(--fg);color:var(--bg);
+  font:800 .75rem/1 var(--f-body);padding:6px 9px;border-radius:8px;white-space:nowrap;box-shadow:0 6px 16px rgba(0,0,0,.2)}
+.tipo-ic::before{content:"";bottom:calc(100% + 3px);transform:translate(-50%,4px);border:5px solid transparent;border-top-color:var(--fg);border-bottom:0}
+.tipo-ic:hover::after,.tipo-ic:hover::before,.tipo-ic:focus::after,.tipo-ic:focus::before{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){.tipo-ic::after,.tipo-ic::before{transition:none}}
+.tipo-linha{display:inline-flex;align-items:center;gap:6px;margin:0}
+.tipo-linha .tipo-nome{font-weight:600}
+.quem-nome{display:flex;align-items:center;gap:8px;min-width:0}
+.quem-nome b{overflow-wrap:anywhere}
 .deck-txt{white-space:pre-wrap;margin:0;font-family:var(--f-mono);font-size:.85rem;padding:12px;border-radius:10px;background:var(--chip)}
 .link-voltar{background:none;border:0;padding:0;font:inherit;color:var(--ceu-ink);font-weight:800;cursor:pointer;width:fit-content;text-decoration:none}
 .link-voltar:hover{text-decoration:underline}

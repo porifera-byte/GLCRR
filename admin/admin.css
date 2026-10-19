@@ -122,6 +122,10 @@ body.adm::before{background:var(--marinho)}
 .adm-colocacao .campo{gap:2px;font-size:.78rem}
 .adm-colocacao .campo input,.adm-colocacao .campo select{padding:8px 10px}
 #etapa-digitar,#etapa-conferir{display:grid;gap:14px}
+.adm-tipo-rotulo{display:flex;align-items:center;gap:6px;min-height:22px}
+.adm-tipo-ic .tipo-ic img{width:18px;height:18px}
+.adm-tipo-ic .tipo-nome{display:none}
+td .tipo-ic{margin-right:6px}
 #etapa-conferir[hidden],#etapa-digitar[hidden]{display:none}
 .adm-mover{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end}
 .adm-mover .btn{min-width:44px;min-height:44px;justify-content:center;padding:0 10px;font-size:1.1rem}

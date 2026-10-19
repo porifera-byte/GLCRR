@@ -1,6 +1,6 @@
 # Estrutura do site — Liga GLC Roraima (v2)
 
-Atualizado em 19/10/2026 (rev. 9: versão nos scripts e estilos contra cache misturado).
+Atualizado em 19/10/2026 (rev. 10: ícones dos tipos de deck com tooltip).
 
 Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página única: cada seção é uma âncora em `index.html` e a troca entre seções desliza na ordem do menu.
 
@@ -22,6 +22,12 @@ Não há seções próprias de Decklists nem de Inscrições:
 ## Pop-up de resultados
 
 No Calendário, cada evento realizado com resultados tem o botão "Resultados". Ele abre um pop-up com a classificação, um botão "Perfil" por jogador (leva a `#jogadores/<id>`) e, no Top 3, um botão "Decklist" que mostra a imagem da lista. O mesmo pop-up abre pelo botão "Classificação do evento" no perfil. Esc, o X ou um clique fora fecham.
+
+## Ícones dos tipos de deck
+
+`htmlTipo(tipo, { base, comTexto })` em `assets/js/data.js` mostra o ícone de `assets/img/tipos/<slug>.png` com tooltip (mouse, teclado e toque; CSS `.tipo-ic` em `style.css`). Aparece no pop-up de resultados (ao lado do nome), no histórico do perfil e na decklist; no painel, na linha do resultado, na conferência e no cartão da decklist. Tipo sem ícone aparece só como texto.
+
+Os ícones são desenhos próprios da liga (selo quadrado colorido com símbolo genérico: folha, chama, gota, raio, espiral, impacto, lua, engrenagem, garras, anel). Não use os símbolos oficiais de energia/tipo do Pokémon TCG. Para criar ou mudar um ícone: edite `fonte/<slug>.svg`, gere o PNG de 96 px com o mesmo nome e, se for um tipo novo, inclua o slug em `TIPOS_COM_ICONE` (`data.js`) e o nome em `tipos_pokemon` (`config.json`).
 
 ## Decklist de reserva
 
@@ -47,6 +53,8 @@ assets/
   images/fotos/            fotos do carrossel (.jpg, .jpeg, .png, .webp)
   img/decklists/           imagens de decklist: [evento_id]-[posicao]-[jogador_id].jpg (enviadas pelo painel)
                            e sem-imagem.svg (reserva "Decklist em breve")
+  img/tipos/               ícones dos tipos de deck: [slug].png (96 px), arte própria da liga;
+                           fonte/[slug].svg é o original editável
   img/jogadores/           ícones dos jogadores, enviados pelo painel: [jogador_id]-[AAAAMMDDhhmmss].webp/.png (256 px)
 data/
   config.json              temporada, Instagram, pasta de fotos, repositório GitHub, tipos de evento, tipos de deck (tipos_pokemon)
