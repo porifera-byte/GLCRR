@@ -16,8 +16,8 @@
   const SECOES = [
     { id: "inicio", nome: "Início" },
     { id: "jogadores", nome: "Jogadores" },
-    { id: "eventos", nome: "Eventos", etapa: 3 },
-    { id: "resultados", nome: "Resultados", etapa: 3 },
+    { id: "eventos", nome: "Eventos" },
+    { id: "resultados", nome: "Resultados" },
     { id: "suico", nome: "Torneio suíço", etapa: 5 }
   ];
 

@@ -1,6 +1,6 @@
 # Estrutura do site — Liga GLC Roraima (v2)
 
-Atualizado em 19/10/2026 (rev. 5: ícone de jogador, exclusão no painel e limpeza dos dados de teste).
+Atualizado em 19/10/2026 (rev. 6: painel, etapa 3 — eventos e resultados manuais).
 
 Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página única: cada seção é uma âncora em `index.html` e a troca entre seções desliza na ordem do menu.
 
@@ -62,6 +62,9 @@ admin/                     painel administrativo (fora do menu, noindex)
   github.js                leitura e gravação pela API de conteúdo do GitHub
   regras-jogadores.js      regras do cadastro de jogadores (slug, apelido parecido, validação, idade), sem DOM
   tela-jogadores.js        tela Jogadores: lista, busca, cadastro e edição
+  regras-eventos.js        regras de eventos (id, validação) e de resultados (classificação, empates), sem DOM
+  tela-eventos.js          tela Eventos: lista, cadastro, edição e exclusão
+  tela-resultados.js       tela Resultados: lançamento manual com conferência, correção e exclusão
   gerar-acesso.html/.js    gerador do registro cifrado de cada organizador
   usuarios.json            registros cifrados dos organizadores
   testes/                  testes no Node (node --test admin/testes/*.test.js)
@@ -76,11 +79,13 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 - **Gravação:** commit direto na `main` pela API de conteúdo, com o `sha` atual e mensagem `[painel:<usuario>] ...`. Em conflito, relê, reaplica e tenta de novo (até 3 vezes). O JSON é validado antes de gravar.
 - **Dados:** públicos em `data/` (GLCRR); nome real e nascimento em `jogadores-privado.json` e rascunhos do suíço em `rascunhos/` (repositório privado GLC-privado).
 - **Segurança extra:** CSP restrita (só scripts próprios e `api.github.com`), sem referrer, não abre dentro de moldura.
-- **Rotas internas:** `#inicio`, `#jogadores`, `#jogadores/novo`, `#jogadores/<id>`. Cada tela fica em `tela-<nome>.js` e se registra em `window.TELAS_PAINEL`.
+- **Rotas internas:** `#inicio`, `#jogadores`, `#jogadores/novo`, `#jogadores/<id>`, `#eventos`, `#eventos/novo`, `#eventos/<id>`, `#resultados`, `#resultados/<evento_id>`. Cada tela fica em `tela-<nome>.js` e se registra em `window.TELAS_PAINEL`.
 - **Ícone do jogador:** opcional, enviado pelo painel. O painel recorta em quadrado, reduz para 256 px e regrava a imagem (some o GPS e outros dados ocultos). O organizador confirma que não há rosto nem arte, carta ou logo oficial da Pokémon. O nome do arquivo leva data e hora, para o navegador não mostrar o ícone antigo; o arquivo anterior é apagado. Sem ícone, o avatar mostra a inicial.
 - **Exclusão de jogador:** só para quem não aparece em nenhum resultado ou decklist. Apaga o registro público, o privado e o ícone, com confirmação.
 - **Jogadores:** apelido, cidade e "desde" vão para `data/jogadores.json` (público); nome completo e nascimento vão para `jogadores-privado.json` (GLC-privado). O id é o slug do apelido e não muda. Apelido parecido com outro jogador pede confirmação antes de gravar. A idade aparece só no painel. Mensagens de commit levam só o id do jogador.
-- **Telas:** Início e Jogadores prontas. Eventos, Resultados e Torneio suíço chegam nas próximas etapas.
+- **Eventos:** grava `data/eventos.json` (ordenado por data). O id (`AAAA-MM-DD-slug`) acompanha data e nome enquanto o evento não tem resultado nem decklist; depois fica fixo. Status vazio = automático. Link que não é de Google Forms gera aviso. Exclusão só sem resultado nem decklist.
+- **Resultados:** uma linha por jogador (posição, jogador, V, D, E, obs), com subir/descer e "Numerar pela ordem". Posição repetida exige "empate" em todos os empatados. "Conferir" mostra a tabela no formato da conferência (Template B) com avisos (buraco na classificação, vitórias ≠ derrotas, data futura); só então "Publicar" grava `data/resultados.json`, substituindo o resultado anterior do evento. A digitação fica em rascunho no `sessionStorage` da aba (só ids e números). Apagar resultado só se o evento não tiver decklist.
+- **Telas:** Início, Jogadores, Eventos e Resultados prontas. Torneio suíço chega nas etapas 4 e 5.
 
 ## Carrossel de fotos
 
