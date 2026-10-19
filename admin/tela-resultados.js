@@ -22,8 +22,13 @@
   };
 
   async function carregar() {
-    const [base, jog] = await Promise.all([PainelEventos.carregar(), GitHub.lerJSON("publico", "data/jogadores.json")]);
-    return { ...base, jogadores: jog.dados };
+    /* A lista de tipos é lida aqui também, sem depender de outra tela */
+    const [base, jog, cfg] = await Promise.all([
+      PainelEventos.carregar(),
+      GitHub.lerJSON("publico", "data/jogadores.json"),
+      GitHub.lerJSON("publico", "data/config.json", {})
+    ]);
+    return { ...base, jogadores: jog.dados, tiposPokemon: cfg.dados.tipos_pokemon || [] };
   }
 
   /* ---------- Lista ---------- */
@@ -152,7 +157,9 @@
           <label class="campo adm-num"><span>V</span><input name="vitorias" type="number" inputmode="numeric" min="0" max="30" value="${esc(l.vitorias)}" placeholder="0"></label>
           <label class="campo adm-num"><span>D</span><input name="derrotas" type="number" inputmode="numeric" min="0" max="30" value="${esc(l.derrotas)}" placeholder="0"></label>
           <label class="campo adm-num"><span>E</span><input name="empates" type="number" inputmode="numeric" min="0" max="30" value="${esc(l.empates)}" placeholder="0"></label>
-          <label class="campo adm-tipo"><span>Tipo do deck</span><select name="tipo_pokemon">${opcoesTipo(l.tipo_pokemon)}</select></label>
+          <label class="campo adm-tipo"><span>Tipo do deck</span>${tiposPokemon.length
+            ? `<select name="tipo_pokemon">${opcoesTipo(l.tipo_pokemon)}</select>`
+            : `<input name="tipo_pokemon" maxlength="30" autocomplete="off" placeholder="Ex.: Fogo" value="${esc(l.tipo_pokemon || "")}">`}</label>
           <label class="campo adm-obs"><span>Obs.</span><select name="obs">${R.OBS.map(o => `<option value="${o}" ${l.obs === o ? "selected" : ""}>${o || "—"}</option>`).join("")}</select></label>
           <div class="adm-mover">
             <button type="button" class="btn btn-line" data-acao="subir" aria-label="Subir linha ${i + 1}" ${i === 0 ? "disabled" : ""}>↑</button>
@@ -201,7 +208,7 @@
     corpo.querySelector("#conferir").addEventListener("click", () => {
       const preenchidas = linhas.filter(l => l.jogador_id || String(l.vitorias) + l.derrotas + l.empates !== "");
       const { colocacoes, erros, avisos } = R.validarResultado(preenchidas, d.jogadores.map(j => j.id), ev.data, hojeBV(),
-        tiposPokemon.concat(preenchidas.map(l => l.tipo_pokemon).filter(t => t && !tiposPokemon.includes(t) && valoresAntigos.has(t))));
+        tiposPokemon.length ? tiposPokemon.concat([...valoresAntigos]) : null);
       if (erros.length) {
         caixaErros.innerHTML = `<p><b>Corrija antes de conferir:</b></p><ul>${erros.map(e => `<li>${esc(e)}</li>`).join("")}</ul>`;
         caixaErros.hidden = false;

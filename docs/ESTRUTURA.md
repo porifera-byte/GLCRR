@@ -1,6 +1,6 @@
 # Estrutura do site — Liga GLC Roraima (v2)
 
-Atualizado em 19/10/2026 (rev. 8: tipo do deck de todos os jogadores no resultado).
+Atualizado em 19/10/2026 (rev. 9: versão nos scripts e estilos contra cache misturado).
 
 Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página única: cada seção é uma âncora em `index.html` e a troca entre seções desliza na ordem do menu.
 
@@ -111,6 +111,12 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 - **banlist.json**: `atualizado_em`, `fonte`, `cartas` [{`nome`, `colecao`, `numero`}].
 
 Status calculado: data passada = Encerrado; futura com link real de Google Forms = Inscrições abertas; futura sem link = Agendado.
+
+## Versão dos arquivos (cache)
+
+O GitHub Pages deixa `.js` e `.css` em cache no navegador por cerca de 10 minutos. Para o navegador nunca juntar um arquivo novo com outro antigo, as três páginas (`index.html`, `admin/index.html`, `admin/gerar-acesso.html`) carregam todos os scripts e estilos locais com a mesma versão, ex.: `main.js?v=20261019.2`.
+
+**Ao mudar qualquer `.js` ou `.css`, troque a versão nas três páginas, com o mesmo valor** (formato `AAAAMMDD.n`). O teste `admin/testes/versao.test.js` falha se faltar a versão ou se as páginas tiverem versões diferentes.
 
 ## Como testar
 
