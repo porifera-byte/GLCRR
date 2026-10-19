@@ -408,6 +408,26 @@
     return id;
   }
 
+  /* Cadastro rápido (usado pelo "+ Novo jogador" do torneio suíço): só os dados públicos;
+     nome e nascimento ficam para a tela Jogadores. A checagem de apelido parecido é feita por quem chama.
+     Devolve o registro público gravado; lança Error (com .erros por campo) se a validação falhar. */
+  async function cadastrarRapido(entrada) {
+    const { dados: d, erros } = R.validar({ apelido: entrada.apelido, cidade: entrada.cidade, desde: entrada.desde || hojeBV().slice(0, 4) }, hojeBV());
+    if (Object.keys(erros).length) {
+      const e = new Error(Object.values(erros).join(" "));
+      e.erros = erros;
+      throw e;
+    }
+    await carregar();   // id único sobre a lista atual do GitHub
+    const id = await salvar(true, null, null, d, undefined);
+    cache = null;
+    const reg = { id, apelido: d.apelido, desde: d.desde };
+    if (d.cidade) reg.cidade = d.cidade;
+    return reg;
+  }
+
+  window.PainelJogadores = { cadastrarRapido };
+
   /* reg = null apaga o registro privado */
   function gravarPrivado(id, reg) {
     return GitHub.atualizarJSON("privado", ARQ_PRIVADO, listaAtual => {

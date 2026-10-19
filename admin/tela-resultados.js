@@ -228,13 +228,7 @@
       etapaDigitar.hidden = true;
       etapaConferir.hidden = false;
       etapaConferir.innerHTML = `
-        <h2 tabindex="-1" id="t-conferencia">📋 Conferência — ${esc(ev.nome)}, ${dataBR(ev.data)}</h2>
-        <div class="table-box" role="region" aria-labelledby="t-conferencia" tabindex="0">
-          <table><thead><tr><th>Pos.</th><th>Jogador</th><th>V-D-E</th><th>Tipo</th><th>Obs</th></tr></thead>
-          <tbody>${colocacoes.map(c => `<tr><td>${c.posicao}º</td><td>${esc(apelido(c.jogador_id))}</td><td>${c.vitorias}-${c.derrotas}-${c.empates}</td><td>${htmlTipo(c.tipo_pokemon, { base: "../", comTexto: true })}</td><td>${esc(c.obs || "")}</td></tr>`).join("")}</tbody></table>
-        </div>
-        ${avisos.length ? `<div class="adm-alerta"><p><b>⚠️ Confira:</b></p><ul>${avisos.map(a => `<li>${esc(a)}</li>`).join("")}</ul></div>` : ""}
-        ${existente ? `<p class="adm-nota">Este evento já tem resultado publicado: ele será substituído por esta tabela.</p>` : ""}
+        ${htmlConferencia(ev, colocacoes, avisos, existente, apelido)}
         <div class="adm-acoes">
           <button class="btn btn-ouro adm-btn" type="button" id="publicar">Confere, publicar</button>
           <button class="btn btn-line adm-btn" type="button" id="corrigir">Voltar e corrigir</button>
@@ -251,19 +245,7 @@
         botao.disabled = true;
         mostrarMensagem(msgSalvar, "Gravando…");
         try {
-          await GitHub.atualizarJSON("publico", ARQ, lista => {
-            const i = lista.findIndex(r => r.evento_id === ev.id);
-            const reg = { evento_id: ev.id, colocacoes };
-            if (i >= 0) lista[i] = reg; else lista.push(reg);
-            return lista;
-          }, `${existente ? "Corrige" : "Lança"} resultado do evento ${ev.id}`);
-          if (ajuste.mudou) {
-            await GitHub.atualizarJSON("publico", "data/decklists.json", lista => {
-              const novo = R.ajustarDecklists(lista, ev.id, colocacoes, apelido);
-              if (novo.erros.length) throw new Error(`Resultado publicado, mas as decklists não foram ajustadas: ${novo.erros.join(" ")}`);
-              return novo.lista;
-            }, `Ajusta posições das decklists do evento ${ev.id}`);
-          }
+          await publicar(ev, colocacoes, existente, ajuste, apelido);
           rascunho.apagar(ev.id);
           recado = `Resultado de ${ev.nome} publicado. O site atualiza em cerca de 1 minuto. Agora você pode enviar as decklists do Top 3 abaixo.`;
           formulario(tela, ev.id);   // fica no evento para enviar as decklists
@@ -278,6 +260,38 @@
     if (existente) {
       tela.appendChild(blocoDecklists(ev, existente, d, apelido));
       tela.appendChild(blocoApagar(ev, nDecklists));
+    }
+  }
+
+  /* ---------- Conferência e publicação (usadas também pela tela do suíço) ---------- */
+
+  /* Tabela no formato do Template B, com avisos e nota de substituição */
+  function htmlConferencia(ev, colocacoes, avisos, existente, apelido) {
+    return `
+        <h2 tabindex="-1" id="t-conferencia">📋 Conferência — ${esc(ev.nome)}, ${dataBR(ev.data)}</h2>
+        <div class="table-box" role="region" aria-labelledby="t-conferencia" tabindex="0">
+          <table><thead><tr><th>Pos.</th><th>Jogador</th><th>V-D-E</th><th>Tipo</th><th>Obs</th></tr></thead>
+          <tbody>${colocacoes.map(c => `<tr><td>${c.posicao}º</td><td>${esc(apelido(c.jogador_id))}</td><td>${c.vitorias}-${c.derrotas}-${c.empates}</td><td>${htmlTipo(c.tipo_pokemon, { base: "../", comTexto: true })}</td><td>${esc(c.obs || "")}</td></tr>`).join("")}</tbody></table>
+        </div>
+        ${avisos.length ? `<div class="adm-alerta"><p><b>⚠️ Confira:</b></p><ul>${avisos.map(a => `<li>${esc(a)}</li>`).join("")}</ul></div>` : ""}
+        ${existente ? `<p class="adm-nota">Este evento já tem resultado publicado: ele será substituído por esta tabela.</p>` : ""}`;
+  }
+
+  /* Grava a classificação em resultados.json e acompanha as posições das decklists.
+     ajuste = RegrasEventos.ajustarDecklists(...) calculado na conferência */
+  async function publicar(ev, colocacoes, existente, ajuste, apelido) {
+    await GitHub.atualizarJSON("publico", ARQ, lista => {
+      const i = lista.findIndex(r => r.evento_id === ev.id);
+      const reg = { evento_id: ev.id, colocacoes };
+      if (i >= 0) lista[i] = reg; else lista.push(reg);
+      return lista;
+    }, `${existente ? "Corrige" : "Lança"} resultado do evento ${ev.id}`);
+    if (ajuste.mudou) {
+      await GitHub.atualizarJSON("publico", "data/decklists.json", lista => {
+        const novo = R.ajustarDecklists(lista, ev.id, colocacoes, apelido);
+        if (novo.erros.length) throw new Error(`Resultado publicado, mas as decklists não foram ajustadas: ${novo.erros.join(" ")}`);
+        return novo.lista;
+      }, `Ajusta posições das decklists do evento ${ev.id}`);
     }
   }
 
@@ -530,6 +544,8 @@
     });
     return bloco;
   }
+
+  window.PainelResultados = { carregar, htmlConferencia, publicar };
 
   /* #resultados = lista de eventos; #resultados/<evento_id> = lançamento */
   (window.TELAS_PAINEL = window.TELAS_PAINEL || {}).resultados = (tela, secao, param) =>
