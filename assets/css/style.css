@@ -85,6 +85,7 @@ h3{font-size:1.15rem}
 .home-titulo .eyebrow{grid-column:1 / -1}
 .home-titulo h1{grid-column:1;min-width:0}
 .home-titulo .logo-home{--lado:min(var(--logo-h),32vw);width:var(--lado);height:var(--lado);grid-column:2;grid-row:2}
+.home-titulo .lead{grid-column:1 / -1}
 .home-redes{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
 @media (max-width:520px){
   .home-titulo{gap:12px}
@@ -142,10 +143,11 @@ button.btn{font-family:inherit;cursor:pointer}
 .dots button[aria-current="true"]{width:26px;background:var(--ouro)}
 
 @media (min-width:760px){
-  /* PC: o logo acompanha o bloco inteiro (linha de cima + título) */
+  /* PC: o logo acompanha o bloco inteiro (linha de cima, título e texto de apresentação) */
   .home-titulo{--logo-h:calc(2 * .98 * clamp(2.2rem,5vw,3.6rem) + 36px)}
   .home-titulo .eyebrow{grid-column:1;grid-row:1}
-  .home-titulo .logo-home{grid-row:1 / span 2}
+  .home-titulo .lead{grid-column:1;grid-row:3}
+  .home-titulo .logo-home{grid-row:1 / span 3}
   .home-top:has(.carousel){grid-template-columns:1fr minmax(0,1fr);gap:40px}
   .home{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}
 }
