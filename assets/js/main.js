@@ -324,6 +324,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") fecharModal(
    Reserva: data/fotos.json (lista de nomes de arquivo), para domínio próprio ou falha da API. */
 
 const EXT_FOTO = /\.(jpe?g|png|webp)$/i;
+const PASTA_FOTOS = "assets/img/fotos";
 let fotosCache = null;
 
 function repoGitHub() {
@@ -339,7 +340,9 @@ function repoGitHub() {
 
 async function listarFotos() {
   if (fotosCache) return fotosCache;
-  const pasta = DADOS.config.pasta_fotos || "assets/images/fotos";
+  /* Só aceita pasta do próprio site (o valor vem de config.json e vai para a URL da API e para o src) */
+  const pastaCfg = String(DADOS.config.pasta_fotos || "");
+  const pasta = /^assets(\/[a-z0-9-]+)+$/.test(pastaCfg) ? pastaCfg : PASTA_FOTOS;
   const caminho = nome => `${pasta}/${encodeURIComponent(nome)}`;
   const gh = repoGitHub();
   if (gh) {
