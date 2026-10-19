@@ -93,14 +93,12 @@ const PAGES = {
     return `<div class="home">
       <div class="home-top">
         <div class="home-side">
+          <span class="eyebrow">Liga roraimense de Pokémon TCG</span>
           <div class="home-titulo">
-            <div>
-              <span class="eyebrow">Liga roraimense de Pokémon TCG</span>
-              <h1>Torne-se um <em>Líder de Ginásio!</em></h1>
-            </div>
+            <h1>Torne-se um <em>Líder de Ginásio!</em></h1>
             ${logoHTML("logo-home", "Logo da Liga GLC Roraima")}
           </div>
-          <p class="lead">Um tipo de Pokémon, uma cópia de cada carta, sessenta cartas no deck. Venha jogar, conhecer a comunidade e acompanhar os próximos eventos.</p>
+          <p class="lead">1 tipo de Pokémon, 1 cópia de cada carta, 60 cartas no deck. Venha jogar, conhecer a comunidade e acompanhar os próximos eventos.</p>
         </div>
         ${CARROSSEL_ATIVO ? `<section class="carousel" aria-roledescription="carrossel" aria-label="Fotos da liga" id="carousel">
           <div class="track"></div>
@@ -391,6 +389,18 @@ function montarSlides(root, fotos) {
   root.querySelector(".dots").innerHTML = fotos.map((_, i) => `<button aria-label="Ir para a foto ${i + 1}"></button>`).join("");
 }
 
+/* Logo do Início com a mesma altura do título (o título pode quebrar em mais linhas no celular).
+   Ajuste pelo CSSOM (--logo-h), permitido pela CSP; sem JS vale a altura de 2 linhas definida no CSS. */
+let logoObs = null;
+function ajustarLogoHome() {
+  logoObs?.disconnect();
+  const h1 = document.querySelector(".home-titulo h1");
+  const titulo = h1?.parentElement;
+  if (!h1 || !("ResizeObserver" in window)) return;
+  logoObs = new ResizeObserver(() => titulo.style.setProperty("--logo-h", `${h1.offsetHeight}px`));
+  logoObs.observe(h1);
+}
+
 /* Autoplay 5 s, pausa com mouse/foco, setas, pontos e arraste no celular */
 let carTimer = null;
 async function iniciarCarrossel() {
@@ -507,6 +517,7 @@ function render() {
   atual = rota;
   window.scrollTo({ top: 0 });
   iniciarCarrossel();
+  ajustarLogoHome();
 }
 
 /* ---------- Início ---------- */
