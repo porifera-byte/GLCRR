@@ -18,6 +18,7 @@ const ICONES = {
   jogadores: svg('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14a5 5 0 0 1 4.5 5"/>')
 };
 const IG_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>`;
+const YT_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg>`;
 
 /* ---------- Componentes ---------- */
 
@@ -86,6 +87,7 @@ function cardEvento(ev) {
 const PAGES = {
   inicio() {
     const instagram = urlSegura(DADOS.config.instagram_url) || "https://www.instagram.com/glc.roraima/";
+    const youtube = urlSegura(DADOS.config.youtube_url);
     return `<div class="home">
       <div class="home-top">
         <div class="home-side">
@@ -93,7 +95,10 @@ const PAGES = {
           <span class="eyebrow">Liga roraimense de Pokémon TCG</span>
           <h1>Torne-se um <em>Líder de Ginásio!</em></h1>
           <p class="lead">Um tipo de Pokémon, uma cópia de cada carta, sessenta cartas no deck. Venha jogar, conhecer a comunidade e acompanhar os próximos eventos.</p>
-          <a class="btn btn-ouro" href="${esc(instagram)}" target="_blank" rel="noopener">${IG_SVG} Siga no Instagram</a>
+          <div class="home-redes">
+            <a class="btn btn-ouro" href="${esc(instagram)}" target="_blank" rel="noopener">${IG_SVG} Siga no Instagram</a>
+            ${youtube ? `<a class="btn btn-verm" href="${esc(youtube)}" target="_blank" rel="noopener">${YT_SVG} Canal no YouTube</a>` : ""}
+          </div>
         </div>
         <section class="carousel" aria-roledescription="carrossel" aria-label="Fotos da liga" id="carousel">
           <div class="track"></div>
