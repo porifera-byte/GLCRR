@@ -265,7 +265,7 @@ function htmlResultados(eventoId) {
   const r = resultadoDo(eventoId);
   if (!ev || !r) return vazio("Resultados não encontrados.", "");
   const linhas = [...(r.colocacoes || [])].sort((a, b) => a.posicao - b.posicao).map(c => {
-    const deck = c.posicao <= 3 ? decklistDe(ev.id, c.jogador_id) : null;
+    const deck = decklistTop3(ev.id, c.jogador_id, c.posicao);
     const existe = !!jogadorPorId(c.jogador_id);
     return `<li>
       <span class="pos ${c.posicao <= 3 ? "p" + c.posicao : ""}">${c.posicao}º</span>
@@ -283,15 +283,17 @@ function htmlResultados(eventoId) {
 
 function htmlDecklist(eventoId, jogadorId, veioDaLista) {
   const ev = eventoPorId(eventoId);
-  const d = decklistDe(eventoId, jogadorId);
+  const colocacao = ((resultadoDo(eventoId) || {}).colocacoes || []).find(c => c.jogador_id === jogadorId);
+  const d = colocacao ? decklistTop3(eventoId, jogadorId, colocacao.posicao) : decklistDe(eventoId, jogadorId);
   if (!ev || !d) return vazio("Decklist não encontrada.", "");
   const nome = apelidoDe(jogadorId);
   return `${veioDaLista ? `<button type="button" class="link-voltar" data-resultados="${esc(eventoId)}">‹ Voltar à classificação</button>` : ""}
     <div><span class="eyebrow">Decklist · ${d.posicao}º lugar</span><h2 id="modal-titulo">${esc(nome)}</h2>
       <p class="lead">${[ev.nome, dataBR(ev.data), d.tipo_pokemon ? `Tipo ${d.tipo_pokemon}` : ""].filter(Boolean).map(esc).join(" · ")}</p></div>
-    ${d.imagem ? `<a href="${esc(d.imagem)}" target="_blank" rel="noopener" title="Abrir imagem em tamanho real">
+    ${d.reserva ? `<img class="deck-img deck-reserva" src="${esc(d.imagem)}" alt="Decklist em breve: a imagem desta lista ainda não foi enviada.">`
+      : d.imagem ? `<a href="${esc(d.imagem)}" target="_blank" rel="noopener" title="Abrir imagem em tamanho real">
         <img class="deck-img" src="${esc(d.imagem)}" alt="Decklist usada por ${esc(nome)} em ${esc(ev.nome)}"
-          onerror="this.closest('a').outerHTML='<div class=&quot;empty&quot;><b>Imagem da decklist não encontrada.</b></div>'"></a>` : ""}
+          onerror="this.closest('a').outerHTML='<img class=&quot;deck-img deck-reserva&quot; src=&quot;${IMAGEM_RESERVA_DECKLIST}&quot; alt=&quot;Decklist em breve: a imagem ainda não está disponível.&quot;>'"></a>` : ""}
     ${d.lista_texto ? `<pre class="deck-txt">${esc(d.lista_texto)}</pre>` : ""}
     <a class="btn btn-line btn-sm" href="${linkPerfil(jogadorId)}">Ver perfil de ${esc(nome)}</a>`;
 }

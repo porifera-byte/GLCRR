@@ -91,6 +91,10 @@
 
     let linhas;
     const salvo = rascunho.ler(ev.id);
+    if (recado) {
+      mostrarMensagem(msgTopo, recado, "ok");
+      recado = "";
+    }
     if (salvo && salvo.length) {
       linhas = salvo;
       mostrarMensagem(msgTopo, "Rascunho desta aba restaurado.", "ok");
@@ -194,6 +198,14 @@
         caixaErros.focus();
         return;
       }
+      /* Decklists já cadastradas precisam continuar no Top 3 */
+      const ajuste = R.ajustarDecklists(d.decklists, ev.id, colocacoes, apelido);
+      if (ajuste.erros.length) {
+        caixaErros.innerHTML = `<p><b>Corrija antes de conferir:</b></p><ul>${ajuste.erros.map(e => `<li>${esc(e)}</li>`).join("")}</ul>`;
+        caixaErros.hidden = false;
+        caixaErros.focus();
+        return;
+      }
       caixaErros.hidden = true;
       etapaDigitar.hidden = true;
       etapaConferir.hidden = false;
@@ -227,9 +239,16 @@
             if (i >= 0) lista[i] = reg; else lista.push(reg);
             return lista;
           }, `${existente ? "Corrige" : "Lança"} resultado do evento ${ev.id}`);
+          if (ajuste.mudou) {
+            await GitHub.atualizarJSON("publico", "data/decklists.json", lista => {
+              const novo = R.ajustarDecklists(lista, ev.id, colocacoes, apelido);
+              if (novo.erros.length) throw new Error(`Resultado publicado, mas as decklists não foram ajustadas: ${novo.erros.join(" ")}`);
+              return novo.lista;
+            }, `Ajusta posições das decklists do evento ${ev.id}`);
+          }
           rascunho.apagar(ev.id);
-          recado = `Resultado de ${ev.nome} publicado. O site atualiza em cerca de 1 minuto.`;
-          location.hash = "#resultados";
+          recado = `Resultado de ${ev.nome} publicado. O site atualiza em cerca de 1 minuto. Agora você pode enviar as decklists do Top 3 abaixo.`;
+          formulario(tela, ev.id);   // fica no evento para enviar as decklists
         } catch (erro) {
           mostrarMensagem(msgSalvar, erro.message, "erro");
           botao.disabled = false;
@@ -238,7 +257,218 @@
     });
 
     desenhar();
-    if (existente) tela.appendChild(blocoApagar(ev, nDecklists));
+    if (existente) {
+      tela.appendChild(blocoDecklists(ev, existente, d, apelido));
+      tela.appendChild(blocoApagar(ev, nDecklists));
+    }
+  }
+
+  /* ---------- Decklists do Top 3 ---------- */
+
+  const RESERVA = "../assets/img/decklists/sem-imagem.svg";
+  const prepararDecklist = arquivo => Imagens.preparar(arquivo, { maxLado: 1600, minimo: 300, formatos: ["jpeg"], qualidade: 0.85 });
+
+  function blocoDecklists(ev, resultado, d, apelido) {
+    const top3 = [...resultado.colocacoes].filter(c => c.posicao <= 3).sort((a, b) => a.posicao - b.posicao);
+    const secao = document.createElement("section");
+    secao.className = "adm-decklists";
+    secao.setAttribute("aria-labelledby", "t-decklists");
+    secao.innerHTML = `
+      <h2 id="t-decklists">Decklists do Top 3</h2>
+      <p class="adm-nota">Enquanto não houver imagem, o site mostra a imagem de reserva "Decklist em breve". Enviar uma imagem nova substitui a anterior.</p>
+      <div class="adm-decks"></div>`;
+    const caixa = secao.querySelector(".adm-decks");
+    top3.forEach(c => caixa.appendChild(cartaoDecklist(ev, c, d, apelido)));
+    return secao;
+  }
+
+  function cartaoDecklist(ev, c, d, apelido) {
+    let atual = d.decklists.find(x => x.evento_id === ev.id && x.jogador_id === c.jogador_id) || null;
+    let nova;            // imagem escolhida e ainda não gravada
+    let removerImagem = false;
+    const cartao = document.createElement("article");
+    cartao.className = "adm-deck";
+    const idc = `dk-${c.posicao}-${c.jogador_id}`;
+    cartao.innerHTML = `
+      <figure class="adm-deck-previa">
+        <img alt="" id="${idc}-img">
+        <figcaption id="${idc}-legenda"></figcaption>
+      </figure>
+      <form class="adm-form adm-deck-form" novalidate>
+        <h3><span class="pos p${c.posicao}">${c.posicao}º</span> ${esc(apelido(c.jogador_id))}</h3>
+        <div class="adm-icone-acoes">
+          <label class="btn btn-line adm-btn-arquivo">
+            <input type="file" name="arquivo" accept="image/png,image/jpeg,image/webp" class="adm-arquivo">
+            <span class="rotulo-arquivo"></span>
+          </label>
+          <button class="btn btn-line adm-btn-arquivo" type="button" data-acao="remover-imagem">Usar a reserva</button>
+        </div>
+        <small class="adm-erro" data-erro="imagem"></small>
+        <label class="adm-check" hidden>
+          <input type="checkbox" name="imagem_ok">
+          <span>Confirmo que a imagem <b>não mostra nome completo, documento, rosto</b> nem outro dado pessoal.</span>
+        </label>
+        <label class="campo">
+          <span>Tipo do deck</span>
+          <input name="tipo_pokemon" maxlength="30" autocomplete="off" placeholder="Ex.: Fogo" value="${esc(atual ? atual.tipo_pokemon || "" : "")}">
+          <small class="adm-erro" data-erro="tipo_pokemon"></small>
+        </label>
+        <details class="adm-mais"${atual && atual.lista_texto ? " open" : ""}>
+          <summary>Lista em texto (opcional)</summary>
+          <label class="campo">
+            <span class="adm-oculto">Lista em texto</span>
+            <textarea name="lista_texto" maxlength="3000" rows="6">${esc(atual ? atual.lista_texto || "" : "")}</textarea>
+            <small class="adm-erro" data-erro="lista_texto"></small>
+          </label>
+        </details>
+        <div class="adm-acoes">
+          <button class="btn btn-ouro adm-btn" type="submit">Salvar decklist</button>
+          <button class="btn btn-line adm-btn adm-btn-texto-perigo" type="button" data-acao="apagar">Apagar decklist</button>
+        </div>
+        <p class="adm-msg" role="status" aria-live="polite"></p>
+      </form>`;
+    const img = cartao.querySelector("img");
+    const legenda = cartao.querySelector("figcaption");
+    const form = cartao.querySelector("form");
+    const msg = form.querySelector(".adm-msg");
+    const erroImg = form.querySelector("[data-erro=imagem]");
+    const confirma = form.querySelector(".adm-check");
+    const botaoReserva = form.querySelector("[data-acao=remover-imagem]");
+    const botaoApagar = form.querySelector("[data-acao=apagar]");
+    const temImagemGravada = () => !!(atual && R.DECKLIST_VALIDA.test(atual.imagem || ""));
+
+    function atualizarVista() {
+      if (nova) {
+        img.src = nova.url;
+        legenda.textContent = "Nova imagem (ainda não salva)";
+      } else if (temImagemGravada() && !removerImagem) {
+        img.src = `../${atual.imagem}`;
+        legenda.textContent = "Imagem publicada";
+      } else {
+        img.src = RESERVA;
+        legenda.textContent = removerImagem ? "Volta para a reserva ao salvar" : "Reserva (sem imagem enviada)";
+      }
+      img.alt = `Decklist de ${apelido(c.jogador_id)}: ${legenda.textContent.toLowerCase()}`;
+      form.querySelector(".rotulo-arquivo").textContent = temImagemGravada() || nova ? "Trocar imagem" : "Enviar imagem";
+      botaoReserva.hidden = !(nova || (temImagemGravada() && !removerImagem));
+      confirma.hidden = !nova;
+      botaoApagar.hidden = !atual;
+    }
+    /* Imagem recém-enviada leva ~1 min para ser publicada: até lá, mostra a reserva */
+    img.addEventListener("error", () => {
+      if (!img.src.endsWith("sem-imagem.svg")) { img.src = RESERVA; legenda.textContent = "Imagem enviada; aparece em cerca de 1 minuto"; }
+    });
+    atualizarVista();
+
+    form.arquivo.addEventListener("change", async () => {
+      const arquivo = form.arquivo.files[0];
+      erroImg.textContent = "";
+      if (!arquivo) return;
+      try {
+        const preparado = await prepararDecklist(arquivo);
+        if (nova) URL.revokeObjectURL(nova.url);
+        nova = preparado;
+        removerImagem = false;
+        form.imagem_ok.checked = false;
+        atualizarVista();
+      } catch (e) {
+        erroImg.textContent = e.message;
+      } finally {
+        form.arquivo.value = "";
+      }
+    });
+    form.imagem_ok.addEventListener("change", () => { if (form.imagem_ok.checked) erroImg.textContent = ""; });
+    botaoReserva.addEventListener("click", () => {
+      if (nova) { URL.revokeObjectURL(nova.url); nova = undefined; }
+      else removerImagem = true;
+      atualizarVista();
+    });
+
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      form.querySelectorAll("[data-erro]").forEach(el => { el.textContent = ""; });
+      const { dados, erros } = R.validarDecklist({ tipo_pokemon: form.tipo_pokemon.value, lista_texto: form.lista_texto.value });
+      if (nova && !form.imagem_ok.checked) erros.imagem = "Marque a confirmação sobre a imagem.";
+      if (Object.keys(erros).length) {
+        Object.entries(erros).forEach(([k, v]) => { form.querySelector(`[data-erro="${k}"]`).textContent = v; });
+        mostrarMensagem(msg, "Confira os campos marcados.", "erro");
+        return;
+      }
+      const antiga = temImagemGravada() ? R.semVersao(atual.imagem) : "";
+      let imagem = removerImagem ? "" : atual ? atual.imagem || "" : "";
+      const igual = !nova && imagem === (atual ? atual.imagem || "" : "") &&
+        dados.tipo_pokemon === (atual ? atual.tipo_pokemon || "" : "") && dados.lista_texto === (atual ? atual.lista_texto || "" : "");
+      if (igual) { mostrarMensagem(msg, "Nada mudou.", "ok"); return; }
+      const botoes = form.querySelectorAll("button");
+      botoes.forEach(b => { b.disabled = true; });
+      mostrarMensagem(msg, "Gravando…");
+      try {
+        let caminhoNovo = "";
+        if (nova) {
+          caminhoNovo = R.caminhoDecklist(ev.id, c.posicao, c.jogador_id, nova.extensao);
+          await GitHub.gravarBinario("publico", caminhoNovo, nova.bytes, `Imagem da decklist de ${c.jogador_id} no evento ${ev.id}`);
+          imagem = `${caminhoNovo}?v=${R.carimbo()}`;
+        }
+        const registro = { evento_id: ev.id, jogador_id: c.jogador_id, posicao: c.posicao,
+          tipo_pokemon: dados.tipo_pokemon, lista_texto: dados.lista_texto, imagem };
+        const vazio = !imagem && !dados.tipo_pokemon && !dados.lista_texto;
+        await GitHub.atualizarJSON("publico", "data/decklists.json", lista => {
+          const i = lista.findIndex(x => x.evento_id === ev.id && x.jogador_id === c.jogador_id);
+          if (vazio) { if (i >= 0) lista.splice(i, 1); return lista; }
+          if (i >= 0) lista[i] = { ...lista[i], ...registro }; else lista.push(registro);
+          return lista;
+        }, `Decklist de ${c.jogador_id} no evento ${ev.id}`);
+        if (antiga && antiga !== caminhoNovo && (nova || removerImagem)) {
+          await GitHub.apagarArquivo("publico", antiga, `Remove imagem antiga da decklist de ${c.jogador_id}`).catch(() => {});
+        }
+        atual = vazio ? null : registro;
+        d.decklists = d.decklists.filter(x => !(x.evento_id === ev.id && x.jogador_id === c.jogador_id)).concat(atual ? [atual] : []);
+        if (nova) { URL.revokeObjectURL(nova.url); nova = undefined; }
+        removerImagem = false;
+        atualizarVista();
+        mostrarMensagem(msg, "Decklist salva. O site atualiza em cerca de 1 minuto.", "ok");
+      } catch (erro) {
+        mostrarMensagem(msg, erro.message, "erro");
+      } finally {
+        botoes.forEach(b => { b.disabled = false; });
+      }
+    });
+
+    /* Apagar: dois toques (o primeiro pede confirmação) */
+    let confirmandoApagar = false;
+    botaoApagar.addEventListener("click", async () => {
+      if (!confirmandoApagar) {
+        confirmandoApagar = true;
+        botaoApagar.textContent = "Toque de novo para apagar";
+        setTimeout(() => { confirmandoApagar = false; botaoApagar.textContent = "Apagar decklist"; }, 5000);
+        return;
+      }
+      confirmandoApagar = false;
+      const botoes = form.querySelectorAll("button");
+      botoes.forEach(b => { b.disabled = true; });
+      mostrarMensagem(msg, "Apagando…");
+      try {
+        const antiga = temImagemGravada() ? R.semVersao(atual.imagem) : "";
+        await GitHub.atualizarJSON("publico", "data/decklists.json",
+          lista => lista.filter(x => !(x.evento_id === ev.id && x.jogador_id === c.jogador_id)),
+          `Apaga decklist de ${c.jogador_id} no evento ${ev.id}`);
+        if (antiga) await GitHub.apagarArquivo("publico", antiga, `Remove imagem da decklist de ${c.jogador_id}`).catch(() => {});
+        atual = null;
+        d.decklists = d.decklists.filter(x => !(x.evento_id === ev.id && x.jogador_id === c.jogador_id));
+        form.tipo_pokemon.value = "";
+        form.lista_texto.value = "";
+        if (nova) { URL.revokeObjectURL(nova.url); nova = undefined; }
+        removerImagem = false;
+        atualizarVista();
+        mostrarMensagem(msg, "Decklist apagada. O site volta a mostrar a reserva.", "ok");
+      } catch (erro) {
+        mostrarMensagem(msg, erro.message, "erro");
+      } finally {
+        botoes.forEach(b => { b.disabled = false; });
+        botaoApagar.textContent = "Apagar decklist";
+      }
+    });
+    return cartao;
   }
 
   /* ---------- Apagar resultado ---------- */
@@ -249,7 +479,7 @@
     bloco.setAttribute("aria-labelledby", "t-apagar");
     if (nDecklists) {
       bloco.innerHTML = `<h2 id="t-apagar">Apagar resultado</h2>
-        <p class="adm-nota">Não é possível apagar: o evento tem ${nDecklists} decklist(s) do Top 3 ligadas a este resultado. Peça pelo chat do projeto.</p>`;
+        <p class="adm-nota">Não é possível apagar: o evento tem ${nDecklists} decklist(s) cadastrada(s). Apague as decklists na seção acima antes.</p>`;
       return bloco;
     }
     bloco.innerHTML = `

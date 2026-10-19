@@ -9,7 +9,6 @@
   const ARQ_PUBLICO = "data/jogadores.json";
   const ARQ_PRIVADO = "jogadores-privado.json";
   const LADO_ICONE = 256;                 // px do ícone gravado
-  const MAX_ENTRADA = 15 * 1024 * 1024;   // arquivo escolhido: até 15 MB
 
   let cache = null;      // { publicos, privados, resultados, decklists }
   let recado = "";       // mensagem mostrada na próxima tela (depois de salvar)
@@ -64,36 +63,8 @@
 
   /* ---------- Imagem do ícone ---------- */
 
-  /* Recorta o centro em quadrado, reduz para 256 px e regrava (isso também apaga dados ocultos da foto, como GPS).
-     Devolve { bytes, extensao, url } */
-  async function prepararIcone(arquivo) {
-    if (!/^image\/(png|jpeg|webp)$/.test(arquivo.type)) throw new Error("Use uma imagem PNG, JPEG ou WEBP.");
-    if (arquivo.size > MAX_ENTRADA) throw new Error("Imagem grande demais (máximo 15 MB).");
-    const urlOrigem = URL.createObjectURL(arquivo);
-    try {
-      const img = new Image();
-      img.src = urlOrigem;
-      await img.decode().catch(() => { throw new Error("Não foi possível abrir esta imagem."); });
-      const lado = Math.min(img.naturalWidth, img.naturalHeight);
-      if (lado < 64) throw new Error("Imagem pequena demais (mínimo 64 px).");
-      const canvas = document.createElement("canvas");
-      canvas.width = canvas.height = LADO_ICONE;
-      const ctx = canvas.getContext("2d");
-      ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(img, (img.naturalWidth - lado) / 2, (img.naturalHeight - lado) / 2, lado, lado, 0, 0, LADO_ICONE, LADO_ICONE);
-      const comoBlob = (tipo, q) => new Promise(ok => canvas.toBlob(ok, tipo, q));
-      let blob = await comoBlob("image/webp", 0.85);
-      if (!blob || blob.type !== "image/webp") blob = await comoBlob("image/png");   // Safari antigo não gera WEBP
-      if (!blob) throw new Error("Não foi possível converter a imagem.");
-      return {
-        bytes: new Uint8Array(await blob.arrayBuffer()),
-        extensao: blob.type === "image/webp" ? "webp" : "png",
-        url: URL.createObjectURL(blob)
-      };
-    } finally {
-      URL.revokeObjectURL(urlOrigem);
-    }
-  }
+  /* Recorta o centro em quadrado de 256 px e regrava (admin/imagens.js) */
+  const prepararIcone = arquivo => Imagens.preparar(arquivo, { quadrado: true, lado: LADO_ICONE, minimo: 64, formatos: ["webp", "png"] });
 
   /* ---------- Lista ---------- */
 

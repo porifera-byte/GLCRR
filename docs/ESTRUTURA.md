@@ -1,6 +1,6 @@
 # Estrutura do site — Liga GLC Roraima (v2)
 
-Atualizado em 19/10/2026 (rev. 6: painel, etapa 3 — eventos e resultados manuais).
+Atualizado em 19/10/2026 (rev. 7: decklists do Top 3 pelo painel e imagem de reserva).
 
 Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página única: cada seção é uma âncora em `index.html` e a troca entre seções desliza na ordem do menu.
 
@@ -23,6 +23,10 @@ Não há seções próprias de Decklists nem de Inscrições:
 
 No Calendário, cada evento realizado com resultados tem o botão "Resultados". Ele abre um pop-up com a classificação, um botão "Perfil" por jogador (leva a `#jogadores/<id>`) e, no Top 3, um botão "Decklist" que mostra a imagem da lista. O mesmo pop-up abre pelo botão "Classificação do evento" no perfil. Esc, o X ou um clique fora fecham.
 
+## Decklist de reserva
+
+Todo jogador do Top 3 de um evento com resultado tem o botão "Decklist" no pop-up e "Ver decklist" no perfil. Sem imagem nem lista em texto cadastradas, o site mostra `assets/img/decklists/sem-imagem.svg` ("Decklist em breve"). Se a imagem enviada ainda não foi publicada pelo GitHub Pages, também aparece a reserva. A função é `decklistTop3()` em `assets/js/data.js`.
+
 ## Histórico dos jogadores
 
 O histórico de cada jogador é montado a partir de `resultados.json` (colocações por evento) e `decklists.json`. Os dados ficam em um só lugar: ao registrar um evento, o perfil de todos os participantes se atualiza sozinho.
@@ -41,7 +45,8 @@ assets/
   js/main.js               menu, roteador com slide, páginas, pop-up de resultados e carrossel
   icons/GLCRR-logo.png     logo da liga (cabeçalho, Início e ícone da aba)
   images/fotos/            fotos do carrossel (.jpg, .jpeg, .png, .webp)
-  img/decklists/           imagens de decklist: [evento_id]-[posicao]-[jogador_id].png/.jpg
+  img/decklists/           imagens de decklist: [evento_id]-[posicao]-[jogador_id].jpg (enviadas pelo painel)
+                           e sem-imagem.svg (reserva "Decklist em breve")
   img/jogadores/           ícones dos jogadores, enviados pelo painel: [jogador_id]-[AAAAMMDDhhmmss].webp/.png (256 px)
 data/
   config.json              temporada, Instagram, pasta de fotos, repositório GitHub, tipos de evento
@@ -64,7 +69,8 @@ admin/                     painel administrativo (fora do menu, noindex)
   tela-jogadores.js        tela Jogadores: lista, busca, cadastro e edição
   regras-eventos.js        regras de eventos (id, validação) e de resultados (classificação, empates), sem DOM
   tela-eventos.js          tela Eventos: lista, cadastro, edição e exclusão
-  tela-resultados.js       tela Resultados: lançamento manual com conferência, correção e exclusão
+  tela-resultados.js       tela Resultados: lançamento manual com conferência, correção, exclusão e decklists do Top 3
+  imagens.js               preparo de imagens no navegador (recorte, redução, regravação sem metadados)
   gerar-acesso.html/.js    gerador do registro cifrado de cada organizador
   usuarios.json            registros cifrados dos organizadores
   testes/                  testes no Node (node --test admin/testes/*.test.js)
@@ -85,6 +91,7 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 - **Jogadores:** apelido, cidade e "desde" vão para `data/jogadores.json` (público); nome completo e nascimento vão para `jogadores-privado.json` (GLC-privado). O id é o slug do apelido e não muda. Apelido parecido com outro jogador pede confirmação antes de gravar. A idade aparece só no painel. Mensagens de commit levam só o id do jogador.
 - **Eventos:** grava `data/eventos.json` (ordenado por data). O id (`AAAA-MM-DD-slug`) acompanha data e nome enquanto o evento não tem resultado nem decklist; depois fica fixo. Status vazio = automático. Link que não é de Google Forms gera aviso. Exclusão só sem resultado nem decklist.
 - **Resultados:** uma linha por jogador (posição, jogador, V, D, E, obs), com subir/descer e "Numerar pela ordem". Posição repetida exige "empate" em todos os empatados. "Conferir" mostra a tabela no formato da conferência (Template B) com avisos (buraco na classificação, vitórias ≠ derrotas, data futura); só então "Publicar" grava `data/resultados.json`, substituindo o resultado anterior do evento. A digitação fica em rascunho no `sessionStorage` da aba (só ids e números). Apagar resultado só se o evento não tiver decklist.
+- **Decklists do Top 3:** na tela do resultado publicado, um cartão por jogador do Top 3 com envio de imagem (PNG, JPEG ou WEBP; o painel reduz para no máximo 1600 px e grava JPEG sem metadados), tipo do deck e lista em texto. O organizador confirma que a imagem não mostra nome completo, documento, rosto nem outro dado pessoal. Enviar de novo substitui a imagem. "Usar a reserva" tira a imagem; "Apagar decklist" remove o registro. Ao corrigir um resultado, a posição das decklists acompanha; quem tem decklist e sai do Top 3 bloqueia a publicação até a decklist ser apagada.
 - **Telas:** Início, Jogadores, Eventos e Resultados prontas. Torneio suíço chega nas etapas 4 e 5.
 
 ## Carrossel de fotos
@@ -99,7 +106,7 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 - **eventos.json**: `id` (AAAA-MM-DD-slug), `nome`, `data` (AAAA-MM-DD), `horario`, `local`, `vagas`, `tipo` (Torneio Anual, Amistoso, Encontro da comunidade), `status` (vazio = calculado; ou Agendado, Inscrições abertas, Encerrado), `inscricao_url`, `descricao`.
 - **resultados.json**: `evento_id`, `colocacoes` [{`posicao`, `jogador_id`, `vitorias`, `derrotas`, `empates`, `obs` (opcional: empate, drop)}].
 - **jogadores.json**: `id`, `apelido`, `cidade` (opcional), `desde` (ano), `icone` (opcional: caminho em `assets/img/jogadores/`).
-- **decklists.json**: `evento_id`, `jogador_id`, `posicao` (1 a 3), `tipo_pokemon`, `lista_texto` (opcional), `imagem` (opcional).
+- **decklists.json**: `evento_id`, `jogador_id`, `posicao` (1 a 3), `tipo_pokemon`, `lista_texto` (opcional), `imagem` (opcional; o painel grava `caminho.jpg?v=AAAAMMDDhhmmss` para o navegador não mostrar a imagem antiga do cache).
 - **banlist.json**: `atualizado_em`, `fonte`, `cartas` [{`nome`, `colecao`, `numero`}].
 
 Status calculado: data passada = Encerrado; futura com link real de Google Forms = Inscrições abertas; futura sem link = Agendado.
