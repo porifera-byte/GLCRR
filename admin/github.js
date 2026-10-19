@@ -79,6 +79,17 @@
     return { texto, sha: info.sha };
   }
 
+  /* Nomes dos arquivos de uma pasta (vazio se a pasta não existir) */
+  async function listar(repo, pasta) {
+    try {
+      const itens = await pedir("GET", `${caminhoConteudo(repo, pasta)}?ref=${RAMO}`);
+      return Array.isArray(itens) ? itens.filter(i => i.type === "file").map(i => i.name) : [];
+    } catch (e) {
+      if (e.status === 404) return [];
+      throw e;
+    }
+  }
+
   /* Lê um JSON. Devolve { dados, sha } (dados = padrao e sha = null se o arquivo não existir). */
   async function lerJSON(repo, arquivo, padrao = []) {
     const arq = await lerArquivo(repo, arquivo);
@@ -169,5 +180,5 @@
     return problemas;
   }
 
-  raiz.GitHub = { DONO, REPOS, ErroGitHub, configurar, lerArquivo, lerJSON, gravarJSON, atualizarJSON, gravarBinario, apagarArquivo, verificarAcesso };
+  raiz.GitHub = { DONO, REPOS, ErroGitHub, configurar, lerArquivo, listar, lerJSON, gravarJSON, atualizarJSON, gravarBinario, apagarArquivo, verificarAcesso };
 })(typeof globalThis !== "undefined" ? globalThis : this);

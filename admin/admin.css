@@ -158,3 +158,56 @@ td .tipo-ic{margin-right:6px}
 
 @media (max-width:479px){.adm-bar .brand small{display:none}.adm-quem{max-width:9ch}}
 @media (min-width:640px){.adm-btn{width:fit-content;padding-inline:28px}}
+
+/* Torneio suíço */
+.adm-suico{gap:18px}
+.adm-bloco{display:grid;gap:12px}
+.adm-situacao{display:flex;flex-wrap:wrap;gap:6px}
+.adm-sel-lista{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.adm-sel{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:8px 12px;min-height:56px;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r)}
+.adm-sel[hidden]{display:none}
+.adm-sel.marcado{border-color:var(--verde)}
+.adm-sel .adm-check{flex:1;min-width:140px;align-items:center;min-height:44px;font-weight:700}
+.adm-sel > span:first-child{flex:1;min-width:140px}
+.adm-sel-tipo:empty{display:none}
+.adm-sel-tipo select,.adm-sel-tipo input,.adm-incluir select{font:inherit;font-size:.95rem;color:var(--fg);background:var(--surface);
+  border:2px solid var(--line);border-radius:10px;padding:8px 10px;min-height:44px}
+.adm-sel .btn{min-height:44px}
+.adm-drop{opacity:.7}
+.adm-incluir{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px}
+.adm-incluir .campo{flex:1;min-width:180px}
+.adm-campo-curto{max-width:160px}
+.adm-novo-jog .adm-grupo{margin-top:8px}
+.adm-grupo h3{font-size:1.05rem;margin:4px 0 0}
+
+/* Mesas e placar por toque */
+.adm-mesas{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.adm-mesa{display:grid;gap:10px;padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.adm-mesa-n{font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
+.adm-mesa-jog{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;font-size:1.05rem}
+.adm-mesa-jog b{overflow-wrap:anywhere;border-radius:8px;padding:4px 8px}
+.adm-mesa-jog b:last-child{text-align:right}
+.adm-mesa-jog b.venceu{background:var(--ouro);color:#111}
+.adm-mesa-bye .adm-mesa-jog{grid-template-columns:auto 1fr}
+.adm-bye{color:var(--muted);font-size:.9rem;text-align:right}
+.adm-x{color:var(--muted)}
+.adm-placar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.adm-placar .btn{width:100%;min-height:48px;justify-content:center;padding:0 4px;font-family:var(--f-mono);font-size:1rem}
+.adm-placar .btn[aria-pressed="true"]{background:var(--ceu);border-color:var(--ceu);color:#fff}
+.btn[aria-disabled="true"]{opacity:.6}
+@media (min-width:640px){
+  .adm-mesas{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+}
+
+/* Classificação e desempate manual */
+.adm-classif td:first-child,.adm-classif th:first-child{white-space:nowrap}
+.adm-classif td{font-variant-numeric:tabular-nums}
+.adm-classif .tipo-ic{margin-right:6px}
+.adm-classif .tipo-ic img{width:18px;height:18px}
+.adm-classif .tipo-nome{display:none}
+.adm-desempate{display:grid;gap:8px;padding:10px;border:1px dashed var(--line);border-radius:var(--r)}
+.adm-desempate.pendente{border-color:var(--erro)}
+.adm-ordem{margin:0;padding-left:1.4em;display:grid;gap:6px}
+.adm-ordem li{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.adm-ordem .adm-mover{grid-column:auto}
