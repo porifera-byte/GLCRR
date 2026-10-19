@@ -94,13 +94,11 @@ const PAGES = {
       <div class="home-top">
         <div class="home-side">
           <div class="home-titulo">
-            <div>
-              <span class="eyebrow">Liga roraimense de Pokémon TCG</span>
-              <h1>Torne-se um <em>Líder de Ginásio!</em></h1>
-            </div>
+            <span class="eyebrow">Liga roraimense de Pokémon TCG</span>
+            <h1>Torne-se um <em>Líder de Ginásio!</em></h1>
             ${logoHTML("logo-home", "Logo da Liga GLC Roraima")}
+            <p class="lead">1 tipo de Pokémon, 1 cópia de cada carta, 60 cartas no deck. Venha jogar, conhecer a comunidade e acompanhar os próximos eventos.</p>
           </div>
-          <p class="lead">Um tipo de Pokémon, uma cópia de cada carta, sessenta cartas no deck. Venha jogar, conhecer a comunidade e acompanhar os próximos eventos.</p>
         </div>
         ${CARROSSEL_ATIVO ? `<section class="carousel" aria-roledescription="carrossel" aria-label="Fotos da liga" id="carousel">
           <div class="track"></div>
@@ -391,6 +389,27 @@ function montarSlides(root, fotos) {
   root.querySelector(".dots").innerHTML = fotos.map((_, i) => `<button aria-label="Ir para a foto ${i + 1}"></button>`).join("");
 }
 
+/* Logo do Início com a mesma altura do título: no celular, só o h1 (que pode quebrar em mais linhas);
+   no PC (≥760 px), o bloco inteiro, do "Liga roraimense..." até o fim do texto de apresentação (.lead).
+   Ajuste pelo CSSOM (--logo-h), permitido pela CSP; sem JS vale a altura de 2 linhas definida no CSS. */
+let logoObs = null;
+const PC_HOME = window.matchMedia("(min-width:760px)");
+function ajustarLogoHome() {
+  logoObs?.disconnect();
+  const titulo = document.querySelector(".home-titulo");
+  const h1 = titulo?.querySelector("h1");
+  const sobre = titulo?.querySelector(".eyebrow");
+  const texto = titulo?.querySelector(".lead");
+  if (!h1 || !sobre || !texto || !("ResizeObserver" in window)) return;
+  const medir = () => {
+    const [topo, fim] = PC_HOME.matches ? [sobre, texto] : [h1, h1];
+    titulo.style.setProperty("--logo-h", `${Math.round(fim.getBoundingClientRect().bottom - topo.getBoundingClientRect().top)}px`);
+  };
+  logoObs = new ResizeObserver(medir);
+  [h1, sobre, texto].forEach(el => logoObs.observe(el));
+}
+PC_HOME.addEventListener("change", () => ajustarLogoHome());
+
 /* Autoplay 5 s, pausa com mouse/foco, setas, pontos e arraste no celular */
 let carTimer = null;
 async function iniciarCarrossel() {
@@ -507,6 +526,7 @@ function render() {
   atual = rota;
   window.scrollTo({ top: 0 });
   iniciarCarrossel();
+  ajustarLogoHome();
 }
 
 /* ---------- Início ---------- */
