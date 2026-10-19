@@ -137,6 +137,15 @@
       ? `<select name="${nome}" aria-label="${esc(rotulo)}">${opcoesTipo(valor)}</select>`
       : `<input name="${nome}" maxlength="30" autocomplete="off" placeholder="Tipo" aria-label="${esc(rotulo)}" value="${esc(valor || "")}">`;
 
+    /* Campo "Tipo do deck" com rótulo e ícone (o ícone acompanha a escolha) */
+    const rotuloTipo = (nome, valor, quem) => `
+      <label class="campo adm-tipo-campo"><span class="adm-tipo-rotulo">Tipo do deck <span class="adm-tipo-ic">${htmlTipo(valor, { base: "../" })}</span></span>
+        ${campoTipo(nome, valor, `Tipo do deck${quem ? ` de ${quem}` : ""}`)}</label>`;
+    const atualizarIcone = campo => {
+      const ic = campo.closest(".adm-tipo-campo") && campo.closest(".adm-tipo-campo").querySelector(".adm-tipo-ic");
+      if (ic) ic.innerHTML = htmlTipo(campo.value, { base: "../" });
+    };
+
     const info = document.createElement("p");
     info.className = "lead";
     info.innerHTML = `${[dataBR(ev.data), ev.local, ev.tipo].filter(Boolean).map(esc).join(" · ")}
@@ -206,12 +215,15 @@
           <p class="adm-nota">Cadastro rápido com o apelido. Nome e nascimento ficam para depois, em Jogadores.</p>
           <label class="campo"><span>Apelido *</span><input name="nj_apelido" maxlength="30" autocomplete="off" autocapitalize="words"></label>
           <label class="campo"><span>Cidade</span><input name="nj_cidade" maxlength="40" autocomplete="off" placeholder="Opcional"></label>
+          ${rotuloTipo("nj_tipo", "", "")}
           <div class="adm-alerta" data-parecidos hidden></div>
           <button class="btn btn-line adm-btn" type="button" data-acao="cadastrar">Cadastrar e incluir</button>
           <p class="adm-msg" role="status" aria-live="polite"></p>
         </div>`;
       const apel = det.querySelector("[name=nj_apelido]");
       const cid = det.querySelector("[name=nj_cidade]");
+      const tipoNovo = () => det.querySelector("[name=nj_tipo]").value.trim();
+      det.querySelector("[name=nj_tipo]").addEventListener(tiposPokemon.length ? "change" : "input", e => atualizarIcone(e.target));
       const caixaPar = det.querySelector("[data-parecidos]");
       const msg = det.querySelector(".adm-msg");
       const botao = det.querySelector("[data-acao=cadastrar]");
@@ -236,7 +248,7 @@
         try {
           const reg = await PainelJogadores.cadastrarRapido({ apelido: texto, cidade: cid.value });
           d.jogadores.push(reg);
-          aoCriar(reg.id, `${reg.apelido} cadastrado. O site atualiza em cerca de 1 minuto.`);
+          aoCriar(reg.id, `${reg.apelido} cadastrado. O site atualiza em cerca de 1 minuto.`, tipoNovo());
         } catch (e) {
           mostrarMensagem(msg, e.message, "erro");
           botao.disabled = false;
@@ -246,7 +258,7 @@
         const b = e.target.closest("button");
         if (!b) return;
         if (b.hasAttribute("data-novo")) { confirmouNovo = true; caixaPar.hidden = true; cadastrar(); }
-        else { caixaPar.hidden = true; aoCriar(b.dataset.mesmo, `${apelido(b.dataset.mesmo)} incluído.`); }
+        else { caixaPar.hidden = true; aoCriar(b.dataset.mesmo, `${apelido(b.dataset.mesmo)} incluído.`, tipoNovo()); }
       });
       botao.addEventListener("click", cadastrar);
       apel.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); cadastrar(); } });
@@ -264,10 +276,12 @@
     function montar() {
       const ordenados = [...d.jogadores].sort((a, b) => a.apelido.localeCompare(b.apelido, "pt-BR"));
       const n = montagem.marcados.size;
+      const semTipo = [...montagem.marcados].filter(([, t]) => !String(t || "").trim()).map(([id]) => id);
       if (!montagem.editouRodadas) montagem.rodadas = String(S.rodadasSugeridas(n) || "");
       corpo.innerHTML = `
         <h2>Jogadores do torneio</h2>
-        <p class="adm-nota">Marque quem vai jogar e, se quiser, o tipo do deck. Dá para incluir atrasados e dar drop durante o torneio.</p>
+        <p class="adm-nota">Marque quem vai jogar e escolha o <b>tipo do deck</b> de cada um: ele vai junto para o resultado publicado.
+          Dá para trocar o tipo, incluir atrasados e dar drop durante o torneio.</p>
         <label class="campo adm-busca"><span>Buscar</span><input type="search" name="busca" autocomplete="off" value="${esc(montagem.busca)}" placeholder="Apelido"></label>
         <ul class="adm-sel-lista" id="sel-lista">
           ${ordenados.map(j => {
@@ -275,21 +289,22 @@
             const visivel = !montagem.busca || RJ.semAcento(j.apelido).includes(RJ.semAcento(montagem.busca));
             return `<li class="adm-sel ${marcado ? "marcado" : ""}" data-id="${esc(j.id)}" ${visivel ? "" : "hidden"}>
               <label class="adm-check"><input type="checkbox" name="jogador" value="${esc(j.id)}" ${marcado ? "checked" : ""}><span>${esc(j.apelido)}</span></label>
-              <span class="adm-sel-tipo">${marcado ? campoTipo("tipo", montagem.marcados.get(j.id), `Tipo do deck de ${j.apelido}`) : ""}</span>
+              <span class="adm-sel-tipo">${marcado ? rotuloTipo("tipo", montagem.marcados.get(j.id), j.apelido) : ""}</span>
             </li>`;
           }).join("")}
         </ul>
         <div data-novo></div>
         <div class="adm-grupo adm-resumo-torneio">
           <p><b id="n-sel">${n}</b> jogador(es) marcado(s)${n >= 2 ? ` · rodadas sugeridas: <b>${S.rodadasSugeridas(n)}</b>` : ""}</p>
+          ${n ? `<p class="adm-nota" id="n-tipo">${semTipo.length ? `⚠️ ${semTipo.length} sem tipo do deck.` : "✔ Todos com tipo do deck."}</p>` : ""}
           <label class="campo adm-campo-curto"><span>Rodadas</span>
             <input name="rodadas" type="number" inputmode="numeric" min="1" max="20" value="${esc(montagem.rodadas)}"></label>
           <button class="btn btn-ouro adm-btn" type="button" id="comecar" ${n < 2 ? "disabled" : ""}>Começar torneio</button>
           <p class="adm-msg" id="msg-montar" role="status" aria-live="polite"></p>
         </div>`;
       const listaEl = corpo.querySelector("#sel-lista");
-      corpo.querySelector("[data-novo]").replaceWith(blocoNovoJogador((id, texto) => {
-        montagem.marcados.set(id, montagem.marcados.get(id) || "");
+      corpo.querySelector("[data-novo]").replaceWith(blocoNovoJogador((id, texto, tipo) => {
+        montagem.marcados.set(id, tipo || montagem.marcados.get(id) || "");
         montagem.busca = "";
         desenhar(`[data-id="${id}"] input[type=checkbox]`);
         mostrarMensagem(corpo.querySelector("#msg-montar"), texto, "ok");
@@ -310,17 +325,39 @@
           desenhar(`[data-id="${li.dataset.id}"] input[type=checkbox]`);
         } else if (e.target.name === "tipo") {
           montagem.marcados.set(li.dataset.id, e.target.value);
+          atualizarIcone(e.target);
+          atualizarSemTipo();
         }
       });
       listaEl.addEventListener("input", e => {
-        if (e.target.name === "tipo" && e.target.tagName === "INPUT") montagem.marcados.set(e.target.closest("li").dataset.id, e.target.value);
+        if (e.target.name === "tipo" && e.target.tagName === "INPUT") {
+          montagem.marcados.set(e.target.closest("li").dataset.id, e.target.value);
+          atualizarIcone(e.target);
+          atualizarSemTipo();
+        }
       });
+      function atualizarSemTipo() {
+        const faltam = [...montagem.marcados.values()].filter(t => !String(t || "").trim()).length;
+        const el = corpo.querySelector("#n-tipo");
+        if (el) el.textContent = faltam ? `⚠️ ${faltam} sem tipo do deck.` : "✔ Todos com tipo do deck.";
+        const b = corpo.querySelector("#comecar");
+        b.dataset.confirma = "";
+        b.textContent = "Começar torneio";
+      }
       corpo.querySelector("[name=rodadas]").addEventListener("input", e => {
         montagem.rodadas = e.target.value;
         montagem.editouRodadas = true;
       });
-      corpo.querySelector("#comecar").addEventListener("click", () => {
+      corpo.querySelector("#comecar").addEventListener("click", e => {
         const msg = corpo.querySelector("#msg-montar");
+        /* Tipo do deck é opcional, mas pede confirmação se faltar */
+        const faltam = [...montagem.marcados].filter(([, t]) => !String(t || "").trim()).map(([id]) => apelido(id));
+        if (faltam.length && e.currentTarget.dataset.confirma !== "1") {
+          e.currentTarget.dataset.confirma = "1";
+          e.currentTarget.textContent = "Começar sem esses tipos";
+          mostrarMensagem(msg, `Sem tipo do deck: ${faltam.join(", ")}. Escolha acima ou toque de novo para começar assim (dá para preencher depois, em "Jogadores e opções").`, "erro");
+          return;
+        }
         const tipos = Object.fromEntries(montagem.marcados);
         const ok = agir(() => S.novoTorneio(ev.id, [...montagem.marcados.keys()], { rodadas: Number(montagem.rodadas), tipos }), msg);
         if (!ok) return;
@@ -588,8 +625,7 @@
             return;
           }
           /* Publicado: o rascunho não é mais necessário */
-          local.apagar(ev.id);
-          await GitHub.apagarArquivo("privado", arqRascunho(ev.id), `Remove rascunho do suíço ${ev.id} (resultado publicado)`).catch(() => {});
+          await apagarRascunho(ev.id);
           estado = null;
           corpo.innerHTML = `
             <div class="adm-alerta" tabindex="-1" id="publicado">
@@ -624,7 +660,7 @@
           <ul class="adm-sel-lista">${[...estado.jogadores].sort((a, b) => apelido(a.id).localeCompare(apelido(b.id), "pt-BR")).map(j => `
             <li class="adm-sel ${j.drop_apos_rodada !== null ? "adm-drop" : ""}" data-id="${esc(j.id)}">
               <span><b>${esc(apelido(j.id))}</b><small class="adm-nota"> · ${situacao(j)}</small></span>
-              <span class="adm-sel-tipo">${campoTipo("tipo", j.tipo_pokemon || "", `Tipo do deck de ${apelido(j.id)}`)}</span>
+              <span class="adm-sel-tipo">${rotuloTipo("tipo", j.tipo_pokemon || "", apelido(j.id))}</span>
               ${j.drop_apos_rodada === null
                 ? (temMesa(j.id) || estado.rodadas.length ? `<button type="button" class="btn btn-line" data-acao="drop">Drop</button>`
                   : `<button type="button" class="btn btn-line" data-acao="remover">Remover</button>`)
@@ -638,6 +674,7 @@
               : "Entra desde a 1ª rodada."}</p>
             <div class="adm-incluir">
               <label class="campo"><span>Jogador cadastrado</span><select name="incluir"><option value="">Escolha…</option>${fora.map(j => `<option value="${esc(j.id)}">${esc(j.apelido)}</option>`).join("")}</select></label>
+              <span class="adm-sel-tipo">${rotuloTipo("incluir_tipo", "", "")}</span>
               <button type="button" class="btn btn-line adm-btn" data-acao="incluir">Incluir</button>
             </div>
             <div data-novo></div>` : ""}
@@ -659,15 +696,16 @@
       const msgOp = det.querySelector("[data-msg-op]");
       const novo = det.querySelector("[data-novo]");
       if (novo) {
-        novo.replaceWith(blocoNovoJogador((id, texto) => {
+        novo.replaceWith(blocoNovoJogador((id, texto, tipo) => {
           if (estado.jogadores.some(j => j.id === id)) { mostrarMensagem(msgJog, "Este jogador já está no torneio.", "erro"); return; }
-          if (agir(e => S.incluirJogador(e, id), msgJog)) {
+          if (agir(e => S.incluirJogador(e, id, tipo), msgJog)) {
             desenhar(".adm-opcoes summary");
             mostrarMensagem(corpo.querySelector(".adm-opcoes [data-msg-jog]"), texto, "ok");
           }
         }));
       }
       det.addEventListener("change", e => {
+        if (e.target.name === "incluir_tipo") { atualizarIcone(e.target); return; }
         if (e.target.name !== "tipo" || e.target.tagName !== "SELECT") return;
         const id = e.target.closest("li").dataset.id;
         if (agir(x => S.definirTipo(x, id, e.target.value), msgJog)) {
@@ -675,7 +713,10 @@
         }
       });
       det.addEventListener("input", e => {
-        if (e.target.name === "tipo" && e.target.tagName === "INPUT") agir(x => S.definirTipo(x, e.target.closest("li").dataset.id, e.target.value), msgJog);
+        if (e.target.name === "tipo" && e.target.tagName === "INPUT") {
+          agir(x => S.definirTipo(x, e.target.closest("li").dataset.id, e.target.value), msgJog);
+          atualizarIcone(e.target);
+        }
       });
       det.addEventListener("click", e => {
         const b = e.target.closest("button[data-acao]");
@@ -696,7 +737,8 @@
           const sel = det.querySelector("[name=incluir]");
           if (!sel.value) { mostrarMensagem(msgJog, "Escolha o jogador.", "erro"); sel.focus(); return; }
           const nome = apelido(sel.value);
-          if (agir(x => S.incluirJogador(x, sel.value), msgJog)) {
+          const tipo = det.querySelector("[name=incluir_tipo]").value;
+          if (agir(x => S.incluirJogador(x, sel.value, tipo), msgJog)) {
             desenhar(".adm-opcoes [name=incluir]");
             mostrarMensagem(corpo.querySelector(".adm-opcoes [data-msg-jog]"), `${nome} incluído.`, "ok");
           }
@@ -726,6 +768,22 @@
 
     desenhar();
   }
+
+  /* ---------- Para a tela de Resultados ---------- */
+
+  /* Rascunho do suíço deste evento ({ estado, salvo_em }) ou null */
+  async function rascunhoDoEvento(eventoId) {
+    const rem = await GitHub.lerJSON("privado", arqRascunho(eventoId), null);
+    return escolherRascunho(eventoId, local.ler(eventoId), rem.dados).w;
+  }
+
+  /* Depois de publicar o resultado, o rascunho (aparelho e GitHub) não é mais necessário */
+  async function apagarRascunho(eventoId) {
+    local.apagar(eventoId);
+    await GitHub.apagarArquivo("privado", arqRascunho(eventoId), `Remove rascunho do suíço ${eventoId} (resultado publicado)`).catch(() => {});
+  }
+
+  window.PainelSuico = { rascunhoDoEvento, apagarRascunho };
 
   /* #suico = lista de eventos; #suico/<evento_id> = torneio */
   (window.TELAS_PAINEL = window.TELAS_PAINEL || {}).suico = (tela, secao, param) =>

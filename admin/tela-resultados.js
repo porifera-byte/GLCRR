@@ -95,6 +95,12 @@
     const apelido = id => (d.jogadores.find(j => j.id === id) || {}).apelido || id;
 
     const valoresAntigos = new Set(existente ? existente.colocacoes.map(c => c.tipo_pokemon).filter(Boolean) : []);
+    /* Torneio suíço do painel para este evento (rascunho no aparelho ou no GLC-privado) */
+    let suico = null;
+    try { suico = window.PainelSuico ? await PainelSuico.rascunhoDoEvento(ev.id) : null; } catch (e) { suico = null; }
+    if (!tela.isConnected) return;
+    let veioDoSuico = false;
+
     let linhas;
     const salvo = rascunho.ler(ev.id);
     if (recado) {
@@ -117,6 +123,7 @@
     corpo.innerHTML = `
       <p class="lead">${[dataBR(ev.data), ev.local, ev.tipo].filter(Boolean).map(esc).join(" · ")}
         · <span class="pill ${existente ? "" : "warn"}">${existente ? "resultado publicado" : "sem resultado"}</span></p>
+      <div class="adm-alerta" id="aviso-suico" hidden></div>
       <div id="etapa-digitar">
         <p class="adm-nota">Uma linha por jogador, em ordem de classificação. Empate de colocação: mesma posição e "empate" na observação.
           Jogador fora da lista? Cadastre em <a href="#jogadores/novo">Jogadores</a>; a digitação fica guardada nesta aba.</p>
@@ -138,6 +145,38 @@
     const etapaDigitar = corpo.querySelector("#etapa-digitar");
     const etapaConferir = corpo.querySelector("#etapa-conferir");
     const msgSalvar = corpo.querySelector("#msg-salvar");
+
+    /* Suíço encerrado e não publicado: preenche as linhas com a classificação, o V-D-E, o drop e o tipo do deck */
+    function linhasDoSuico() {
+      const r = RegrasSuico.paraResultado(suico.estado);
+      return r.erros.length ? null : r.colocacoes.map(c => ({ posicao: c.posicao, jogador_id: c.jogador_id,
+        vitorias: c.vitorias, derrotas: c.derrotas, empates: c.empates, tipo_pokemon: c.tipo_pokemon || "", obs: c.obs || "" }));
+    }
+    if (suico) {
+      const aviso = corpo.querySelector("#aviso-suico");
+      const est = suico.estado;
+      const prontas = RegrasSuico.encerrado(est) ? linhasDoSuico() : null;
+      const link = `<a href="#suico/${encodeURIComponent(ev.id)}">Abrir o torneio suíço</a>`;
+      aviso.innerHTML = prontas
+        ? `<p><b>Este evento tem um torneio suíço encerrado.</b> A classificação, o V-D-E e o tipo do deck de cada jogador já estão preenchidos abaixo; confira e publique.</p>`
+        : RegrasSuico.encerrado(est)
+          ? `<p><b>O torneio suíço deste evento terminou, mas falta o desempate manual.</b> ${link} para ordenar os empatados; o resultado é preenchido automaticamente.</p>`
+          : `<p><b>Torneio suíço em andamento</b> (${est.rodadas.filter(x => x.fechada).length} de ${est.rodadas_previstas} rodadas fechadas). Ao terminar, o resultado é preenchido automaticamente, com o tipo do deck de cada jogador. ${link}</p>`;
+      aviso.hidden = false;
+      if (prontas && !(salvo && salvo.length)) {
+        linhas = prontas;
+        veioDoSuico = true;
+        mostrarMensagem(msgTopo, "Resultado preenchido pelo torneio suíço.", "ok");
+      } else if (prontas) {
+        aviso.insertAdjacentHTML("beforeend", `<p><button class="btn btn-line adm-btn" type="button" id="usar-suico">Usar o resultado do suíço</button></p>`);
+        aviso.querySelector("#usar-suico").addEventListener("click", () => {
+          linhas = prontas;
+          veioDoSuico = true;
+          desenhar();
+          mostrarMensagem(msgTopo, "Resultado preenchido pelo torneio suíço.", "ok");
+        });
+      }
+    }
 
     const opcoesJogador = sel => `<option value="">Escolha…</option>` +
       jogadores.map(j => `<option value="${esc(j.id)}" ${j.id === sel ? "selected" : ""}>${esc(j.apelido)}</option>`).join("") +
@@ -247,6 +286,7 @@
         try {
           await publicar(ev, colocacoes, existente, ajuste, apelido);
           rascunho.apagar(ev.id);
+          if (veioDoSuico) await PainelSuico.apagarRascunho(ev.id);
           recado = `Resultado de ${ev.nome} publicado. O site atualiza em cerca de 1 minuto. Agora você pode enviar as decklists do Top 3 abaixo.`;
           formulario(tela, ev.id);   // fica no evento para enviar as decklists
         } catch (erro) {

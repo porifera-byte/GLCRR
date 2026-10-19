@@ -212,3 +212,6 @@ td .tipo-ic{margin-right:6px}
 .adm-ordem{margin:0;padding-left:1.4em;display:grid;gap:6px}
 .adm-ordem li{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .adm-ordem .adm-mover{grid-column:auto}
+.adm-tipo-campo{gap:2px;font-size:.78rem;min-width:160px}
+.adm-tipo-campo select,.adm-tipo-campo input{min-height:44px}
+.adm-sel-tipo{display:flex}
