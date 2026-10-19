@@ -19,5 +19,12 @@
     "posicao": 1,
     "lista_texto": "",
     "imagem": "assets/img/decklists/2026-09-20-4-torneio-pokemon-tcg-glc-2026-1-vinicius.jpg?v=20261019184700"
+  },
+  {
+    "evento_id": "2026-08-30-3-torneio-pokemon-tcg-glc-2026",
+    "jogador_id": "rosso",
+    "posicao": 3,
+    "lista_texto": "",
+    "imagem": "assets/img/decklists/2026-08-30-3-torneio-pokemon-tcg-glc-2026-3-rosso.jpg?v=20261019212839"
   }
 ]
