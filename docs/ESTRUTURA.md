@@ -62,7 +62,7 @@ assets/
   js/data.js               carrega data/*.json e utilitários (datas, status, escape, validação de links e caminhos de imagem)
   js/main.js               menu, roteador com slide, páginas, pop-up de resultados e carrossel
   icons/GLCRR-logo.png     logo da liga (cabeçalho, Início e ícone da aba)
-  images/fotos/            fotos do carrossel (.jpg, .jpeg, .png, .webp)
+  img/fotos/               fotos do carrossel (.jpg, .jpeg, .png, .webp), sem rostos; README.md explica o envio
   img/decklists/           imagens de decklist: [evento_id]-[posicao]-[jogador_id].jpg (enviadas pelo painel)
                            e sem-imagem.svg (reserva "Decklist em breve")
   img/tipos/               ícones dos tipos de deck: [slug].png (96 px), arte própria da liga;
@@ -123,7 +123,7 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 
 ## Carrossel de fotos
 
-1. O site pede à API do GitHub a lista de arquivos de `assets/images/fotos/`. Dono e repositório vêm de `config.json` (`github.owner` e `github.repo`); se estiverem vazios, são deduzidos do endereço `<usuario>.github.io/<repo>`.
+1. O site pede à API do GitHub a lista de arquivos de `assets/img/fotos/` (`pasta_fotos` em `config.json`; só vale uma pasta dentro de `assets/`). Dono e repositório vêm de `config.json` (`github.owner` e `github.repo`); se estiverem vazios, são deduzidos do endereço `<usuario>.github.io/<repo>`.
 2. Se a API falhar (limite de 60 consultas por hora por visitante, ou domínio próprio), usa `data/fotos.json`.
 3. Ordem: nome do arquivo. Para controlar a ordem, nomeie `foto-01.jpg`, `foto-02.jpg`...
 4. Fotos com menos de 500 KB e sem rosto identificável de jogadores.
