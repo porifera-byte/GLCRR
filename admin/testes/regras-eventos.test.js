@@ -68,8 +68,8 @@ test("decklists: caminho, versão e validação", () => {
   assert.ok(R.DECKLIST_VALIDA.test(v));
   assert.ok(!R.DECKLIST_VALIDA.test("https://x.com/a.jpg"));
   assert.strictEqual(R.semVersao(v), c);
-  assert.ok(R.validarDecklist({ tipo_pokemon: "a".repeat(31) }).erros.tipo_pokemon);
-  assert.deepStrictEqual(R.validarDecklist({ tipo_pokemon: " Fogo ", lista_texto: "x" }).dados, { tipo_pokemon: "Fogo", lista_texto: "x" });
+  assert.ok(R.validarDecklist({ lista_texto: "a".repeat(3001) }).erros.lista_texto);
+  assert.deepStrictEqual(R.validarDecklist({ lista_texto: " x " }).dados, { lista_texto: "x" });
 });
 
 test("decklists: ajuste depois de corrigir o resultado", () => {
@@ -84,4 +84,15 @@ test("decklists: ajuste depois de corrigir o resultado", () => {
   assert.deepStrictEqual(ok.lista.map(d => d.posicao), [2, 1, 3]);
   const ruim = R.ajustarDecklists(dl, "ev", [linha(1, "misty", 3, 0), linha(4, "ash", 0, 3)]);
   assert.strictEqual(ruim.erros.length, 1);
+});
+
+test("resultado: tipo do deck para todos, da lista", () => {
+  const TP = ["Fogo", "Água", "Planta"];
+  const r = R.validarResultado([{ ...linha(1, "ash", 3, 0), tipo_pokemon: " Fogo " }, linha(2, "misty", 2, 1), { ...linha(5, "brock", 0, 3), tipo_pokemon: "Água" }], IDS, "2026-10-10", HOJE, TP);
+  assert.deepStrictEqual(r.erros, []);
+  assert.strictEqual(r.colocacoes[0].tipo_pokemon, "Fogo");
+  assert.ok(!("tipo_pokemon" in r.colocacoes[1]));
+  assert.strictEqual(r.colocacoes[2].tipo_pokemon, "Água");
+  const ruim = R.validarResultado([{ ...linha(1, "ash", 3, 0), tipo_pokemon: "Laser" }], IDS, "2026-10-10", HOJE, TP);
+  assert.ok(ruim.erros[0].includes("fora da lista"));
 });

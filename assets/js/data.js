@@ -67,6 +67,9 @@ const decklistDe = (eventoId, jogadorId) =>
   DADOS.decklists.find(d => d.evento_id === eventoId && d.jogador_id === jogadorId && d.posicao >= 1 && d.posicao <= 3);
 const vde = c => `${c.vitorias ?? 0}-${c.derrotas ?? 0}-${c.empates ?? 0}`;
 
+/* Tipo do deck: vem da linha do resultado (todos os jogadores); decklists antigas podem trazer o próprio */
+const tipoDoDeck = (colocacao, decklist) => (colocacao && colocacao.tipo_pokemon) || (decklist && decklist.tipo_pokemon) || "";
+
 /* Decklist do Top 3 sempre disponível: sem cadastro, ou sem imagem e sem lista em texto,
    devolve a imagem de reserva até a organização enviar a foto pelo painel */
 const IMAGEM_RESERVA_DECKLIST = "assets/img/decklists/sem-imagem.svg";

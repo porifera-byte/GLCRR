@@ -6,5 +6,6 @@
     "owner": "",
     "repo": ""
   },
-  "tipos_evento": ["Torneio Anual", "Amistoso", "Encontro da comunidade"]
+  "tipos_evento": ["Torneio Anual", "Amistoso", "Encontro da comunidade"],
+  "tipos_pokemon": ["Planta", "Fogo", "Água", "Elétrico", "Psíquico", "Lutador", "Escuridão", "Metal", "Dragão", "Incolor"]
 }

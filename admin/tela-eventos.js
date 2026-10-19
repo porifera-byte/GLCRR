@@ -15,7 +15,7 @@
       GitHub.lerJSON("publico", "data/decklists.json"),
       GitHub.lerJSON("publico", "data/config.json", {})
     ]);
-    return { eventos: ev.dados, resultados: res.dados, decklists: dl.dados, tipos: cfg.dados.tipos_evento || [] };
+    return { eventos: ev.dados, resultados: res.dados, decklists: dl.dados, tipos: cfg.dados.tipos_evento || [], tiposPokemon: cfg.dados.tipos_pokemon || [] };
   }
 
   const usos = (id, d) => ({
