@@ -10,12 +10,6 @@ const MENU = [
 
 const LOGO = "assets/icons/GLCRR-logo.png";
 
-const PH_BG = [
-  "linear-gradient(135deg,#3E8ED0,#1E8F4E)", "linear-gradient(135deg,#1E8F4E,#F2C230)",
-  "linear-gradient(135deg,#F2C230,#3E8ED0)", "linear-gradient(160deg,#2A6FA8,#3E8ED0)",
-  "linear-gradient(135deg,#166B3A,#3E8ED0)", "linear-gradient(135deg,#D62828,#F2C230)"
-];
-
 const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const ICONES = {
   calendario: svg('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
@@ -30,19 +24,30 @@ const IG_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
 const vazio = (titulo, texto) => `<div class="empty"><b>${titulo}</b><span>${texto}</span></div>`;
 const interna = html => `<div class="wrap page">${html}</div>`;
 const logoHTML = (classe, alt) =>
-  `<span class="logo ${classe}"><span class="badge" aria-hidden="true"></span><img src="${LOGO}" alt="${alt}" onerror="this.remove()"></span>`;
+  `<span class="logo ${classe}"><span class="badge" aria-hidden="true"></span><img src="${LOGO}" alt="${alt}" data-falha="remover"></span>`;
 const linkPerfil = id => `#jogadores/${encodeURIComponent(id)}`;
 const melhorTxt = n => Number.isFinite(n) ? `${n}º` : "—";
 const inicial = nome => esc((nome || "?").trim().charAt(0).toUpperCase());
-/* Avatar: ícone do jogador (assets/img/jogadores/) ou a inicial do apelido */
-const ICONE_VALIDO = /^assets\/img\/jogadores\/[a-z0-9-]+\.(png|webp|jpg)$/;
+/* Avatar: ícone do jogador (assets/img/jogadores/, caminho validado por ICONE_VALIDO) ou a inicial do apelido */
 const avatar = j => `<span class="avatar" aria-hidden="true">${ICONE_VALIDO.test(j.icone || "")
   ? `<img src="${esc(j.icone)}" alt="" loading="lazy" decoding="async">` : inicial(j.apelido)}</span>`;
 
 function dataBox(iso) {
-  const [a, m, d] = iso.split("-");
-  return `<div class="date" aria-hidden="true"><b>${d}</b><span>${MESES[+m - 1]} ${a.slice(2)}</span></div>`;
+  const [a = "", m = "", d = ""] = DATA_ISO.test(iso || "") ? iso.split("-") : [];
+  return `<div class="date" aria-hidden="true"><b>${d || "—"}</b><span>${MESES[+m - 1] || ""} ${a.slice(2)}</span></div>`;
 }
+
+/* Imagem que falha ao carregar, sem handler inline (a CSP bloqueia onerror=):
+   data-falha="remover" tira a imagem; data-falha="reserva" troca a decklist pela imagem de reserva.
+   O evento "error" não sobe pela árvore, por isso o ouvinte fica na fase de captura. */
+const imgReserva = alt => `<img class="deck-img deck-reserva" src="${IMAGEM_RESERVA_DECKLIST}" alt="${alt}">`;
+function tratarFalhaImagem(img) {
+  if (img.dataset.falha === "remover") img.remove();
+  else if (img.dataset.falha === "reserva") (img.closest("a") || img).outerHTML = imgReserva("Decklist em breve: a imagem ainda não está disponível.");
+}
+document.addEventListener("error", e => {
+  if (e.target instanceof HTMLImageElement && e.target.dataset.falha) tratarFalhaImagem(e.target);
+}, true);
 
 function cardEvento(ev) {
   const st = statusDe(ev);
@@ -55,7 +60,7 @@ function cardEvento(ev) {
     <div class="ev-body">
       <h3>${esc(ev.nome)}</h3>
       <div class="pills">
-        <span class="pill ${cls}">${st}</span>
+        <span class="pill ${cls}">${esc(st)}</span>
         ${ev.tipo ? `<span class="pill">${esc(ev.tipo)}</span>` : ""}
         ${!passado && !formValido(ev.inscricao_url) ? `<span class="pill">Inscrições em breve</span>` : ""}
       </div>
@@ -80,7 +85,7 @@ function cardEvento(ev) {
 
 const PAGES = {
   inicio() {
-    const instagram = DADOS.config.instagram_url || "https://www.instagram.com/glc.roraima/";
+    const instagram = urlSegura(DADOS.config.instagram_url) || "https://www.instagram.com/glc.roraima/";
     return `<div class="home">
       <div class="home-top">
         <div class="home-side">
@@ -98,8 +103,8 @@ const PAGES = {
         </section>
       </div>
       <nav class="float-menu" aria-label="Menu principal">
-        ${MENU.slice(1).map(([id, nome], i) =>
-          `<a href="#${id}" style="--d:${(i * 0.08).toFixed(2)}s"><span class="ic">${ICONES[id]}</span>${nome}</a>`).join("")}
+        ${MENU.slice(1).map(([id, nome]) =>
+          `<a href="#${id}"><span class="ic">${ICONES[id]}</span>${nome}</a>`).join("")}
       </nav>
     </div>`;
   },
@@ -129,18 +134,19 @@ const PAGES = {
       ${linhas ? "" : vazio("Nenhum resultado registrado ainda.", "Os resultados de cada evento entram aqui depois de conferidos pela organização.")}
       <div class="table-box" role="region" aria-label="Tabela de participações" tabindex="0">
         <table><thead><tr><th>Jogador</th><th>Eventos</th><th>Top 3</th><th>Melhor colocação</th><th>V-D-E</th></tr></thead>
-        <tbody>${linhas || `<tr><td colspan="5" style="color:var(--muted)">Sem dados nesta temporada</td></tr>`}</tbody></table>
+        <tbody>${linhas || `<tr><td colspan="5" class="muted">Sem dados nesta temporada</td></tr>`}</tbody></table>
       </div>`);
   },
 
   regras() {
     const bl = DADOS.banlist || { cartas: [] };
+    const fonte = urlSegura(bl.fonte);
     const banlist = (bl.cartas || []).length
       ? `<div class="table-box" role="region" aria-label="Banlist" tabindex="0"><table>
           <thead><tr><th>Carta</th><th>Coleção</th><th>Número</th></tr></thead>
           <tbody>${bl.cartas.map(c => `<tr><td>${esc(c.nome)}</td><td>${esc(c.colecao)}</td><td>${esc(c.numero)}</td></tr>`).join("")}</tbody>
         </table></div>
-        <p class="lead">Atualizada em ${dataBR(bl.atualizado_em)}. Fonte: <a href="${esc(bl.fonte)}" target="_blank" rel="noopener">${esc(bl.fonte)}</a></p>`
+        <p class="lead">Atualizada em ${dataBR(bl.atualizado_em)}.${fonte ? ` Fonte: <a href="${esc(fonte)}" target="_blank" rel="noopener">${esc(fonte)}</a>` : ""}</p>`
       : vazio("Banlist ainda não importada.", "Consulte a lista oficial em gymleaderchallenge.com enquanto ela não é publicada aqui.");
     return interna(`<div><span class="eyebrow">Formato</span><h1>Regras do GLC</h1></div>
       <p class="lead">A liga segue as regras oficiais do Gym Leader Challenge. Regras locais, quando existirem, aparecem abaixo e prevalecem em caso de conflito.</p>
@@ -190,7 +196,7 @@ function perfilJogador(id) {
       <div class="ev-body">
         <h3>${esc(evento.nome)}</h3>
         <div class="pills">
-          <span class="pill ${c.posicao <= 3 ? "abertas" : ""}">${c.posicao}º lugar</span>
+          <span class="pill ${c.posicao <= 3 ? "abertas" : ""}">${esc(c.posicao)}º lugar</span>
           ${evento.tipo ? `<span class="pill">${esc(evento.tipo)}</span>` : ""}
         </div>
         <div class="meta"><span><strong>Data:</strong> ${dataBR(evento.data)}</span><span><strong>V-D-E:</strong> ${vde(c)}</span>
@@ -268,7 +274,7 @@ function htmlResultados(eventoId) {
     const deck = decklistTop3(ev.id, c.jogador_id, c.posicao);
     const existe = !!jogadorPorId(c.jogador_id);
     return `<li>
-      <span class="pos ${c.posicao <= 3 ? "p" + c.posicao : ""}">${c.posicao}º</span>
+      <span class="pos ${c.posicao <= 3 ? "p" + Number(c.posicao) : ""}">${esc(c.posicao)}º</span>
       <span class="quem"><span class="quem-nome"><b>${esc(apelidoDe(c.jogador_id))}</b>${htmlTipo(tipoDoDeck(c, deck))}</span><small>${vde(c)} (V-D-E)${c.obs ? ` · ${esc(c.obs)}` : ""}</small></span>
       <span class="acoes">
         ${existe ? `<a class="btn btn-line btn-sm" href="${linkPerfil(c.jogador_id)}">Perfil</a>` : ""}
@@ -287,14 +293,16 @@ function htmlDecklist(eventoId, jogadorId, veioDaLista) {
   const d = colocacao ? decklistTop3(eventoId, jogadorId, colocacao.posicao) : decklistDe(eventoId, jogadorId);
   if (!ev || !d) return vazio("Decklist não encontrada.", "");
   const nome = apelidoDe(jogadorId);
+  /* Imagem só com caminho validado (como o ícone); sem imagem válida nem texto, vale a reserva */
+  const imagem = !d.reserva && DECKLIST_VALIDA.test(d.imagem || "") ? d.imagem : "";
+  const reserva = !imagem && !d.lista_texto;
   return `${veioDaLista ? `<button type="button" class="link-voltar" data-resultados="${esc(eventoId)}">‹ Voltar à classificação</button>` : ""}
     <div><span class="eyebrow">Decklist · ${d.posicao}º lugar</span><h2 id="modal-titulo">${esc(nome)}</h2>
       <p class="lead">${[ev.nome, dataBR(ev.data)].map(esc).join(" · ")}</p>
       ${tipoDoDeck(colocacao, d) ? `<p class="tipo-linha">${htmlTipo(tipoDoDeck(colocacao, d), { comTexto: true })}</p>` : ""}</div>
-    ${d.reserva ? `<img class="deck-img deck-reserva" src="${esc(d.imagem)}" alt="Decklist em breve: a imagem desta lista ainda não foi enviada.">`
-      : d.imagem ? `<a href="${esc(d.imagem)}" target="_blank" rel="noopener" title="Abrir imagem em tamanho real">
-        <img class="deck-img" src="${esc(d.imagem)}" alt="Decklist usada por ${esc(nome)} em ${esc(ev.nome)}"
-          onerror="this.closest('a').outerHTML='<img class=&quot;deck-img deck-reserva&quot; src=&quot;${IMAGEM_RESERVA_DECKLIST}&quot; alt=&quot;Decklist em breve: a imagem ainda não está disponível.&quot;>'"></a>` : ""}
+    ${reserva ? imgReserva("Decklist em breve: a imagem desta lista ainda não foi enviada.")
+      : imagem ? `<a href="${esc(imagem)}" target="_blank" rel="noopener" title="Abrir imagem em tamanho real">
+        <img class="deck-img" src="${esc(imagem)}" alt="Decklist usada por ${esc(nome)} em ${esc(ev.nome)}" data-falha="reserva"></a>` : ""}
     ${d.lista_texto ? `<pre class="deck-txt">${esc(d.lista_texto)}</pre>` : ""}
     <a class="btn btn-line btn-sm" href="${linkPerfil(jogadorId)}">Ver perfil de ${esc(nome)}</a>`;
 }
@@ -363,8 +371,8 @@ async function listarFotos() {
 function montarSlides(root, fotos) {
   root.querySelector(".track").innerHTML = fotos.map((src, i) => `
     <div class="slide" role="group" aria-roledescription="slide" aria-label="Foto ${i + 1} de ${fotos.length}">
-      <div class="ph" style="background:${PH_BG[i % PH_BG.length]}"></div>
-      <img src="${esc(src)}" alt="Foto ${i + 1} de evento da liga" ${i ? 'loading="lazy"' : ""} onerror="this.remove()">
+      <div class="ph"></div>
+      <img src="${esc(src)}" alt="Foto ${i + 1} de evento da liga" ${i ? 'loading="lazy"' : ""} data-falha="remover">
     </div>`).join("");
   root.querySelector(".dots").innerHTML = fotos.map((_, i) => `<button aria-label="Ir para a foto ${i + 1}"></button>`).join("");
 }
@@ -489,6 +497,8 @@ function render() {
 
 /* ---------- Início ---------- */
 
+/* Imagens do HTML fixo (logo do cabeçalho) que falharam antes de este script rodar */
+document.querySelectorAll("img[data-falha]").forEach(img => { if (img.complete && !img.naturalWidth) tratarFalhaImagem(img); });
 montarMenu();
 carregarDados()
   .then(() => {

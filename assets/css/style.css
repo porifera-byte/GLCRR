@@ -68,6 +68,7 @@ h1{font-size:clamp(2rem,7vw,3.2rem)}
 h2{font-size:1.6rem}
 h3{font-size:1.15rem}
 .lead{color:var(--muted);max-width:62ch;margin:0}
+.muted{color:var(--muted)}
 .eyebrow{font-size:.74rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--verde-ink)}
 
 /* ---------- Início ---------- */
@@ -85,6 +86,8 @@ h3{font-size:1.15rem}
   background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);color:var(--fg);text-decoration:none;font-weight:800;text-align:center;
   animation:entra .6s var(--ease) both, flutua 3.6s ease-in-out infinite;animation-delay:var(--d), calc(var(--d) + .6s);
   transition:background .25s, color .25s, box-shadow .25s, border-color .25s}
+/* Entrada em sequência (sem style= no HTML, por causa da CSP) */
+.float-menu a:nth-child(2){--d:.08s}.float-menu a:nth-child(3){--d:.16s}.float-menu a:nth-child(4){--d:.24s}
 .float-menu a .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:var(--chip);color:var(--ceu-ink);
   transition:transform .35s var(--ease), background .25s, color .25s}
 .float-menu a .ic svg{width:24px;height:24px}
@@ -110,7 +113,13 @@ button.btn{font-family:inherit;cursor:pointer}
 .track{position:absolute;inset:0;display:flex;transition:transform .7s var(--ease)}
 .slide{flex:0 0 100%;position:relative;display:grid;place-items:center;overflow:hidden}
 .slide img{position:relative;width:100%;height:100%;object-fit:cover}
-.ph{position:absolute;inset:0}
+.ph{position:absolute;inset:0;background:linear-gradient(135deg,#3E8ED0,#1E8F4E)}
+/* Fundo de espera de cada foto, em ciclo de 6 (sem style= no HTML, por causa da CSP) */
+.slide:nth-child(6n+2) .ph{background:linear-gradient(135deg,#1E8F4E,#F2C230)}
+.slide:nth-child(6n+3) .ph{background:linear-gradient(135deg,#F2C230,#3E8ED0)}
+.slide:nth-child(6n+4) .ph{background:linear-gradient(160deg,#2A6FA8,#3E8ED0)}
+.slide:nth-child(6n+5) .ph{background:linear-gradient(135deg,#166B3A,#3E8ED0)}
+.slide:nth-child(6n) .ph{background:linear-gradient(135deg,#D62828,#F2C230)}
 .ph::before{content:"";position:absolute;width:70%;aspect-ratio:1;max-width:100%;border-radius:50%;border:28px solid rgba(255,255,255,.22);right:-18%;top:-20%}
 .ph::after{content:"";position:absolute;width:40%;aspect-ratio:1;border-radius:50%;border:14px solid rgba(255,255,255,.18);left:-10%;bottom:-12%}
 .car-btn{position:absolute;top:50%;translate:0 -50%;width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.9);color:#111;font-size:1.4rem;cursor:pointer;display:grid;place-items:center}

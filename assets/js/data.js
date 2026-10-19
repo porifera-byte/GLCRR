@@ -40,15 +40,28 @@ function hojeBV() {
   return new Date().toLocaleDateString("en-CA", { timeZone: "America/Boa_Vista" });
 }
 
-/* AAAA-MM-DD → dd/mm/aaaa */
+/* AAAA-MM-DD → dd/mm/aaaa. Fora do formato vira vazio: o valor entra direto no HTML */
+const DATA_ISO = /^\d{4}-\d{2}-\d{2}$/;
 function dataBR(iso) {
-  return iso ? iso.split("-").reverse().join("/") : "";
+  return DATA_ISO.test(iso || "") ? iso.split("-").reverse().join("/") : "";
 }
 
 /* Aceita só links reais de Google Forms */
 function formValido(url) {
   return /^https:\/\/(docs\.google\.com\/forms|forms\.gle)\//.test(url || "");
 }
+
+/* Link externo vindo dos JSON: só http(s). Barra javascript:, data: e afins num href */
+function urlSegura(url) {
+  const u = String(url || "").trim();
+  return /^https?:\/\//i.test(u) ? u : "";
+}
+
+/* Caminhos de imagem aceitos no site, validados na hora de exibir.
+   São os mesmos do painel (admin/regras-jogadores.js e admin/regras-eventos.js);
+   o teste admin/testes/site-dados.test.js confere que continuam iguais. */
+const ICONE_VALIDO = /^assets\/img\/jogadores\/[a-z0-9-]+\.(png|webp|jpg)$/;
+const DECKLIST_VALIDA = /^assets\/img\/decklists\/[a-z0-9-]+\.(png|jpg|jpeg|webp)(\?v=\d{14})?$/;
 
 /* Status calculado: o campo "status" do JSON, se preenchido, tem prioridade */
 function statusDe(ev) {
@@ -65,7 +78,7 @@ const eventoPorId = id => DADOS.eventos.find(e => e.id === id);
 const resultadoDo = eventoId => DADOS.resultados.find(r => r.evento_id === eventoId);
 const decklistDe = (eventoId, jogadorId) =>
   DADOS.decklists.find(d => d.evento_id === eventoId && d.jogador_id === jogadorId && d.posicao >= 1 && d.posicao <= 3);
-const vde = c => `${c.vitorias ?? 0}-${c.derrotas ?? 0}-${c.empates ?? 0}`;
+const vde = c => `${Number(c.vitorias) || 0}-${Number(c.derrotas) || 0}-${Number(c.empates) || 0}`;
 
 /* Tipo do deck: vem da linha do resultado (todos os jogadores); decklists antigas podem trazer o próprio */
 const tipoDoDeck = (colocacao, decklist) => (colocacao && colocacao.tipo_pokemon) || (decklist && decklist.tipo_pokemon) || "";
@@ -92,7 +105,7 @@ const IMAGEM_RESERVA_DECKLIST = "assets/img/decklists/sem-imagem.svg";
 function decklistTop3(eventoId, jogadorId, posicao) {
   if (!(posicao >= 1 && posicao <= 3)) return null;
   const d = decklistDe(eventoId, jogadorId);
-  if (d && (d.imagem || d.lista_texto)) return d;
+  if (d && (DECKLIST_VALIDA.test(d.imagem || "") || d.lista_texto)) return d;
   return { evento_id: eventoId, jogador_id: jogadorId, posicao, tipo_pokemon: d ? d.tipo_pokemon || "" : "",
     lista_texto: "", imagem: IMAGEM_RESERVA_DECKLIST, reserva: true };
 }
@@ -116,9 +129,9 @@ function estatisticasDe(jogadorId, temporada) {
     s.eventos++;
     if (h.colocacao.posicao <= 3) s.top3++;
     s.melhor = Math.min(s.melhor, h.colocacao.posicao);
-    s.v += h.colocacao.vitorias ?? 0;
-    s.d += h.colocacao.derrotas ?? 0;
-    s.e += h.colocacao.empates ?? 0;
+    s.v += Number(h.colocacao.vitorias) || 0;
+    s.d += Number(h.colocacao.derrotas) || 0;
+    s.e += Number(h.colocacao.empates) || 0;
     return s;
   }, { eventos: 0, top3: 0, melhor: Infinity, v: 0, d: 0, e: 0 });
 }
