@@ -237,5 +237,90 @@
         "tipo_pokemon": "Planta"
       }
     ]
+  },
+  {
+    "evento_id": "2026-10-31-5-torneio-pokemon-tcg-glc-2026",
+    "colocacoes": [
+      {
+        "posicao": 1,
+        "jogador_id": "lydia",
+        "vitorias": 4,
+        "derrotas": 0,
+        "empates": 0,
+        "tipo_pokemon": "Água"
+      },
+      {
+        "posicao": 2,
+        "jogador_id": "kaio-macedo",
+        "vitorias": 2,
+        "derrotas": 1,
+        "empates": 1,
+        "tipo_pokemon": "Dragão"
+      },
+      {
+        "posicao": 3,
+        "jogador_id": "rosso",
+        "vitorias": 2,
+        "derrotas": 1,
+        "empates": 1,
+        "tipo_pokemon": "Psíquico"
+      },
+      {
+        "posicao": 4,
+        "jogador_id": "davi-lopes",
+        "vitorias": 2,
+        "derrotas": 1,
+        "empates": 1,
+        "tipo_pokemon": "Planta"
+      },
+      {
+        "posicao": 5,
+        "jogador_id": "hz",
+        "vitorias": 1,
+        "derrotas": 1,
+        "empates": 2,
+        "tipo_pokemon": "Escuridão"
+      },
+      {
+        "posicao": 6,
+        "jogador_id": "max",
+        "vitorias": 2,
+        "derrotas": 2,
+        "empates": 0,
+        "tipo_pokemon": "Fogo"
+      },
+      {
+        "posicao": 7,
+        "jogador_id": "john-lennon",
+        "vitorias": 1,
+        "derrotas": 2,
+        "empates": 1,
+        "tipo_pokemon": "Escuridão"
+      },
+      {
+        "posicao": 8,
+        "jogador_id": "gabriel-rodrigues",
+        "vitorias": 1,
+        "derrotas": 2,
+        "empates": 1,
+        "tipo_pokemon": "Dragão"
+      },
+      {
+        "posicao": 9,
+        "jogador_id": "saymon",
+        "vitorias": 1,
+        "derrotas": 2,
+        "empates": 1,
+        "tipo_pokemon": "Dragão"
+      },
+      {
+        "posicao": 10,
+        "jogador_id": "davi-penha",
+        "vitorias": 0,
+        "derrotas": 4,
+        "empates": 0,
+        "tipo_pokemon": "Psíquico"
+      }
+    ]
   }
 ]
