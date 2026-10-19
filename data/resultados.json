@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "evento_id": "2026-10-18-teste",
+    "colocacoes": [
+      {
+        "posicao": 1,
+        "jogador_id": "rosso",
+        "vitorias": 1,
+        "derrotas": 0,
+        "empates": 0
+      }
+    ]
+  }
+]
