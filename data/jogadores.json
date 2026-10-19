@@ -65,5 +65,11 @@
     "apelido": "John Lennon",
     "cidade": "",
     "desde": 2026
+  },
+  {
+    "id": "max",
+    "apelido": "Max",
+    "cidade": "",
+    "desde": 2026
   }
 ]
