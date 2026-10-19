@@ -192,12 +192,13 @@ td .tipo-ic{margin-right:6px}
 .adm-mesa-bye .adm-mesa-jog{grid-template-columns:auto 1fr}
 .adm-bye{color:var(--muted);font-size:.9rem;text-align:right}
 .adm-x{color:var(--muted)}
-.adm-placar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.adm-placar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+@media (min-width:640px){.adm-placar{grid-template-columns:repeat(8,minmax(0,1fr))}}
 .adm-placar .btn{width:100%;min-height:48px;justify-content:center;padding:0 4px;font-family:var(--f-mono);font-size:1rem}
 .adm-placar .btn[aria-pressed="true"]{background:var(--ceu);border-color:var(--ceu);color:#fff}
 .btn[aria-disabled="true"]{opacity:.6}
 @media (min-width:640px){
-  .adm-mesas{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+  .adm-mesas{grid-template-columns:repeat(auto-fill,minmax(420px,1fr))}
 }
 
 /* Classificação e desempate manual */

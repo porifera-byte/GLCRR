@@ -41,7 +41,6 @@
 
   const fechadas = estado => estado.rodadas.filter(r => r.fechada).length;
   const pts = n => n.toLocaleString("pt-BR");
-  const PLACAR_ROTULO = { "2-0": "2-0", "2-1": "2-1", "1-1": "1-1", "1-2": "1-2", "0-2": "0-2" };
 
   /* ---------- Lista de eventos ---------- */
 
@@ -385,7 +384,7 @@
       sec.setAttribute("aria-labelledby", `t-rodada-${r.numero}`);
       sec.innerHTML = `
         <h2 id="t-rodada-${r.numero}">Rodada ${r.numero}</h2>
-        <p class="adm-nota">Placar na ordem da mesa: o primeiro número é do jogador da esquerda.</p>
+        <p class="adm-nota">Melhor de 3. Placar na ordem da mesa: o primeiro número é do jogador da esquerda. Empate: 1-1 ou 0-0.</p>
         <ol class="adm-mesas">${r.mesas.map(m => htmlMesa(r, m)).join("")}</ol>
         ${aberta ? `
           <div class="adm-acoes">
@@ -446,7 +445,7 @@
           ${S.PLACARES.map(p => {
             const [pa, pb] = p.split("-");
             return `<button type="button" class="btn btn-line" data-placar="${p}" aria-pressed="${m.placar === p}"
-              aria-label="${esc(apelido(m.a))} ${pa}, ${esc(apelido(m.b))} ${pb}">${PLACAR_ROTULO[p]}</button>`;
+              aria-label="${esc(apelido(m.a))} ${pa}, ${esc(apelido(m.b))} ${pb}">${p}</button>`;
           }).join("")}
         </div>
       </li>`;

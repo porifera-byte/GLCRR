@@ -25,7 +25,7 @@ Enquanto não for definida, a página de Ranking mostra só participações, qua
 
 Atualizado em 19/10/2026. Mesmas configurações usadas no Challonge.
 
-- Partidas em melhor de 3.
+- Partidas em melhor de 3: quem vence 2 jogos vence a partida. Placares possíveis: vitória por 2-0, 2-1 ou 1-0; empate por 1-1 ou 0-0 (19/10/2026).
 - Pontos: vitória 1,0 · empate 0,5 · bye 1,0. Jogos (games) não somam pontos.
 - Desempates, nesta ordem:
   1. vitórias contra adversários empatados (confronto direto);
