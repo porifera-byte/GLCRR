@@ -286,7 +286,8 @@
         "jogador_id": "davi-penha",
         "vitorias": 1,
         "derrotas": 2,
-        "empates": 0
+        "empates": 0,
+        "tipo_pokemon": "Lutador"
       },
       {
         "posicao": 7,
