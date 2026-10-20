@@ -29,7 +29,8 @@
     "id": "saymon",
     "apelido": "Saymon",
     "cidade": "",
-    "desde": 2026
+    "desde": 2026,
+    "icone": "assets/img/jogadores/saymon-20261020115432.webp"
   },
   {
     "id": "davi-lopes",
