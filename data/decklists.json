@@ -61,5 +61,12 @@
     "posicao": 3,
     "lista_texto": "",
     "imagem": "assets/img/decklists/2026-09-20-4-torneio-pokemon-tcg-glc-2026-3-rosso.jpg?v=20261019220312"
+  },
+  {
+    "evento_id": "2026-05-31-1-torneio-pokemon-tcg-glc-2026",
+    "jogador_id": "saymon",
+    "posicao": 1,
+    "lista_texto": "",
+    "imagem": "assets/img/decklists/2026-05-31-1-torneio-pokemon-tcg-glc-2026-1-saymon.jpg?v=20261020003423"
   }
 ]
