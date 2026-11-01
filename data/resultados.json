@@ -305,5 +305,130 @@
         "tipo_pokemon": "Lutador"
       }
     ]
+  },
+  {
+    "evento_id": "2026-10-31-5-torneio-pokemon-tcg-glc-2026",
+    "colocacoes": [
+      {
+        "posicao": 1,
+        "jogador_id": "saymon",
+        "vitorias": 4,
+        "derrotas": 0,
+        "empates": 0,
+        "tipo_pokemon": "Dragão"
+      },
+      {
+        "posicao": 2,
+        "jogador_id": "rosso",
+        "vitorias": 3,
+        "derrotas": 1,
+        "empates": 0,
+        "tipo_pokemon": "Psíquico"
+      },
+      {
+        "posicao": 3,
+        "jogador_id": "davi-lopes",
+        "vitorias": 2,
+        "derrotas": 0,
+        "empates": 2,
+        "tipo_pokemon": "Planta"
+      },
+      {
+        "posicao": 4,
+        "jogador_id": "isaque-noronha",
+        "vitorias": 2,
+        "derrotas": 0,
+        "empates": 2,
+        "tipo_pokemon": "Lutador"
+      },
+      {
+        "posicao": 5,
+        "jogador_id": "victor-magno",
+        "vitorias": 2,
+        "derrotas": 2,
+        "empates": 0,
+        "tipo_pokemon": "Elétrico"
+      },
+      {
+        "posicao": 6,
+        "jogador_id": "gabriel-rodrigues",
+        "vitorias": 2,
+        "derrotas": 2,
+        "empates": 0,
+        "tipo_pokemon": "Lutador"
+      },
+      {
+        "posicao": 7,
+        "jogador_id": "cristhopher-henrique",
+        "vitorias": 1,
+        "derrotas": 1,
+        "empates": 2,
+        "tipo_pokemon": "Psíquico"
+      },
+      {
+        "posicao": 8,
+        "jogador_id": "kaio-macedo",
+        "vitorias": 1,
+        "derrotas": 1,
+        "empates": 2,
+        "tipo_pokemon": "Incolor"
+      },
+      {
+        "posicao": 9,
+        "jogador_id": "miguel-rasia",
+        "vitorias": 1,
+        "derrotas": 1,
+        "empates": 2,
+        "tipo_pokemon": "Água"
+      },
+      {
+        "posicao": 10,
+        "jogador_id": "lydia",
+        "vitorias": 2,
+        "derrotas": 2,
+        "empates": 0,
+        "tipo_pokemon": "Psíquico"
+      },
+      {
+        "posicao": 11,
+        "jogador_id": "vinicius",
+        "vitorias": 2,
+        "derrotas": 2,
+        "empates": 0,
+        "tipo_pokemon": "Dragão"
+      },
+      {
+        "posicao": 12,
+        "jogador_id": "hugly",
+        "vitorias": 1,
+        "derrotas": 2,
+        "empates": 1,
+        "tipo_pokemon": "Lutador"
+      },
+      {
+        "posicao": 13,
+        "jogador_id": "diego-veloso",
+        "vitorias": 1,
+        "derrotas": 2,
+        "empates": 1,
+        "tipo_pokemon": "Psíquico"
+      },
+      {
+        "posicao": 14,
+        "jogador_id": "rodrigo-bernardino",
+        "vitorias": 0,
+        "derrotas": 2,
+        "empates": 2,
+        "tipo_pokemon": "Planta"
+      },
+      {
+        "posicao": 15,
+        "jogador_id": "leonel",
+        "vitorias": 1,
+        "derrotas": 3,
+        "empates": 0,
+        "tipo_pokemon": "Escuridão"
+      }
+    ]
   }
 ]
