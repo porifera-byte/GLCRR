@@ -1,7 +1,7 @@
 /* Liga GLC Roraima — carregamento dos dados e utilitários compartilhados.
    Todo dado que muda vem de data/*.json. O HTML não tem dado fixo. */
 
-const ARQUIVOS_DADOS = ["config", "eventos", "resultados", "jogadores", "decklists", "banlist"];
+const ARQUIVOS_DADOS = ["config", "eventos", "resultados", "jogadores", "decklists", "banlist", "patrocinadores"];
 
 const DADOS = {
   config: {},
@@ -9,7 +9,8 @@ const DADOS = {
   resultados: [],
   jogadores: [],
   decklists: [],
-  banlist: { atualizado_em: "", fonte: "", cartas: [] }
+  banlist: { atualizado_em: "", fonte: "", cartas: [] },
+  patrocinadores: []
 };
 
 async function carregarDados() {
@@ -62,6 +63,8 @@ function urlSegura(url) {
    o teste admin/testes/site-dados.test.js confere que continuam iguais. */
 const ICONE_VALIDO = /^assets\/img\/jogadores\/[a-z0-9-]+\.(png|webp|jpg)$/;
 const DECKLIST_VALIDA = /^assets\/img\/decklists\/[a-z0-9-]+\.(png|jpg|jpeg|webp)(\?v=\d{14})?$/;
+/* Logos dos patrocinadores: enviadas por PR (não passam pelo painel) */
+const LOGO_PATROCINADOR_VALIDA = /^assets\/img\/patrocinadores\/[a-z0-9-]+\.(png|webp|jpg|svg)$/;
 
 /* Status calculado: o campo "status" do JSON, se preenchido, tem prioridade */
 function statusDe(ev) {

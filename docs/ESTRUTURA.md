@@ -1,6 +1,6 @@
 # Estrutura do site — Liga GLC Roraima (v2)
 
-Atualizado em 19/10/2026 (rev. 11: CSP no site público e validação dos dados na hora de exibir).
+Atualizado em 02/11/2026 (rev. 12: patrocinadores no Início).
 
 Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página única: cada seção é uma âncora em `index.html` e a troca entre seções desliza na ordem do menu.
 
@@ -8,7 +8,7 @@ Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página 
 
 | Âncora | Conteúdo | Dados usados |
 |---|---|---|
-| `#inicio` | Logo, texto principal, botões do Instagram e do YouTube, carrossel de fotos e menu de botões flutuantes | `config.json`, pasta de fotos |
+| `#inicio` | Logo, texto principal, botões do Instagram e do YouTube, carrossel de fotos, menu de botões flutuantes e patrocinadores | `config.json`, `patrocinadores.json`, pasta de fotos |
 | `#calendario` | Próximos eventos e eventos realizados | `eventos.json` |
 | `#ranking` | Participações e colocações da temporada (sem pontos até a regra ser definida) | `resultados.json`, `eventos.json`, `jogadores.json`, `config.json` |
 | `#regras` | Resumo do GLC, regras locais e banlist | `banlist.json` |
@@ -22,6 +22,14 @@ Não há seções próprias de Decklists nem de Inscrições:
 ## Pop-up de resultados
 
 No Calendário, cada evento realizado com resultados tem o botão "Resultados". Ele abre um pop-up com a classificação, um botão "Perfil" por jogador (leva a `#jogadores/<id>`) e, no Top 3, um botão "Decklist" que mostra a imagem da lista. O mesmo pop-up abre pelo botão "Classificação do evento" no perfil. Esc, o X ou um clique fora fecham.
+
+## Patrocinadores
+
+No fim do Início, `htmlPatrocinadores()` (`main.js`) mostra uma grade de logos (2 por linha no celular, 4 no computador), cada uma com link para a página do patrocinador em nova aba (`rel="noopener sponsored"`). A placa de cada logo é branca nos dois modos, porque as logos são feitas para fundo claro.
+
+- Dados em `data/patrocinadores.json`: lista de `{ nome, url, logo }`, na ordem de exibição. `url` passa por `urlSegura()` (sem link http(s), o patrocinador não aparece); `logo` passa por `LOGO_PATROCINADOR_VALIDA` (`data.js`). Sem logo, ou com logo que não carrega (`data-falha="nome"`), aparece o nome em texto.
+- Logos em `assets/img/patrocinadores/<slug>.webp` (ou .png/.jpg/.svg): fundo transparente quando possível, até 480 × 240 px, sem metadados. Entram por PR, não pelo painel.
+- Sem nenhum patrocinador válido, a seção some.
 
 ## Ícones dos tipos de deck
 
@@ -68,6 +76,7 @@ assets/
   img/tipos/               ícones dos tipos de deck: [slug].png (96 px), arte própria da liga;
                            fonte/[slug].svg é o original editável
   img/jogadores/           ícones dos jogadores, enviados pelo painel: [jogador_id]-[AAAAMMDDhhmmss].webp/.png (256 px)
+  img/patrocinadores/      logos dos patrocinadores: [slug].webp (até 480 × 240 px), enviadas por PR
 data/
   config.json              temporada, Instagram, YouTube (youtube_url; sem link válido, o botão some), pasta de fotos, repositório GitHub, tipos de evento, tipos de deck (tipos_pokemon)
   eventos.json             eventos
@@ -76,6 +85,7 @@ data/
   decklists.json           listas do Top 3
   banlist.json             banlist (atualizada só sob pedido)
   fotos.json               reserva do carrossel: lista de nomes de arquivo
+  patrocinadores.json      patrocinadores do Início: nome, url (http/https) e logo (opcional)
 docs/
   ESTRUTURA.md             este arquivo
   REGRAS-LOCAIS.md         regras próprias da liga e regra do ranking

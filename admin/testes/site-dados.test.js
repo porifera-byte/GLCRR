@@ -57,3 +57,12 @@ test("decklist do Top 3: imagem fora do formato vira reserva", () => {
   assert.strictEqual(site(`decklistTop3("e", "c", 3).lista_texto`), "lista");
   assert.ok(!site(`DECKLIST_VALIDA.test(decklistTop3("e", "c", 3).imagem)`));
 });
+
+test("logo de patrocinador só em assets/img/patrocinadores/", () => {
+  const ok = v => site(`LOGO_PATROCINADOR_VALIDA.test(${JSON.stringify(v)})`);
+  ["assets/img/patrocinadores/tidiplay.webp", "assets/img/patrocinadores/style-geek.png",
+    "assets/img/patrocinadores/macuxitcg.svg"].forEach(v => assert.ok(ok(v), v));
+  ["", "https://exemplo.com/logo.png", "javascript:alert(1)", "assets/img/patrocinadores/../x.png",
+    "assets/img/jogadores/a.webp", "assets/img/patrocinadores/Logo.PNG", "assets/img/patrocinadores/a.gif"]
+    .forEach(v => assert.ok(!ok(v), v));
+});
