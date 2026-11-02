@@ -41,11 +41,13 @@ function dataBox(iso) {
 }
 
 /* Imagem que falha ao carregar, sem handler inline (a CSP bloqueia onerror=):
-   data-falha="remover" tira a imagem; data-falha="reserva" troca a decklist pela imagem de reserva.
+   data-falha="remover" tira a imagem; data-falha="reserva" troca a decklist pela imagem de reserva;
+   data-falha="nome" troca a logo do patrocinador pelo nome em texto.
    O evento "error" não sobe pela árvore, por isso o ouvinte fica na fase de captura. */
 const imgReserva = alt => `<img class="deck-img deck-reserva" src="${IMAGEM_RESERVA_DECKLIST}" alt="${alt}">`;
 function tratarFalhaImagem(img) {
   if (img.dataset.falha === "remover") img.remove();
+  else if (img.dataset.falha === "nome") img.outerHTML = `<span class="patro-nome">${esc(img.alt)}</span>`;
   else if (img.dataset.falha === "reserva") (img.closest("a") || img).outerHTML = imgReserva("Decklist em breve: a imagem ainda não está disponível.");
 }
 document.addEventListener("error", e => {
@@ -84,6 +86,22 @@ function cardEvento(ev) {
   </article>`;
 }
 
+/* Patrocinadores do Início (data/patrocinadores.json): logo clicável ou, sem logo válida, o nome em texto.
+   Patrocinador sem link http(s) não aparece. */
+function htmlPatrocinadores() {
+  const lista = (Array.isArray(DADOS.patrocinadores) ? DADOS.patrocinadores : [])
+    .map(p => ({ nome: String(p.nome || "").trim(), url: urlSegura(p.url), logo: LOGO_PATROCINADOR_VALIDA.test(p.logo || "") ? p.logo : "" }))
+    .filter(p => p.nome && p.url);
+  if (!lista.length) return "";
+  return `<section class="patrocinadores" aria-labelledby="patro-titulo">
+    <h2 id="patro-titulo" class="patro-titulo">Patrocinadores</h2>
+    <ul class="patro-lista">${lista.map(p => `<li><a class="patro" href="${esc(p.url)}" target="_blank" rel="noopener sponsored"
+      aria-label="${esc(p.nome)} (abre em nova aba)">${p.logo
+        ? `<img src="${esc(p.logo)}" alt="${esc(p.nome)}" loading="lazy" data-falha="nome">`
+        : `<span class="patro-nome">${esc(p.nome)}</span>`}</a></li>`).join("")}</ul>
+  </section>`;
+}
+
 /* ---------- Páginas ---------- */
 
 const PAGES = {
@@ -115,6 +133,7 @@ const PAGES = {
         <a class="btn btn-ouro" href="${esc(instagram)}" target="_blank" rel="noopener">${IG_SVG} Siga no Instagram</a>
         ${youtube ? `<a class="btn btn-verm" href="${esc(youtube)}" target="_blank" rel="noopener">${YT_SVG} Canal no YouTube</a>` : ""}
       </div>
+      ${htmlPatrocinadores()}
     </div>`;
   },
 

@@ -93,6 +93,19 @@ h3{font-size:1.15rem}
   .home-redes .btn{flex:1 1 0;min-width:0;justify-content:center;gap:6px;padding:10px 6px;font-size:clamp(.72rem,3.6vw,.84rem);white-space:nowrap}
 }
 
+/* Patrocinadores do Início: placa clara nos dois modos, para as logos (feitas para fundo branco) não destoarem */
+.patrocinadores{display:grid;gap:12px;justify-items:center}
+.patro-titulo{margin:0;font-family:var(--f-display);font-size:.78rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.patro-lista{list-style:none;margin:0;padding:0;width:100%;max-width:880px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.patro{display:grid;place-items:center;height:84px;padding:10px 14px;border-radius:var(--r);background:#fff;border:1px solid var(--line);
+  text-decoration:none;transition:translate .25s var(--ease), box-shadow .25s}
+.patro img{display:block;width:100%;height:64px;object-fit:contain}
+.patro-nome{font-family:var(--f-display);font-weight:800;font-size:1.15rem;line-height:1.1;color:#12263A;text-align:center}
+.patro:hover,.patro:focus-visible{translate:0 -3px;box-shadow:var(--shadow)}
+.patro:focus-visible{outline:3px solid var(--ceu);outline-offset:2px}
+@media (min-width:640px){.patro-lista{grid-template-columns:repeat(4,minmax(0,1fr))}.patro{height:96px}.patro img{height:76px}}
+@media (prefers-reduced-motion:reduce){.patro{transition:none}}
+
 /* Botões flutuantes do menu do Início */
 .float-menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding-block:8px}
 .float-menu a{--d:0s;position:relative;display:grid;justify-items:center;gap:8px;padding:16px 10px 14px;border-radius:18px;
