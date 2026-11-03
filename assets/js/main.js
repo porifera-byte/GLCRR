@@ -47,7 +47,11 @@ const imgReserva = alt => `<img class="deck-img deck-reserva" src="${IMAGEM_RESE
 function tratarFalhaImagem(img) {
   if (img.dataset.falha === "remover") img.remove();
   else if (img.dataset.falha === "nome") img.outerHTML = `<span class="patro-nome">${esc(img.alt)}</span>`;
-  else if (img.dataset.falha === "carta" && img.src.includes("assets.tcgdex.net/pt/")) img.src = img.src.replace("/pt/", "/en/");
+  else if (img.dataset.falha === "carta" && !img.dataset.trocou && /assets\.tcgdex\.net\/(en|pt)\//.test(img.src)) {
+    /* Sem imagem num idioma, tenta o outro uma vez antes de mostrar o nome */
+    img.dataset.trocou = "1";
+    img.src = img.src.includes("/en/") ? img.src.replace("/en/", "/pt/") : img.src.replace("/pt/", "/en/");
+  }
   else if (img.dataset.falha === "carta") (img.closest("a") || img).outerHTML = `<span class="carta-txt">${esc(img.dataset.nome || img.alt)}</span>`;
   else if (img.dataset.falha === "reserva") (img.closest("a") || img).outerHTML = imgReserva("Decklist em breve: a imagem ainda não está disponível.");
 }
@@ -214,8 +218,8 @@ const PAGES = {
     const fonte = urlSegura(bl.fonte);
     const banlist = (bl.cartas || []).length
       ? `<div class="table-box" role="region" aria-label="Banlist" tabindex="0"><table>
-          <thead><tr><th>Carta</th><th>Coleção</th><th>Número</th></tr></thead>
-          <tbody>${bl.cartas.map(c => `<tr><td>${esc(c.nome)}</td><td>${esc(c.colecao)}</td><td>${esc(c.numero)}</td></tr>`).join("")}</tbody>
+          <thead><tr><th>Carta</th><th>Coleção</th><th>Número</th><th>Vale para</th></tr></thead>
+          <tbody>${bl.cartas.map(c => `<tr><td>${esc(c.nome)}</td><td>${esc(c.colecao)}</td><td>${esc(c.numero)}</td><td>${c.todas_versoes ? "Todas as versões" : "Só esta carta"}</td></tr>`).join("")}</tbody>
         </table></div>
         <p class="lead">Atualizada em ${dataBR(bl.atualizado_em)}.${fonte ? ` Fonte: <a href="${esc(fonte)}" target="_blank" rel="noopener">${esc(fonte)}</a>` : ""}</p>`
       : vazio("Banlist ainda não importada.", "Consulte a lista oficial em gymleaderchallenge.com enquanto ela não é publicada aqui.");
