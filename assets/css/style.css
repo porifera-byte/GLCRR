@@ -235,6 +235,15 @@ body.modal-aberto{overflow:hidden}
 .chip-filtro[aria-pressed="true"]{background:var(--ceu);border-color:var(--ceu);color:#fff}
 @media (prefers-reduced-motion:reduce){.chip-filtro{transition:none}}
 .decks li{background:var(--surface)}
+.decks-sec{display:grid;gap:12px}
+/* Itens de grid não podem crescer além da tela por causa de tabela larga (a tabela rola dentro da .table-box) */
+.page > *,.decks-sec > *{min-width:0}
+/* Coluna do tipo fixa ao rolar a tabela no celular */
+.tab-est th:first-child,.tab-est td:first-child{position:sticky;left:0;z-index:1;background:var(--surface)}
+.resumo{margin:0;color:var(--muted)}
+.resumo b{color:var(--fg);font-variant-numeric:tabular-nums}
+.tab-est td:not(:first-child),.tab-est th:not(:first-child){text-align:right}
+.nota{margin:0;font-size:.82rem;color:var(--muted);max-width:62ch}
 /* No celular o cartão tem um botão só: ele fica à direita, sem ir para a linha de baixo como no pop-up */
 @media (max-width:480px){.decks li{grid-template-columns:auto minmax(0,1fr) auto;gap:10px}.decks .acoes{grid-column:auto}}
 @media (min-width:760px){.decks{grid-template-columns:repeat(2,minmax(0,1fr))}}

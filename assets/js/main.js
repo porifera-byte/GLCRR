@@ -159,37 +159,48 @@ const PAGES = {
       </div>`);
   },
 
-  /* Decklists do Top 3 de todos os eventos, com filtro por tipo do deck e, se houver mais de uma, por temporada.
-     O filtro só esconde cartões (aplicarFiltroDecks); não muda a rota, para não disparar o slide. */
+  /* Aba Decks: estatísticas por tipo do deck e melhores colocações (Top 3 de todos os eventos).
+     Filtros: período (tudo, 3, 6 ou 12 meses, ano), que vale para a página toda, e tipo, que vale para a lista.
+     Trocar o filtro não muda a rota, para não disparar o slide (aplicarFiltroDecks). */
   decks() {
     const itens = decksTop3();
     if (!itens.length) {
-      return interna(`<div><span class="eyebrow">Top 3 dos eventos</span><h1>Decks</h1></div>
-        ${vazio("Nenhuma decklist publicada ainda.", "As listas do Top 3 aparecem aqui depois que os resultados de cada evento forem publicados.")}`);
+      return interna(`<div><span class="eyebrow">Tipos e listas</span><h1>Decks</h1></div>
+        ${vazio("Nenhum resultado publicado ainda.", "As estatísticas e as listas do Top 3 aparecem aqui depois que os resultados de cada evento forem publicados.")}`);
     }
+    const chip = (grupo, valor, rotulo, ativo) => `<button type="button" class="chip-filtro" data-filtro="${grupo}" data-valor="${esc(valor)}" aria-pressed="${ativo}">${rotulo}</button>`;
+    const anos = [...new Set(DADOS.resultados.map(r => (eventoPorId(r.evento_id) || {}).data)
+      .filter(d => DATA_ISO.test(d || "")).map(d => d.slice(0, 4)))].sort().reverse();
+    const periodos = [["", "Tudo"], ["3m", "3 meses"], ["6m", "6 meses"], ["12m", "12 meses"], ...anos.map(a => [a, a])];
     const tipos = [...new Set(itens.map(x => tipoDoDeck(x.colocacao, x.decklist)).filter(Boolean))]
       .sort((a, b) => a.localeCompare(b, "pt-BR"));
-    const anos = [...new Set(itens.map(x => x.evento.data.slice(0, 4)))];
-    const chip = (grupo, valor, rotulo, ativo) => `<button type="button" class="chip-filtro" data-filtro="${grupo}" data-valor="${esc(valor)}" aria-pressed="${ativo}">${rotulo}</button>`;
-    const filtroTipo = tipos.length > 1 ? `<div class="filtros" role="group" aria-label="Filtrar por tipo do deck">
+    const filtroTipo = tipos.length > 1 ? `<div class="filtros" role="group" aria-label="Filtrar as colocações por tipo do deck">
         ${chip("tipo", "", "Todos", true)}${tipos.map(t => chip("tipo", slugTipo(t), `${TIPOS_COM_ICONE.includes(slugTipo(t))
           ? `<img src="assets/img/tipos/${slugTipo(t)}.png" alt="" width="18" height="18">` : ""}${esc(t)}`, false)).join("")}</div>` : "";
-    const filtroAno = anos.length > 1 ? `<div class="filtros" role="group" aria-label="Filtrar por temporada">
-        ${chip("ano", "", "Todas", true)}${anos.map(a => chip("ano", a, esc(a), false)).join("")}</div>` : "";
     const cartoes = itens.map(({ evento: ev, colocacao: c, decklist: d }) => {
       const tipo = tipoDoDeck(c, d);
-      return `<li class="deck-card" data-tipo="${esc(slugTipo(tipo))}" data-ano="${esc(ev.data.slice(0, 4))}">
+      const total = (resultadoDo(ev.id)?.colocacoes || []).length;
+      return `<li class="deck-card" data-tipo="${esc(slugTipo(tipo))}" data-data="${esc(ev.data)}">
         <span class="pos p${Number(c.posicao)}">${esc(c.posicao)}º</span>
         <span class="quem"><span class="quem-nome"><b>${esc(apelidoDe(c.jogador_id))}</b>${htmlTipo(tipo)}</span>
-          <small>${esc(ev.nome)} · ${dataBR(ev.data)}</small></span>
+          <small>${esc(ev.nome)} · ${dataBR(ev.data)}</small>
+          <small>${esc(c.posicao)}º de ${total} · ${vde(c)} (V-D-E)</small></span>
         <span class="acoes"><button type="button" class="btn ${d.reserva ? "btn-line" : "btn-ouro"} btn-sm" data-decklist="${esc(ev.id)}|${esc(c.jogador_id)}">${d.reserva ? "Em breve" : "Decklist"}</button></span>
       </li>`;
     }).join("");
-    return interna(`<div><span class="eyebrow">Top 3 dos eventos</span><h1>Decks</h1></div>
-      <p class="lead">As listas de quem ficou no Top 3 de cada evento da liga, da mais recente para a mais antiga.</p>
-      ${filtroTipo}${filtroAno}
-      <ol class="podio decks">${cartoes}</ol>
-      <div class="empty decks-vazio" hidden><b>Nenhuma lista com esse filtro.</b><span>Escolha outro tipo ou temporada.</span></div>`);
+    return interna(`<div><span class="eyebrow">Tipos e listas</span><h1>Decks</h1></div>
+      <div class="filtros" role="group" aria-label="Período">${periodos.map(([v, r], i) => chip("periodo", v, esc(r), i === 0)).join("")}</div>
+      <section class="decks-sec" aria-labelledby="est-titulo">
+        <h2 id="est-titulo">Estatísticas por tipo</h2>
+        <div class="decks-est">${htmlEstatDecks("")}</div>
+      </section>
+      <section class="decks-sec" aria-labelledby="col-titulo">
+        <h2 id="col-titulo">Melhores colocações</h2>
+        <p class="lead">O Top 3 de cada evento, do mais recente para o mais antigo, com a decklist.</p>
+        ${filtroTipo}
+        <ol class="podio decks">${cartoes}</ol>
+        <div class="empty decks-vazio" hidden><b>Nenhuma colocação com esse filtro.</b><span>Escolha outro tipo ou período.</span></div>
+      </section>`);
   },
 
   regras() {
@@ -361,15 +372,34 @@ function htmlDecklist(eventoId, jogadorId, veioDaLista) {
     <a class="btn btn-line btn-sm" href="${linkPerfil(jogadorId)}">Ver perfil de ${esc(nome)}</a>`;
 }
 
-/* Filtro da aba Decks: um chip ativo por grupo (tipo, ano); "" = todos */
+/* Tabela de estatísticas por tipo do deck no período escolhido (só números, sem interpretação) */
+const pct = x => x == null ? "—" : `${(x * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
+const qtd = (n, um, varios) => `<b>${n}</b> ${n === 1 ? um : varios}`;
+function htmlEstatDecks(periodo) {
+  const { inicio, fim } = periodoDatas(periodo);
+  const s = estatisticasDecks(inicio, fim);
+  if (!s.eventos) return vazio("Nenhum evento com resultado neste período.", "Escolha um período maior.");
+  return `<p class="resumo">${qtd(s.eventos, "evento", "eventos")} · ${qtd(s.jogadores, "jogador", "jogadores")} · ${qtd(s.participacoes, "participação", "participações")}</p>
+    <div class="table-box" role="region" aria-label="Estatísticas por tipo do deck" tabindex="0"><table class="tab-est">
+      <thead><tr><th>Tipo</th><th>Uso</th><th>% do total</th><th>Jogadores</th><th>V-D-E</th><th>% de vitórias</th><th>Top 3</th><th>1º lugar</th></tr></thead>
+      <tbody>${s.tipos.map(t => `<tr>
+        <td>${t.tipo ? `<span class="tipo-linha">${htmlTipo(t.tipo, { comTexto: true })}</span>` : `<span class="muted">Não informado</span>`}</td>
+        <td>${t.uso}</td><td>${pct(t.uso_pct)}</td><td>${t.jogadores}</td><td>${t.v}-${t.d}-${t.e}</td><td>${pct(t.vit_pct)}</td><td>${t.top3}</td><td>${t.titulos}</td>
+      </tr>`).join("")}</tbody></table></div>
+    <p class="nota">Uso: quantas vezes o tipo foi usado em evento. % de vitórias: vitórias ÷ partidas (V + D + E); o bye conta como vitória.</p>`;
+}
+
+/* Filtros da aba Decks: um chip ativo por grupo. O período refaz a tabela e vale também para a lista; o tipo vale só para a lista */
 function aplicarFiltroDecks(chip) {
   const pagina = chip.closest(".page");
   pagina.querySelectorAll(`[data-filtro="${chip.dataset.filtro}"]`).forEach(b => b.setAttribute("aria-pressed", String(b === chip)));
   const ativo = grupo => pagina.querySelector(`[data-filtro="${grupo}"][aria-pressed="true"]`)?.dataset.valor || "";
-  const tipo = ativo("tipo"), ano = ativo("ano");
+  const tipo = ativo("tipo"), periodo = ativo("periodo");
+  if (chip.dataset.filtro === "periodo") pagina.querySelector(".decks-est").innerHTML = htmlEstatDecks(periodo);
+  const { inicio, fim } = periodoDatas(periodo);
   let visiveis = 0;
   pagina.querySelectorAll(".deck-card").forEach(li => {
-    const mostra = (!tipo || li.dataset.tipo === tipo) && (!ano || li.dataset.ano === ano);
+    const mostra = (!tipo || li.dataset.tipo === tipo) && li.dataset.data >= inicio && li.dataset.data <= fim;
     li.hidden = !mostra;
     if (mostra) visiveis++;
   });
