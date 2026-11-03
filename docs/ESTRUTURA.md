@@ -11,7 +11,7 @@ Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página 
 | `#inicio` | Logo, texto principal, menu de botões, botões do Instagram e do YouTube e patrocinadores | `config.json`, `patrocinadores.json` |
 | `#calendario` | Próximos eventos e eventos realizados | `eventos.json` |
 | `#ranking` | Participações e colocações da temporada (sem pontos até a regra ser definida) | `resultados.json`, `eventos.json`, `jogadores.json`, `config.json` |
-| `#decks` | Estatísticas por tipo do deck (uso, % do total, jogadores, V-D-E, % de vitórias, Top 3, 1º lugar) e melhores colocações (Top 3 de todos os eventos, com a decklist), com filtro de período (tudo, 3, 6 e 12 meses, ano) e de tipo | `resultados.json`, `decklists.json`, `eventos.json`, `jogadores.json` |
+| `#decks` | Nesta ordem: melhores colocações (Top 3 de todos os eventos, com a decklist), estatísticas por tipo do deck (uso, % do total, jogadores, V-D-E, % de vitórias, Top 3, 1º lugar) e cartas mais usadas, com filtro de período (tudo, 3, 6 e 12 meses, ano) e de tipo | `resultados.json`, `decklists.json`, `eventos.json`, `jogadores.json` |
 | `#regras` | Resumo do GLC, regras locais e banlist | `banlist.json` |
 | `#jogadores` | Cartões dos jogadores com totais | `jogadores.json`, `resultados.json` |
 | `#jogadores/<id>` | Perfil: totais, histórico de eventos, colocação, V-D-E e decklist do Top 3 | `jogadores.json`, `resultados.json`, `decklists.json`, `eventos.json` |
