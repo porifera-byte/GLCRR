@@ -165,7 +165,8 @@
     const img = imagemBaixa(d.image) || imagemBaixa(d.imagem_pt);
     if (img) r.img = img;
     if (categoria === "Pokémon") r.tipos = (d.types || []).filter(t => TIPOS_EN.includes(t));
-    if (categoria === "Energia" && d.energyType === "Normal") r.basica = true;
+    /* A TCGdex marca algumas Energias Especiais como "Normal" (ex.: Telepathic Psychic Energy): vale também o nome */
+    if (categoria === "Energia" && d.energyType === "Normal" && NOME_ENERGIA_BASICA.test(r.nome)) r.basica = true;
     return { ...r, ...dadosDeOrdem(d) };
   }
 
@@ -187,6 +188,8 @@
 
   /* ---------- Texto exportado do TCG Live ---------- */
 
+  /* Nome de Energia Básica (o que a TCGdex chama de "Normal" só vale com este nome) */
+  const NOME_ENERGIA_BASICA = /^(?:Basic\s+)?(?:\{[GRWLPFDMY]\}|Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy)\s+Energy$/i;
   const SIMBOLO_ENERGIA = { G: "Grass", R: "Fire", W: "Water", L: "Lightning", P: "Psychic", F: "Fighting", D: "Darkness", M: "Metal", Y: "Fairy" };
   /* "Basic {P} Energy", "Psychic Energy", "Basic Psychic Energy" → "Psychic Energy"; outra carta → "" */
   function energiaBasica(nome) {
@@ -354,7 +357,7 @@
       if (ID_CARTA.test(c.id || "")) r.id = c.id;
       if (CARTA_IMG_VALIDA.test(c.img || "")) r.img = c.img;
       if (r.categoria === "Pokémon" && Array.isArray(c.tipos)) r.tipos = c.tipos.filter(t => TIPOS_EN.includes(t));
-      if (r.categoria === "Energia" && c.basica === true) r.basica = true;
+      if (r.categoria === "Energia" && c.basica === true && NOME_ENERGIA_BASICA.test(nome)) r.basica = true;
       if (r.categoria === "Pokémon" && ESTAGIOS.includes(c.estagio)) r.estagio = c.estagio;
       if (r.categoria === "Pokémon" && c.evolui_de) r.evolui_de = String(c.evolui_de).replace(/\s+/g, " ").trim().slice(0, 60);
       if (r.categoria === "Treinador" && Object.values(SUBTIPOS).includes(c.subtipo)) r.subtipo = c.subtipo;

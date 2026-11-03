@@ -135,6 +135,8 @@ const GRUPOS_CARTAS = [
    - Treinador: Apoiador, Item, Ferramenta, Estádio, cada um em ordem alfabética;
    - Energia: Especiais primeiro, depois Básicas, cada uma em ordem alfabética.
    Usa "estagio", "evolui_de" e "subtipo", gravados pelo painel; carta antiga sem esses campos vai como Básico / no fim. */
+/* Energia Básica: marcada pelo painel e com nome de Energia Básica (a TCGdex marca algumas Especiais como básicas) */
+const energiaBasicaDe = c => !!(c && c.basica) && /^(?:Basic\s+)?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy)\s+Energy$/i.test(c.nome || "");
 const ESTAGIO_ORDEM = { Basic: 0, Restored: 0, Stage1: 1, Stage2: 2 };
 const SUBTIPO_ORDEM = { "Apoiador": 0, "Item": 1, "Ferramenta": 2, "Estádio": 3 };
 const nomeOrdem = n => String(n || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -157,7 +159,7 @@ function ordenarCartas(cartas, categoria) {
     return lista.sort((a, b) => raiz(a).localeCompare(raiz(b), "pt-BR") || estagio(a) - estagio(b) || porNome(a, b));
   }
   if (categoria === "Treinador") return lista.sort((a, b) => (SUBTIPO_ORDEM[a.subtipo] ?? 4) - (SUBTIPO_ORDEM[b.subtipo] ?? 4) || porNome(a, b));
-  if (categoria === "Energia") return lista.sort((a, b) => (a.basica ? 1 : 0) - (b.basica ? 1 : 0) || porNome(a, b));
+  if (categoria === "Energia") return lista.sort((a, b) => (energiaBasicaDe(a) ? 1 : 0) - (energiaBasicaDe(b) ? 1 : 0) || porNome(a, b));
   return lista.sort(porNome);
 }
 
@@ -289,7 +291,7 @@ function estatisticasCartas(inicio, fim) {
     if (!ev || !DATA_ISO.test(ev.data || "") || ev.data < inicio || ev.data > fim || !(d.posicao >= 1 && d.posicao <= 3) || !lista.length) return;
     listas++;
     const nesta = new Set();
-    lista.filter(c => !c.basica).forEach(c => {
+    lista.filter(c => !energiaBasicaDe(c)).forEach(c => {
       const k = chaveNome(c.nome);
       if (nesta.has(k)) return;
       nesta.add(k);
