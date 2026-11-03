@@ -142,3 +142,19 @@ test("decklist do Top 3 com lista montada não usa a reserva", () => {
   assert.strictEqual(site(`decklistTop3("e", "m", 1).reserva`), undefined);
   assert.strictEqual(site(`decklistTop3("e", "n", 2).reserva`), true);
 });
+
+test("cartas mais usadas nas listas montadas do Top 3", () => {
+  site(`DADOS.eventos = ${JSON.stringify([{ id: "e1", data: "2026-05-31" }, { id: "e2", data: "2026-10-31" }])}`);
+  const dus = { qtd: 1, nome: "Dusclops", categoria: "Pokémon" };
+  site(`DADOS.decklists = ${JSON.stringify([
+    { evento_id: "e1", jogador_id: "a", posicao: 1, cartas: [dus, { qtd: 1, nome: "Iono", categoria: "Treinador" }, { qtd: 50, nome: "Psychic Energy", categoria: "Energia", basica: true }] },
+    { evento_id: "e2", jogador_id: "b", posicao: 2, cartas: [{ ...dus, id: "bw7-62" }, { ...dus, id: "sv06.5-019" }] },
+    { evento_id: "e2", jogador_id: "c", posicao: 3, imagem: "assets/img/decklists/e2-3-c.jpg" },
+    { evento_id: "e2", jogador_id: "d", posicao: 4, cartas: [dus] }])}`);
+  const s = JSON.parse(site(`JSON.stringify(estatisticasCartas("", "9999-12-31"))`));
+  assert.strictEqual(s.listas, 2);
+  assert.deepStrictEqual(s.cartas.map(c => [c.nome, c.listas, c.titulos, c.pct]), [["Dusclops", 2, 1, 1], ["Iono", 1, 1, 0.5]]);
+  assert.strictEqual(JSON.parse(site(`JSON.stringify(estatisticasCartas("2026-06-01", "2026-12-31"))`)).listas, 1);
+  assert.strictEqual(site("cartaImgGrande('https://assets.tcgdex.net/en/sv/sv06.5/019/low.webp')"), "https://assets.tcgdex.net/en/sv/sv06.5/019/high.webp");
+  assert.strictEqual(site("cartaImgGrande('https://images.pokemontcg.io/sv6pt5/19.png')"), "https://images.pokemontcg.io/sv6pt5/19_hires.png");
+});

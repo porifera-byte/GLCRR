@@ -63,9 +63,12 @@ function urlSegura(url) {
    o teste admin/testes/site-dados.test.js confere que continuam iguais. */
 const ICONE_VALIDO = /^assets\/img\/jogadores\/[a-z0-9-]+\.(png|webp|jpg)$/;
 const DECKLIST_VALIDA = /^assets\/img\/decklists\/[a-z0-9-]+\.(png|jpg|jpeg|webp)(\?v=\d{14})?$/;
-/* Imagem de carta da lista montada no painel: só o endereço de imagens do pokemontcg.io.
+/* Imagem de carta da lista montada no painel: servidor de imagens da TCGdex (en ou pt).
+   Listas montadas até 03/11/2026 usavam o pokemontcg.io e continuam aceitas até serem salvas de novo no painel.
    É a mesma regra de admin/regras-cartas.js (o teste site-dados.test.js confere). */
-const CARTA_IMG_VALIDA = /^https:\/\/images\.pokemontcg\.io\/[a-z][a-z0-9.-]*\/[A-Za-z0-9-]+\.png$/;
+const CARTA_IMG_VALIDA = /^https:\/\/(?:assets\.tcgdex\.net\/(?:en|pt)\/[a-z0-9]+\/[a-z0-9]+(?:\.[0-9]+)?\/[A-Za-z0-9]+\/low\.webp|images\.pokemontcg\.io\/[a-z][a-z0-9.-]*\/[A-Za-z0-9-]+\.png)$/;
+/* Imagem grande da mesma carta (para abrir em tamanho real) */
+const cartaImgGrande = url => /assets\.tcgdex\.net/.test(url) ? url.replace(/\/low\.webp$/, "/high.webp") : url.replace(/\.png$/, "_hires.png");
 /* Logos dos patrocinadores: enviadas por PR (não passam pelo painel) */
 const LOGO_PATROCINADOR_VALIDA = /^assets\/img\/patrocinadores\/[a-z0-9-]+\.(png|webp|jpg|svg)$/;
 
@@ -225,6 +228,34 @@ function estatisticasDecks(inicio, fim) {
     return { ...t, jogadores: t.jogadores.size, uso_pct: t.uso / participacoes, vit_pct: partidas ? t.v / partidas : null };
   }).sort((a, b) => (!a.tipo) - (!b.tipo) || b.uso - a.uso || (b.vit_pct ?? -1) - (a.vit_pct ?? -1) || a.tipo.localeCompare(b.tipo, "pt-BR"));
   return { eventos, jogadores: jogadores.size, participacoes, tipos: lista };
+}
+
+/* Cartas mais usadas nas listas montadas do Top 3 dos eventos entre inicio e fim (inclusive).
+   Cada carta conta uma vez por lista (edições diferentes da mesma carta são a mesma carta, pelo nome).
+   Energia Básica fica de fora. Só números: a página não interpreta os dados. */
+function estatisticasCartas(inicio, fim) {
+  const chaveNome = n => String(n || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+  const cartas = new Map();
+  let listas = 0;
+  DADOS.decklists.forEach(d => {
+    const ev = eventoPorId(d.evento_id);
+    const lista = cartasDe(d);
+    if (!ev || !DATA_ISO.test(ev.data || "") || ev.data < inicio || ev.data > fim || !(d.posicao >= 1 && d.posicao <= 3) || !lista.length) return;
+    listas++;
+    const nesta = new Set();
+    lista.filter(c => !c.basica).forEach(c => {
+      const k = chaveNome(c.nome);
+      if (nesta.has(k)) return;
+      nesta.add(k);
+      if (!cartas.has(k)) cartas.set(k, { nome: c.nome, categoria: c.categoria || "", listas: 0, titulos: 0 });
+      const t = cartas.get(k);
+      t.listas++;
+      if (d.posicao === 1) t.titulos++;
+    });
+  });
+  const lista = [...cartas.values()].map(c => ({ ...c, pct: c.listas / listas }))
+    .sort((a, b) => b.listas - a.listas || a.nome.localeCompare(b.nome, "pt-BR"));
+  return { listas, cartas: lista };
 }
 
 function eventosSeparados() {

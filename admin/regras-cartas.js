@@ -1,96 +1,143 @@
 /* Painel GLC RR — regras do montador de decklist, sem DOM (testável no Node).
-   Dados das cartas: API pública do pokemontcg.io (v2), sem chave (a chave ficaria exposta no repositório público).
-   A decklist grava os dados de cada carta (nome, coleção, número, imagem), então o site não depende da API. */
+   Dados das cartas: API pública da TCGdex (api.tcgdex.net, v2), gratuita, open source e sem chave.
+   Busca em português (código "pt" na TCGdex: cartas físicas; "pt-br" é só o TCG Pocket) e em inglês.
+   A API não conhece o GLC: as regras do formato são aplicadas aqui.
+   A decklist grava, por carta, o id da TCGdex e o mínimo para o site mostrar a lista e as estatísticas sem chamar a API. */
 (function (raiz) {
   "use strict";
 
-  const API = "https://api.pokemontcg.io/v2/cards";
-  const CAMPOS = "id,name,supertype,subtypes,types,set,number,images,legalities,rules";
+  const API = "https://api.tcgdex.net/v2";
+  const ASSETS = "https://assets.tcgdex.net";
   const POR_PAGINA = 24;
 
-  /* Imagem da carta: só o endereço de imagens do pokemontcg.io. Igual ao do site (assets/js/data.js);
-     o teste admin/testes/site-dados.test.js confere. */
-  const CARTA_IMG_VALIDA = /^https:\/\/images\.pokemontcg\.io\/[a-z][a-z0-9.-]*\/[A-Za-z0-9-]+\.png$/;
+  /* GLC: cartas de Black & White em diante (séries da TCGdex) mais a banlist do GLC.
+     Não usa a legalidade "expanded" da TCGdex, que tira as banidas do Expanded oficial (outra lista). */
+  const SERIES_GLC = ["bw", "xy", "sm", "swsh", "sv", "me"];
+
+  /* Imagem de carta aceita: TCGdex (en ou pt, qualidade baixa em webp). Listas antigas (até 03/11/2026) usavam o pokemontcg.io.
+     Igual à de assets/js/data.js (o teste site-dados.test.js confere). */
+  const CARTA_IMG_VALIDA = /^https:\/\/(?:assets\.tcgdex\.net\/(?:en|pt)\/[a-z0-9]+\/[a-z0-9]+(?:\.[0-9]+)?\/[A-Za-z0-9]+\/low\.webp|images\.pokemontcg\.io\/[a-z][a-z0-9.-]*\/[A-Za-z0-9-]+\.png)$/;
+  const IMG_TCGDEX = /^https:\/\/assets\.tcgdex\.net\//;
+  const SET_ID = /^[a-z0-9]+(?:\.[0-9]+)?$/;
+  const ID_CARTA = /^[a-z0-9]+(?:\.[0-9]+)?-[A-Za-z0-9]+$/;
 
   const CATEGORIAS = ["Pokémon", "Treinador", "Energia"];
-  const DA_API = { "Pokémon": "Pokémon", "Trainer": "Treinador", "Energy": "Energia" };
+  const CATEGORIA_EN = { "Pokemon": "Pokémon", "Trainer": "Treinador", "Energy": "Energia" };
+  /* Filtro de categoria na busca, no idioma de cada consulta (traduções da TCGdex) */
+  const CATEGORIA_FILTRO = { "Pokémon": { en: "Pokemon", pt: "Pokémon" }, "Treinador": { en: "Trainer", pt: "Treinador" }, "Energia": { en: "Energy", pt: "Energia" } };
   const TIPOS_EN = ["Grass", "Fire", "Water", "Lightning", "Psychic", "Fighting", "Darkness", "Metal", "Dragon", "Colorless", "Fairy"];
-  /* Tipo do deck (config.json, em português) → tipo da carta na API */
+  /* Tipo do deck (config.json, em português) → tipo da carta na API em inglês */
   const TIPO_PT_EN = { "Planta": "Grass", "Fogo": "Fire", "Água": "Water", "Elétrico": "Lightning", "Psíquico": "Psychic",
     "Lutador": "Fighting", "Escuridão": "Darkness", "Metal": "Metal", "Dragão": "Dragon", "Incolor": "Colorless" };
 
-  /* GLC: sem Rule Box (EX, GX, V, ex, Radiant, Prism Star, BREAK etc.) e sem ACE SPEC. Regra oficial em gymleaderchallenge.com */
-  const SUBTIPOS_RULE_BOX = ["EX", "GX", "TAG TEAM", "V", "VMAX", "VSTAR", "V-UNION", "ex", "Radiant", "BREAK", "MEGA", "Prism Star"];
-  /* Pelo nome (para listas importadas ou antigas, sem os subtipos da API) */
-  const NOME_RULE_BOX = /(?:[\s-](?:EX|GX|V|VMAX|VSTAR|V-UNION|ex|BREAK)$)|◇|\{\*\}|^Radiant\s/;
+  /* Regra especial (Rule Box): sufixo (EX, GX, V, ex, TAG TEAM-GX...), estágio próprio, raridade própria ou nome */
+  const ESTAGIOS_RULE_BOX = ["BREAK", "VMAX", "VSTAR", "V-UNION", "MEGA", "LEVEL-UP"];
+  const RARIDADES_RULE_BOX = ["Radiant Rare", "Prism Star"];
+  /* Pelo nome, em inglês e em português (V-ASTRO = VSTAR, TURBO = BREAK, Radiante = Radiant) */
+  const NOME_RULE_BOX = /(?:[\s-](?:EX|GX|V|VMAX|VSTAR|V-ASTRO|V-UNION|ex|BREAK|TURBO)$)|◇|\{\*\}|^Radiante?\s/;
 
   const chave = texto => String(texto || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
     .replace(/[’`]/g, "'").replace(/\s+/g, " ").trim();
   const seguro = v => String(v || "").replace(/[^A-Za-z0-9-]/g, "");
+  const semZeros = n => /^\d+$/.test(n) ? String(Number(n)) : String(n || "");
+  const setDoId = id => String(id || "").slice(0, Math.max(0, String(id || "").lastIndexOf("-")));
 
   /* ---------- Busca ---------- */
 
-  /* Termo digitado → consulta Lucene da API. Cada palavra vira name:palavra* (prefixo).
-     categoria: "" | "Pokémon" | "Treinador" | "Energia". Sempre só cartas legais no Expanded e sem Rule Box/ACE SPEC. */
-  /* Busca em português: a base só tem nomes em inglês. Nomes de Pokémon são iguais nos dois idiomas;
-     Treinadores e Energias têm nome traduzido, então cada palavra conhecida vira a palavra em inglês
-     ("ultra bola" → ultra ball, "ordens do chefe" → orders boss). A ordem das palavras não importa na busca.
-     Chave sem acento, em minúsculas. Só traduções seguras; palavra desconhecida segue como foi digitada. */
+  /* Palavras em português de Treinador e Energia → inglês, para a consulta em inglês também achar a carta
+     quando o nome em português não bate (acento faltando, por exemplo). Só traduções seguras. */
   const GLOSSARIO = {
     energia: "energy", energias: "energy", basica: "basic", basicas: "basic", especial: "special",
     planta: "grass", fogo: "fire", agua: "water", eletrica: "lightning", eletrico: "lightning", raio: "lightning",
     psiquica: "psychic", psiquico: "psychic", luta: "fighting", lutador: "fighting", lutadora: "fighting",
-    escuridao: "darkness", sombria: "darkness", metalica: "metal", fada: "fairy", dragao: "dragon", incolor: "colorless",
+    escuridao: "darkness", sombria: "darkness", sombrio: "darkness", metalica: "metal", fada: "fairy", dragao: "dragon", incolor: "colorless",
     bola: "ball", rapida: "quick", nivel: "level", doce: "candy", raro: "rare", rara: "rare", troca: "switch",
     pesquisa: "research", professor: "professor", professores: "professor", professora: "professor",
     chefe: "boss", ordens: "orders", ordem: "orders", comunicacao: "communication", ferramenta: "tool", estadio: "stadium"
   };
   const PALAVRAS_VAZIAS = ["de", "do", "da", "dos", "das", "e", "o", "a", "os", "as"];
-  const semAcento = p => p.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  function traduzirPalavra(p) {
-    const k = semAcento(p);
-    return GLOSSARIO[k] || p.toLowerCase();
+
+  /* Palavras da busca: { pt: como digitadas, en: traduzidas pelo glossário }. Sem palavras vazias e sem letra solta. */
+  function palavrasBusca(termo) {
+    const digitadas = String(termo || "").normalize("NFC").slice(0, 60).split(/[^\p{L}\p{N}'’-]+/u)
+      .map(p => p.replace(/’/g, "'").replace(/^['-]+|['-]+$/g, "")).filter(Boolean);
+    const uteis = digitadas.filter(p => !PALAVRAS_VAZIAS.includes(chave(p)));
+    const base = uteis.length ? uteis : digitadas;
+    const escolher = lista => {
+      const unicas = [...new Set(lista.map(p => p.toLowerCase()))];
+      return (unicas.some(p => p.length > 1) ? unicas.filter(p => p.length > 1) : unicas).slice(0, 5);
+    };
+    return { pt: escolher(base), en: escolher(base.map(p => GLOSSARIO[chave(p)] || p)) };
   }
 
-  function montarConsulta(termo, categoria) {
-    const digitadas = String(termo || "").normalize("NFC").slice(0, 60).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
-    const uteis = digitadas.filter(p => !PALAVRAS_VAZIAS.includes(semAcento(p)));
-    const todas = [...new Set((uteis.length ? uteis : digitadas).map(traduzirPalavra))];
-    /* Palavra de 1 letra (o "s" de "Professor's") só entra se for a única */
-    const palavras = todas.some(p => p.length > 1) ? todas.filter(p => p.length > 1).slice(0, 5) : todas.slice(0, 1);
-    if (!palavras.length) return "";
-    const nome = palavras.map(p => `name:${p}*`).join(" ");
-    const cat = categoria === "Treinador" ? " supertype:trainer"
-      : categoria === "Energia" ? " supertype:energy"
-      : categoria === "Pokémon" ? " -supertype:trainer -supertype:energy" : "";
-    /* Consulta curta: a lista de exclusões deixava a API lenta e com mais erros. Rule Box, ACE SPEC e banlist
-       saem na tela, por motivoIlegal(). */
-    return `${nome} legalities.expanded:legal${cat}`;
+  /* As duas consultas da busca (português e inglês). Cada palavra é um filtro "contém" no nome (todas precisam aparecer).
+     suffix=null: tira EX, GX, V, ex e TAG TEAM no servidor; o resto das regras é aplicado depois. */
+  function urlsBusca(termo, categoria) {
+    const p = palavrasBusca(termo);
+    if (!p.en.length) return null;
+    const url = (lang, palavras) => {
+      const q = new URLSearchParams();
+      palavras.forEach(w => q.append("name", w));
+      q.append("suffix", "null:");
+      const cat = CATEGORIA_FILTRO[categoria];
+      if (cat) q.append("category", cat[lang]);
+      return `${API}/${lang}/cards?${q.toString()}`;
+    };
+    return { pt: url("pt", p.pt), en: url("en", p.en) };
   }
 
-  function urlBusca(termo, categoria, pagina) {
-    const q = montarConsulta(termo, categoria);
-    if (!q) return "";
-    const p = Math.max(1, Math.floor(Number(pagina) || 1));
-    return `${API}?q=${encodeURIComponent(q)}&orderBy=${encodeURIComponent("-set.releaseDate")}&pageSize=${POR_PAGINA}&page=${p}&select=${CAMPOS}`;
+  /* Coleções permitidas no GLC, a partir das séries (GET /v2/en/series/<id>, coleções em ordem de lançamento).
+     Devolve { <set_id>: { ordem, serie } }; ordem maior = mais recente. */
+  function colecoesDasSeries(series) {
+    const mapa = {};
+    let n = 0;
+    SERIES_GLC.forEach(id => {
+      const s = (series || []).find(x => x && x.id === id);
+      ((s && s.sets) || []).forEach(set => { if (set && SET_ID.test(set.id || "")) mapa[set.id] = { ordem: ++n, serie: id }; });
+    });
+    return mapa;
   }
 
-  /* ---------- Carta da API ---------- */
+  const imagemBaixa = url => {
+    const u = /^https:\/\/assets\.tcgdex\.net\/(?:en|pt)\/[a-z0-9]+\/[a-z0-9]+(?:\.[0-9]+)?\/[A-Za-z0-9]+$/.test(url || "") ? `${url}/low.webp` : "";
+    return CARTA_IMG_VALIDA.test(u) ? u : "";
+  };
+  const imagemPadrao = (id, colecoes, lang) => {
+    const set = setDoId(id), info = colecoes[set];
+    return info ? imagemBaixa(`${ASSETS}/${lang || "en"}/${info.serie}/${set}/${id.slice(set.length + 1)}`) : "";
+  };
 
-  function codigoColecao(c) {
-    const s = c.set || {};
-    return seguro(s.ptcgoCode || String(s.id || "").toUpperCase()).slice(0, 10);
+  /* Junta os resultados das duas consultas (resumos { id, localId, name, image }) pela carta.
+     Fica só o que é de Black & White em diante e não tem Rule Box no nome; prioriza nome e imagem em português.
+     Ordem: coleção mais recente primeiro, depois o número. */
+  function juntarResultados(listaPt, listaEn, colecoes) {
+    const mapa = new Map();
+    const juntar = (lista, lang) => (Array.isArray(lista) ? lista : []).forEach(b => {
+      if (!b || !ID_CARTA.test(b.id || "") || !colecoes[setDoId(b.id)]) return;
+      const r = mapa.get(b.id) || { id: b.id, localId: String(b.localId || b.id.slice(setDoId(b.id).length + 1)) };
+      r[`nome_${lang}`] = String(b.name || "").slice(0, 60);
+      r[`img_${lang}`] = imagemBaixa(b.image);
+      mapa.set(b.id, r);
+    });
+    juntar(listaEn, "en");
+    juntar(listaPt, "pt");
+    return [...mapa.values()]
+      .filter(r => !NOME_RULE_BOX.test(r.nome_en || "") && !NOME_RULE_BOX.test(r.nome_pt || ""))
+      .map(r => ({ id: r.id, localId: r.localId, nome: r.nome_pt || r.nome_en, nome_en: r.nome_en || "",
+        img: r.img_pt || r.img_en || imagemPadrao(r.id, colecoes, "en") }))
+      .sort((a, b) => colecoes[setDoId(b.id)].ordem - colecoes[setDoId(a.id)].ordem ||
+        (parseInt(a.localId, 10) || 0) - (parseInt(b.localId, 10) || 0) || a.localId.localeCompare(b.localId));
   }
 
-  /* Por que a carta não vale no GLC ("" = vale). banlist: data/banlist.json */
-  function motivoIlegal(c, banlist) {
-    const sub = c.subtypes || [];
-    if (sub.includes("ACE SPEC") || (c.rules || []).some(r => /ACE SPEC/i.test(r))) return "ACE SPEC";
-    if (sub.some(s => SUBTIPOS_RULE_BOX.includes(s)) || NOME_RULE_BOX.test(c.name || "") ||
-      (c.rules || []).some(r => /\b(?:Rule|Regra)\s*:/i.test(r) && !/Ancient Trait/i.test(r))) return "Rule Box";
-    if (!c.legalities || c.legalities.expanded !== "Legal") return "fora do Expanded";
-    if (naBanlist(c.name, banlist)) return "banlist do GLC";
-    return "";
+  /* ---------- Carta (detalhe em inglês: GET /v2/en/cards/<id>) ---------- */
+
+  /* Só o necessário do detalhe, para guardar em cache no navegador */
+  function resumirDetalhe(d) {
+    if (!d || !ID_CARTA.test(d.id || "")) return null;
+    const pick = { id: d.id, localId: String(d.localId || ""), name: String(d.name || "").slice(0, 60), category: d.category,
+      image: d.image || "", set: { id: (d.set && d.set.id) || setDoId(d.id) } };
+    ["types", "stage", "suffix", "trainerType", "energyType", "rarity"].forEach(k => { if (d[k] != null) pick[k] = d[k]; });
+    return pick;
   }
 
   function naBanlist(nome, banlist) {
@@ -98,17 +145,26 @@
     return ((banlist && banlist.cartas) || []).some(b => chave(b.nome) === k);
   }
 
-  /* Carta da API → registro gravado em decklists.json (campo cartas) */
-  function cartaDaApi(c) {
-    const categoria = DA_API[c.supertype] || "Treinador";
-    const registro = { qtd: 1, nome: String(c.name || "").slice(0, 60), colecao: codigoColecao(c),
-      numero: seguro(c.number).slice(0, 10), categoria };
-    if (/^[a-z0-9.]+-[A-Za-z0-9-]+$/.test(c.id || "")) registro.id = c.id;
-    const img = c.images && c.images.small;
-    if (CARTA_IMG_VALIDA.test(img || "")) registro.img = img;
-    if (categoria === "Pokémon") registro.tipos = (c.types || []).filter(t => TIPOS_EN.includes(t));
-    if (categoria === "Energia" && (c.subtypes || []).includes("Basic")) registro.basica = true;
-    return registro;
+  /* Por que a carta não vale no GLC ("" = vale). d: detalhe em inglês; colecoes: colecoesDasSeries(). */
+  function motivoIlegal(d, colecoes, banlist) {
+    if (!d) return "carta não encontrada";
+    if (!colecoes[(d.set && d.set.id) || setDoId(d.id)]) return "anterior a Black & White";
+    if (d.trainerType === "Ace Spec" || d.rarity === "ACE SPEC Rare") return "ACE SPEC";
+    if (d.suffix || ESTAGIOS_RULE_BOX.includes(d.stage) || RARIDADES_RULE_BOX.includes(d.rarity) || NOME_RULE_BOX.test(d.name || "")) return "Rule Box";
+    if (naBanlist(d.name, banlist)) return "banlist do GLC";
+    return "";
+  }
+
+  /* Detalhe (inglês) → registro gravado em decklists.json. sigla: abreviação oficial da coleção (ex.: SFA). */
+  function cartaDoDetalhe(d, sigla, colecoes) {
+    const categoria = CATEGORIA_EN[d.category] || "Treinador";
+    const r = { qtd: 1, id: d.id, nome: String(d.name || "").slice(0, 60), colecao: seguro(sigla).toUpperCase().slice(0, 10),
+      numero: seguro(semZeros(d.localId)).slice(0, 10), categoria };
+    const img = imagemBaixa(d.image) || imagemPadrao(d.id, colecoes || {}, "en");
+    if (img) r.img = img;
+    if (categoria === "Pokémon") r.tipos = (d.types || []).filter(t => TIPOS_EN.includes(t));
+    if (categoria === "Energia" && d.energyType === "Normal") r.basica = true;
+    return r;
   }
 
   /* ---------- Texto exportado do TCG Live ---------- */
@@ -150,41 +206,57 @@
     return { linhas, erros };
   }
 
-  /* Consultas para achar as linhas importadas na API (coleção + número), em lotes de até 15 linhas */
-  function consultasImportacao(linhas) {
-    const termos = [...new Set(linhas.filter(l => l.colecao && l.numero)
-      .map(l => `(set.ptcgoCode:"${seguro(l.colecao)}" number:"${seguro(l.numero)}")`))];
-    const lotes = [];
-    for (let i = 0; i < termos.length; i += 15) lotes.push(termos.slice(i, i + 15).join(" OR "));
-    return lotes.map(q => `${API}?q=${encodeURIComponent(q)}&pageSize=250&select=${CAMPOS}`);
+  /* Coleção pela sigla oficial do TCG Live (a listagem de coleções filtra sobre a coleção completa) */
+  const urlColecaoPorSigla = sigla => `${API}/en/sets?${new URLSearchParams({ "abbreviation.official": `eq:${seguro(sigla).toUpperCase()}` })}`;
+  const urlColecao = id => `${API}/en/sets/${encodeURIComponent(id)}`;
+  const urlCarta = (id, lang) => `${API}/${lang || "en"}/cards/${encodeURIComponent(id)}`;
+  const urlSerie = id => `${API}/en/series/${encodeURIComponent(id)}`;
+
+  /* Carta da coleção pelo número do TCG Live ("19" acha o localId "019"). colecao: GET /v2/en/sets/<id> ({ cards: [...] }) */
+  function acharNaColecao(colecao, numero) {
+    const n = seguro(numero).toUpperCase();
+    const cartas = (colecao && colecao.cards) || [];
+    return cartas.find(c => String(c.localId).toUpperCase() === n) ||
+      cartas.find(c => semZeros(String(c.localId)) === semZeros(n)) || null;
   }
 
-  /* Junta as linhas lidas com as cartas achadas na API. Linha não achada entra só com o texto (sem imagem).
-     Devolve { cartas, avisos } */
-  function resolverImportacao(linhas, cartasApi, banlist) {
-    const porCodigo = new Map();
-    (cartasApi || []).forEach(c => porCodigo.set(`${codigoColecao(c)}|${String(c.number || "").toUpperCase()}`, c));
+  /* Linhas lidas (ou cartas antigas, sem imagem da TCGdex) → ids da TCGdex, quando a coleção e o número batem.
+     siglas: { SIGLA: coleção completa ou null }. Devolve [{ linha, id }] (id "" quando não achou). */
+  function idsDasLinhas(linhas, siglas) {
+    return linhas.map(l => {
+      const set = siglas[seguro(l.colecao).toUpperCase()];
+      const c = set && l.numero ? acharNaColecao(set, l.numero) : null;
+      return { linha: l, id: c && ID_CARTA.test(c.id || "") ? c.id : "" };
+    });
+  }
+
+  /* Monta a lista a partir das linhas e dos detalhes achados (detalhes: { id: detalhe em inglês }).
+     Linha não achada entra só com o texto (sem imagem). Devolve { cartas, avisos } */
+  function resolverImportacao(achadas, detalhes, colecoes, banlist) {
     const avisos = [];
     const cartas = [];
-    linhas.forEach(l => {
-      const c = porCodigo.get(`${seguro(l.colecao).toUpperCase()}|${seguro(l.numero).toUpperCase()}`) ||
-        porCodigo.get(`${seguro(l.colecao).toUpperCase()}|${seguro(l.numero).replace(/^0+(?=\d)/, "").toUpperCase()}`);
+    achadas.forEach(({ linha: l, id }) => {
+      const d = id && detalhes[id];
       let carta;
-      if (c) {
-        carta = { ...cartaDaApi(c), qtd: l.qtd };
-        const motivo = motivoIlegal(c, banlist);
+      if (d) {
+        carta = { ...cartaDoDetalhe(d, l.colecao, colecoes), qtd: l.qtd };
+        const motivo = motivoIlegal(d, colecoes, banlist);
         /* Rule Box pelo nome e banlist já aparecem nas conferências da lista (conferirLista): sem aviso repetido */
         const repetido = motivo === "banlist do GLC" || (motivo === "Rule Box" && NOME_RULE_BOX.test(carta.nome));
         if (motivo && !carta.basica && !repetido) avisos.push(`${carta.nome} (${carta.colecao} ${carta.numero}): ${motivo}.`);
       } else {
         carta = { qtd: l.qtd, nome: l.nome, colecao: seguro(l.colecao), numero: seguro(l.numero), categoria: l.categoria || "Treinador" };
         if (l.basica) carta.basica = true;
-        else avisos.push(`${l.nome}${l.colecao ? ` (${l.colecao} ${l.numero})` : ""}: não encontrada na base de cartas; entrou só com o nome. Confira ou troque pela busca.`);
+        if (l.tipos) carta.tipos = l.tipos;
+        if (!l.basica) avisos.push(`${l.nome}${l.colecao ? ` (${l.colecao} ${l.numero})` : ""}: não encontrada na base de cartas; entrou só com o nome. Confira ou troque pela busca.`);
       }
       somar(cartas, carta);
     });
     return { cartas, avisos };
   }
+
+  /* Cartas da lista que ainda não vêm da TCGdex (listas antigas do pokemontcg.io ou só com o nome) */
+  const precisaConverter = c => !IMG_TCGDEX.test(c.img || "") && !!(c.colecao && c.numero);
 
   /* ---------- Lista ---------- */
 
@@ -200,6 +272,18 @@
   }
 
   const total = cartas => (cartas || []).reduce((s, c) => s + (Number(c.qtd) || 0), 0);
+
+  /* Pode incluir mais uma cópia desta carta? "" = pode. Singleton (exceto Energia Básica) e um tipo de Pokémon por deck. */
+  function impedimento(cartas, carta, tipoDeck) {
+    if (!carta.basica && cartas.some(x => !x.basica && chave(x.nome) === chave(carta.nome))) {
+      return `${carta.nome} já está na lista: o GLC permite 1 cópia de cada carta, exceto Energia Básica.`;
+    }
+    const tipo = TIPO_PT_EN[tipoDeck] || "";
+    if (tipo && carta.categoria === "Pokémon" && (carta.tipos || []).length && !carta.tipos.includes(tipo)) {
+      return `${carta.nome} não é do tipo ${tipoDeck}, o tipo do deck.`;
+    }
+    return "";
+  }
 
   /* Conferências do GLC. Só avisam: quem decide é o organizador. tipoDeck em português (config.json). */
   function conferirLista(cartas, tipoDeck, banlist) {
@@ -237,7 +321,7 @@
       if (!nome || !(qtd >= 1)) return;
       const r = { qtd: Math.min(qtd, 60), nome, colecao: seguro(c.colecao).slice(0, 10), numero: seguro(c.numero).slice(0, 10),
         categoria: CATEGORIAS.includes(c.categoria) ? c.categoria : "Treinador" };
-      if (/^[a-z0-9.]+-[A-Za-z0-9-]+$/.test(c.id || "")) r.id = c.id;
+      if (ID_CARTA.test(c.id || "")) r.id = c.id;
       if (CARTA_IMG_VALIDA.test(c.img || "")) r.img = c.img;
       if (r.categoria === "Pokémon" && Array.isArray(c.tipos)) r.tipos = c.tipos.filter(t => TIPOS_EN.includes(t));
       if (r.categoria === "Energia" && c.basica === true) r.basica = true;
@@ -259,8 +343,10 @@
       .sort((a, b) => String(b.data).localeCompare(String(a.data)));
   }
 
-  const api = { API, POR_PAGINA, listasAnteriores, CARTA_IMG_VALIDA, CATEGORIAS, TIPO_PT_EN, montarConsulta, urlBusca, motivoIlegal, cartaDaApi,
-    energiaBasica, lerTextoLive, consultasImportacao, resolverImportacao, somar, total, conferirLista, sanitizarCartas, mesmaCarta };
+  const api = { API, POR_PAGINA, SERIES_GLC, CARTA_IMG_VALIDA, CATEGORIAS, TIPO_PT_EN, palavrasBusca, urlsBusca, colecoesDasSeries,
+    juntarResultados, resumirDetalhe, motivoIlegal, cartaDoDetalhe, energiaBasica, lerTextoLive, urlColecaoPorSigla, urlColecao,
+    urlCarta, urlSerie, acharNaColecao, idsDasLinhas, resolverImportacao, precisaConverter, somar, total, impedimento,
+    conferirLista, sanitizarCartas, listasAnteriores, mesmaCarta, setDoId };
   if (typeof module === "object" && module.exports) module.exports = api;
   raiz.RegrasCartas = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

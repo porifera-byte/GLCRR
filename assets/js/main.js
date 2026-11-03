@@ -47,6 +47,7 @@ const imgReserva = alt => `<img class="deck-img deck-reserva" src="${IMAGEM_RESE
 function tratarFalhaImagem(img) {
   if (img.dataset.falha === "remover") img.remove();
   else if (img.dataset.falha === "nome") img.outerHTML = `<span class="patro-nome">${esc(img.alt)}</span>`;
+  else if (img.dataset.falha === "carta" && img.src.includes("assets.tcgdex.net/pt/")) img.src = img.src.replace("/pt/", "/en/");
   else if (img.dataset.falha === "carta") (img.closest("a") || img).outerHTML = `<span class="carta-txt">${esc(img.dataset.nome || img.alt)}</span>`;
   else if (img.dataset.falha === "reserva") (img.closest("a") || img).outerHTML = imgReserva("Decklist em breve: a imagem ainda não está disponível.");
 }
@@ -194,6 +195,10 @@ const PAGES = {
       <section class="decks-sec" aria-labelledby="est-titulo">
         <h2 id="est-titulo">Estatísticas por tipo</h2>
         <div class="decks-est">${htmlEstatDecks("")}</div>
+      </section>
+      <section class="decks-sec" aria-labelledby="cartas-titulo">
+        <h2 id="cartas-titulo">Cartas mais usadas</h2>
+        <div class="decks-cartas">${htmlEstatCartas("")}</div>
       </section>
       <section class="decks-sec" aria-labelledby="col-titulo">
         <h2 id="col-titulo">Melhores colocações</h2>
@@ -353,14 +358,14 @@ function htmlResultados(eventoId) {
     <ol class="podio">${linhas}</ol>`;
 }
 
-/* Lista montada no painel: grade de cartas por grupo (imagem do pokemontcg.io com a quantidade),
+/* Lista montada no painel: grade de cartas por grupo (imagem da TCGdex com a quantidade),
    lista em texto e botão para copiar no formato do TCG Live. Imagem só com endereço validado (CARTA_IMG_VALIDA). */
 function htmlCartas(cartas) {
   const grupos = agruparCartas(cartas);
   const carta = c => {
     const nome = `${c.nome}${c.colecao || c.numero ? ` (${[c.colecao, c.numero].filter(Boolean).join(" ")})` : ""}`;
     const img = CARTA_IMG_VALIDA.test(c.img || "") ? c.img : "";
-    const grande = img.replace(/\.png$/, "_hires.png");
+    const grande = cartaImgGrande(img);
     return `<li class="carta" title="${esc(`${c.qtd}× ${nome}`)}">
       ${img ? `<a href="${esc(grande)}" target="_blank" rel="noopener" aria-label="${esc(`${c.qtd}× ${nome}: abrir imagem`)}">
         <img src="${esc(img)}" alt="${esc(`${c.qtd}× ${nome}`)}" data-nome="${esc(c.nome)}" data-falha="carta" loading="lazy" decoding="async" width="245" height="342"></a>`
@@ -413,13 +418,31 @@ function htmlEstatDecks(periodo) {
     <p class="nota">Uso: quantas vezes o tipo foi usado em evento. % de vitórias: vitórias ÷ partidas (V + D + E); o bye conta como vitória.</p>`;
 }
 
+/* Cartas mais usadas nas listas montadas do Top 3 no período (só números). As 15 primeiras e, abaixo, todas. */
+function htmlEstatCartas(periodo) {
+  const { inicio, fim } = periodoDatas(periodo);
+  const s = estatisticasCartas(inicio, fim);
+  if (!s.listas) return `<p class="nota">Nenhuma lista montada no painel neste período. As cartas aparecem aqui quando as listas do Top 3 forem cadastradas carta a carta.</p>`;
+  const linha = c => `<tr><td>${esc(c.nome)}</td><td>${esc(c.categoria)}</td><td>${c.listas}</td><td>${pct(c.pct)}</td><td>${c.titulos}</td></tr>`;
+  const tabela = (itens, rotulo) => `<div class="table-box" role="region" aria-label="${rotulo}" tabindex="0"><table class="tab-est">
+      <thead><tr><th>Carta</th><th>Categoria</th><th>Listas</th><th>% das listas</th><th>1º lugar</th></tr></thead>
+      <tbody>${itens.map(linha).join("")}</tbody></table></div>`;
+  return `<p class="resumo">${qtd(s.listas, "lista montada", "listas montadas")} do Top 3 · ${qtd(s.cartas.length, "carta diferente", "cartas diferentes")}</p>
+    ${tabela(s.cartas.slice(0, 15), "Cartas mais usadas")}
+    ${s.cartas.length > 15 ? `<details class="deck-texto"><summary>Ver todas as ${s.cartas.length} cartas</summary>${tabela(s.cartas.slice(15), "Demais cartas")}</details>` : ""}
+    <p class="nota">Listas: em quantas listas do Top 3 a carta aparece (edições diferentes contam como a mesma carta). Energia Básica fica de fora. Só entram as listas cadastradas carta a carta no painel.</p>`;
+}
+
 /* Filtros da aba Decks: um chip ativo por grupo. O período refaz a tabela e vale também para a lista; o tipo vale só para a lista */
 function aplicarFiltroDecks(chip) {
   const pagina = chip.closest(".page");
   pagina.querySelectorAll(`[data-filtro="${chip.dataset.filtro}"]`).forEach(b => b.setAttribute("aria-pressed", String(b === chip)));
   const ativo = grupo => pagina.querySelector(`[data-filtro="${grupo}"][aria-pressed="true"]`)?.dataset.valor || "";
   const tipo = ativo("tipo"), periodo = ativo("periodo");
-  if (chip.dataset.filtro === "periodo") pagina.querySelector(".decks-est").innerHTML = htmlEstatDecks(periodo);
+  if (chip.dataset.filtro === "periodo") {
+    pagina.querySelector(".decks-est").innerHTML = htmlEstatDecks(periodo);
+    pagina.querySelector(".decks-cartas").innerHTML = htmlEstatCartas(periodo);
+  }
   const { inicio, fim } = periodoDatas(periodo);
   let visiveis = 0;
   pagina.querySelectorAll(".deck-card").forEach(li => {
