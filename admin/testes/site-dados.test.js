@@ -158,3 +158,18 @@ test("cartas mais usadas nas listas montadas do Top 3", () => {
   assert.strictEqual(site("cartaImgGrande('https://assets.tcgdex.net/en/sv/sv06.5/019/low.webp')"), "https://assets.tcgdex.net/en/sv/sv06.5/019/high.webp");
   assert.strictEqual(site("cartaImgGrande('https://images.pokemontcg.io/sv6pt5/19.png')"), "https://images.pokemontcg.io/sv6pt5/19_hires.png");
 });
+
+test("imagem de reserva da carta (pokemontcg.io) pelo id da TCGdex", () => {
+  const r = id => site(`imgReservaCarta(${JSON.stringify(id)})`);
+  assert.strictEqual(r("sve-005"), "https://images.pokemontcg.io/sve/5.png");
+  assert.strictEqual(r("sv06.5-019"), "https://images.pokemontcg.io/sv6pt5/19.png");
+  assert.strictEqual(r("sv01-087"), "https://images.pokemontcg.io/sv1/87.png");
+  assert.strictEqual(r("swsh4.5sv-SV062"), "https://images.pokemontcg.io/swsh45sv/SV062.png");
+  assert.strictEqual(r("swsh3.5-56"), "https://images.pokemontcg.io/swsh35/56.png");
+  assert.strictEqual(r("swsh12.5gg-GG35"), "https://images.pokemontcg.io/swsh12pt5gg/GG35.png");
+  assert.strictEqual(r("sm3.5-45"), "https://images.pokemontcg.io/sm35/45.png");
+  assert.strictEqual(r("sv10.5b-001"), "https://images.pokemontcg.io/zsv10pt5/1.png");
+  assert.strictEqual(r("xy8-146a"), "https://images.pokemontcg.io/xy8/146a.png");
+  assert.strictEqual(r("../x"), "");
+  assert.strictEqual(r(undefined), "");
+});

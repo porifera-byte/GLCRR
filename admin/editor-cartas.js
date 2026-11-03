@@ -120,12 +120,13 @@
 
   /* Coleção completa (sigla oficial e números das cartas), guardada por 30 dias */
   async function colecao(id) {
-    const chave = `colecao:${id}`;
+    const chave = `colecao2:${id}`;
     const guardado = cache.ler(chave, 30 * DIA);
     if (guardado) return guardado;
     const c = await ler(R.urlColecao(id));
     if (!c) return null;
-    const r = { id: c.id, sigla: (c.abbreviation && c.abbreviation.official) || c.tcgOnline || "",
+    /* Subcoleções vêm como "SHF:SV" ou "ASR:TG"; o TCG Live usa só a sigla principal */
+    const r = { id: c.id, sigla: String((c.abbreviation && c.abbreviation.official) || c.tcgOnline || "").split(":")[0],
       cards: (c.cards || []).map(x => ({ id: x.id, localId: x.localId })) };
     cache.gravar(chave, r);
     return r;
@@ -184,8 +185,13 @@
 
   /* ---------- Tela ---------- */
 
-  const imgCarta = (url, classe, indice) => R.CARTA_IMG_VALIDA.test(url || "")
-    ? `<img class="${classe}" src="${esc(url)}" alt="" loading="lazy" decoding="async"${indice != null ? ` data-carta="${indice}"` : ""}>` : `<span class="${classe} adm-carta-sem"></span>`;
+  /* Imagem da carta: a da TCGdex; sem ela, a reserva do pokemontcg.io pelo id (imgReservaCarta, em data.js) */
+  const imgCarta = (url, classe, indice, id) => {
+    const reserva = imgReservaCarta(id);
+    const src = R.CARTA_IMG_VALIDA.test(url || "") ? url : reserva;
+    return src ? `<img class="${classe}" src="${esc(src)}" alt="" loading="lazy" decoding="async"${indice != null ? ` data-carta="${indice}"` : ""}` +
+      `${reserva && reserva !== src ? ` data-alt="${esc(reserva)}"` : ""}>` : `<span class="${classe} adm-carta-sem"></span>`;
+  };
   /* A imagem existe? (carrega fora da página; sem handler inline, então vale a CSP) */
   const imagemExiste = url => new Promise(ok => {
     if (!R.CARTA_IMG_VALIDA.test(url || "")) { ok(false); return; }
@@ -295,7 +301,7 @@
         const soma = doGrupo.reduce((s, [c]) => s + c.qtd, 0);
         return `<h5>${esc(cat)} <span>${soma}</span></h5><ul class="adm-cartas">${doGrupo.map(([c, i]) => `
           <li class="adm-carta">
-            ${imgCarta(c.img, "adm-carta-mini", i)}
+            ${imgCarta(c.img, "adm-carta-mini", i, c.id)}
             <span class="adm-carta-nome"><b>${esc(c.nome)}</b><small>${esc(codigo(c))}</small></span>
             <span class="adm-carta-qtd">
               <button class="btn btn-line" type="button" data-menos="${i}" aria-label="Tirar uma ${esc(c.nome)}">−</button>
@@ -329,7 +335,7 @@
         const local = `${R.setDoId(r.id).toUpperCase()} ${r.localId}`;
         const outroNome = r.nome_en && r.nome_en !== r.nome ? r.nome_en : "";
         return `<li><button type="button" class="adm-res" data-i="${i}" aria-label="Incluir ${esc(r.nome)}${outroNome ? ` (${esc(outroNome)})` : ""}, ${esc(local)}">
-          ${imgCarta(r.img, "adm-res-img")}
+          ${imgCarta(r.img, "adm-res-img", null, r.id)}
           <span class="adm-res-nome">${esc(r.nome)}</span>
           <small>${esc([outroNome, local].filter(Boolean).join(" · "))}</small>
           <span class="adm-res-qtd" hidden></span>
@@ -484,6 +490,20 @@
     el.addEventListener("error", e => {
       const img = e.target;
       if (!(img instanceof HTMLImageElement)) return;
+      /* Ordem: TCGdex no outro idioma, reserva do pokemontcg.io, nome */
+      if (/assets\.tcgdex\.net\/(en|pt)\//.test(img.src) && !img.dataset.trocou) {
+        img.dataset.trocou = "1";
+        img.src = img.src.includes("/en/") ? img.src.replace("/en/", "/pt/") : img.src.replace("/pt/", "/en/");
+        return;
+      }
+      if (img.dataset.alt) {
+        const alt = img.dataset.alt;
+        delete img.dataset.alt;
+        img.src = alt;
+        /* A TCGdex não tem a imagem gravada: procura outra dela ou tira o endereço quebrado (a reserva vem pelo id) */
+        if (img.dataset.carta != null) corrigirImagem(cartas[Number(img.dataset.carta)]);
+        return;
+      }
       const indice = img.dataset.carta;
       img.replaceWith(Object.assign(document.createElement("span"), { className: `${img.className} adm-carta-sem` }));
       if (indice != null) corrigirImagem(cartas[Number(indice)]);
@@ -505,7 +525,7 @@
       if (!alvo) return;
       if (nova) alvo.img = nova; else delete alvo.img;
       mudou();
-      mensagem(msgLista, nova ? "Imagens corrigidas. Salve a decklist para gravar." : "Algumas cartas não têm imagem na TCGdex e ficam só com o nome. Salve a decklist para gravar.", "ok");
+      mensagem(msgLista, "Imagens de cartas ajustadas (as que a TCGdex não tem vêm de outra fonte ou ficam só com o nome). Salve a decklist para gravar.", "ok");
     }
 
     desenharLista();
