@@ -124,16 +124,6 @@
       },
       {
         "qtd": 1,
-        "nome": "Dragapult",
-        "colecao": "SHF",
-        "numero": "SV062",
-        "categoria": "Pokémon",
-        "tipos": [
-          "Psychic"
-        ]
-      },
-      {
-        "qtd": 1,
         "nome": "Inkay",
         "colecao": "LOR",
         "numero": "77",
@@ -230,6 +220,18 @@
       },
       {
         "qtd": 1,
+        "nome": "Dragapult",
+        "colecao": "RCL",
+        "numero": "91",
+        "categoria": "Pokémon",
+        "id": "swsh2-91",
+        "img": "https://assets.tcgdex.net/en/swsh/swsh2/91/low.webp",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
         "nome": "Teammates",
         "colecao": "PRC",
         "numero": "141",
@@ -245,13 +247,6 @@
         "categoria": "Treinador",
         "id": "sm3-115",
         "img": "https://assets.tcgdex.net/en/sm/sm3/115/low.webp"
-      },
-      {
-        "qtd": 1,
-        "nome": "Iono",
-        "colecao": "SV4PT5",
-        "numero": "80",
-        "categoria": "Treinador"
       },
       {
         "qtd": 1,
@@ -520,8 +515,7 @@
         "colecao": "BKT",
         "numero": "146a",
         "categoria": "Treinador",
-        "id": "xy8-146a",
-        "img": "https://assets.tcgdex.net/en/xy/xy8/146a/low.webp"
+        "id": "xy8-146a"
       },
       {
         "qtd": 1,
@@ -551,13 +545,21 @@
         "img": "https://assets.tcgdex.net/en/sv/sv04/181/low.webp"
       },
       {
+        "qtd": 1,
+        "nome": "Iono",
+        "colecao": "PAF",
+        "numero": "80",
+        "categoria": "Treinador",
+        "id": "sv04.5-080",
+        "img": "https://assets.tcgdex.net/en/sv/sv04.5/080/low.webp"
+      },
+      {
         "qtd": 7,
         "nome": "Psychic Energy",
         "colecao": "SVE",
         "numero": "5",
         "categoria": "Energia",
         "id": "sve-005",
-        "img": "https://assets.tcgdex.net/en/sv/sve/005/low.webp",
         "basica": true
       },
       {
