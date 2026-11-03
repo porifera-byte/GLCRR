@@ -102,10 +102,6 @@
     const u = /^https:\/\/assets\.tcgdex\.net\/(?:en|pt)\/[a-z0-9]+\/[a-z0-9]+(?:\.[0-9]+)?\/[A-Za-z0-9]+$/.test(url || "") ? `${url}/low.webp` : "";
     return CARTA_IMG_VALIDA.test(u) ? u : "";
   };
-  const imagemPadrao = (id, colecoes, lang) => {
-    const set = setDoId(id), info = colecoes[set];
-    return info ? imagemBaixa(`${ASSETS}/${lang || "en"}/${info.serie}/${set}/${id.slice(set.length + 1)}`) : "";
-  };
 
   /* Junta os resultados das duas consultas (resumos { id, localId, name, image }) pela carta.
      Fica só o que é de Black & White em diante e não tem Rule Box no nome; prioriza nome e imagem em português.
@@ -124,7 +120,7 @@
     return [...mapa.values()]
       .filter(r => !NOME_RULE_BOX.test(r.nome_en || "") && !NOME_RULE_BOX.test(r.nome_pt || ""))
       .map(r => ({ id: r.id, localId: r.localId, nome: r.nome_pt || r.nome_en, nome_en: r.nome_en || "",
-        img: r.img_pt || r.img_en || imagemPadrao(r.id, colecoes, "en") }))
+        img: r.img_pt || r.img_en || "" }))
       .sort((a, b) => colecoes[setDoId(b.id)].ordem - colecoes[setDoId(a.id)].ordem ||
         (parseInt(a.localId, 10) || 0) - (parseInt(b.localId, 10) || 0) || a.localId.localeCompare(b.localId));
   }
@@ -136,31 +132,37 @@
     if (!d || !ID_CARTA.test(d.id || "")) return null;
     const pick = { id: d.id, localId: String(d.localId || ""), name: String(d.name || "").slice(0, 60), category: d.category,
       image: d.image || "", set: { id: (d.set && d.set.id) || setDoId(d.id) } };
-    ["types", "stage", "suffix", "trainerType", "energyType", "rarity"].forEach(k => { if (d[k] != null) pick[k] = d[k]; });
+    ["types", "stage", "suffix", "trainerType", "energyType", "rarity", "imagem_pt"].forEach(k => { if (d[k] != null) pick[k] = d[k]; });
     return pick;
   }
 
-  function naBanlist(nome, banlist) {
-    const k = chave(nome);
-    return ((banlist && banlist.cartas) || []).some(b => chave(b.nome) === k);
+  /* Banlist do GLC (data/banlist.json): Treinador e Energia banidos valem para todas as versões ("todas_versoes": true);
+     Pokémon banido vale só para aquela impressão (outro Pokémon com o mesmo nome é outra carta), pela coleção e pelo número. */
+  function banida(carta, banlist) {
+    const k = chave(carta && carta.nome);
+    return ((banlist && banlist.cartas) || []).some(b => chave(b.nome) === k && (b.todas_versoes === true ||
+      (seguro(b.colecao).toUpperCase() === seguro(carta.colecao).toUpperCase() && semZeros(seguro(b.numero).toUpperCase()) === semZeros(seguro(carta.numero).toUpperCase()))));
   }
 
-  /* Por que a carta não vale no GLC ("" = vale). d: detalhe em inglês; colecoes: colecoesDasSeries(). */
-  function motivoIlegal(d, colecoes, banlist) {
+  /* Por que a carta não vale no GLC ("" = vale). d: detalhe em inglês; colecoes: colecoesDasSeries();
+     sigla: abreviação oficial da coleção, para a banlist por impressão. */
+  function motivoIlegal(d, colecoes, banlist, sigla) {
     if (!d) return "carta não encontrada";
     if (!colecoes[(d.set && d.set.id) || setDoId(d.id)]) return "anterior a Black & White";
     if (d.trainerType === "Ace Spec" || d.rarity === "ACE SPEC Rare") return "ACE SPEC";
     if (d.suffix || ESTAGIOS_RULE_BOX.includes(d.stage) || RARIDADES_RULE_BOX.includes(d.rarity) || NOME_RULE_BOX.test(d.name || "")) return "Rule Box";
-    if (naBanlist(d.name, banlist)) return "banlist do GLC";
+    if (banida({ nome: d.name, colecao: sigla || "", numero: d.localId }, banlist)) return "banlist do GLC";
     return "";
   }
 
-  /* Detalhe (inglês) → registro gravado em decklists.json. sigla: abreviação oficial da coleção (ex.: SFA). */
-  function cartaDoDetalhe(d, sigla, colecoes) {
+  /* Detalhe (inglês) → registro gravado em decklists.json. sigla: abreviação oficial da coleção (ex.: SFA).
+     Imagem só a que a TCGdex informa (em inglês; sem ela, a do português, em d.imagem_pt): a TCGdex não tem imagem de toda carta,
+     e um endereço montado sem ela quebra. */
+  function cartaDoDetalhe(d, sigla) {
     const categoria = CATEGORIA_EN[d.category] || "Treinador";
     const r = { qtd: 1, id: d.id, nome: String(d.name || "").slice(0, 60), colecao: seguro(sigla).toUpperCase().slice(0, 10),
       numero: seguro(semZeros(d.localId)).slice(0, 10), categoria };
-    const img = imagemBaixa(d.image) || imagemPadrao(d.id, colecoes || {}, "en");
+    const img = imagemBaixa(d.image) || imagemBaixa(d.imagem_pt);
     if (img) r.img = img;
     if (categoria === "Pokémon") r.tipos = (d.types || []).filter(t => TIPOS_EN.includes(t));
     if (categoria === "Energia" && d.energyType === "Normal") r.basica = true;
@@ -220,6 +222,16 @@
       cartas.find(c => semZeros(String(c.localId)) === semZeros(n)) || null;
   }
 
+  /* Carta pelo nome exato em inglês (quando a sigla não bate, como em listas antigas): GET /v2/en/cards?name=eq:<nome> */
+  const urlNomeExato = nome => `${API}/en/cards?${new URLSearchParams({ name: `eq:${String(nome || "").replace(/[|,]/g, " ").trim()}` })}`;
+  /* Entre os resumos com esse nome, o que tem o mesmo número numa coleção permitida (a mais recente) */
+  function escolherPorNumero(resumos, numero, colecoes) {
+    const n = semZeros(seguro(numero).toUpperCase());
+    return (Array.isArray(resumos) ? resumos : [])
+      .filter(b => b && ID_CARTA.test(b.id || "") && colecoes[setDoId(b.id)] && semZeros(String(b.localId || "").toUpperCase()) === n)
+      .sort((a, b) => colecoes[setDoId(b.id)].ordem - colecoes[setDoId(a.id)].ordem)[0] || null;
+  }
+
   /* Linhas lidas (ou cartas antigas, sem imagem da TCGdex) → ids da TCGdex, quando a coleção e o número batem.
      siglas: { SIGLA: coleção completa ou null }. Devolve [{ linha, id }] (id "" quando não achou). */
   function idsDasLinhas(linhas, siglas) {
@@ -239,8 +251,8 @@
       const d = id && detalhes[id];
       let carta;
       if (d) {
-        carta = { ...cartaDoDetalhe(d, l.colecao, colecoes), qtd: l.qtd };
-        const motivo = motivoIlegal(d, colecoes, banlist);
+        carta = { ...cartaDoDetalhe(d, l.colecao), qtd: l.qtd };
+        const motivo = motivoIlegal(d, colecoes, banlist, carta.colecao);
         /* Rule Box pelo nome e banlist já aparecem nas conferências da lista (conferirLista): sem aviso repetido */
         const repetido = motivo === "banlist do GLC" || (motivo === "Rule Box" && NOME_RULE_BOX.test(carta.nome));
         if (motivo && !carta.basica && !repetido) avisos.push(`${carta.nome} (${carta.colecao} ${carta.numero}): ${motivo}.`);
@@ -299,7 +311,7 @@
     porNome.forEach(v => { if (v.qtd > 1) avisos.push(`${v.nome}: ${v.qtd} cópias (o GLC permite 1 de cada, exceto Energia Básica).`); });
     cartas.forEach(c => {
       if (NOME_RULE_BOX.test(c.nome || "")) avisos.push(`${c.nome}: parece ter Rule Box.`);
-      if (!c.basica && naBanlist(c.nome, banlist)) avisos.push(`${c.nome}: está na banlist do GLC.`);
+      if (!c.basica && banida(c, banlist)) avisos.push(`${c.nome}: está na banlist do GLC.`);
     });
     const pokemon = cartas.filter(c => c.categoria === "Pokémon" && (c.tipos || []).length);
     const tipo = TIPO_PT_EN[tipoDeck] || "";
@@ -344,7 +356,7 @@
   }
 
   const api = { API, POR_PAGINA, SERIES_GLC, CARTA_IMG_VALIDA, CATEGORIAS, TIPO_PT_EN, palavrasBusca, urlsBusca, colecoesDasSeries,
-    juntarResultados, resumirDetalhe, motivoIlegal, cartaDoDetalhe, energiaBasica, lerTextoLive, urlColecaoPorSigla, urlColecao,
+    juntarResultados, resumirDetalhe, motivoIlegal, banida, urlNomeExato, escolherPorNumero, imagemBaixa, cartaDoDetalhe, energiaBasica, lerTextoLive, urlColecaoPorSigla, urlColecao,
     urlCarta, urlSerie, acharNaColecao, idsDasLinhas, resolverImportacao, precisaConverter, somar, total, impedimento,
     conferirLista, sanitizarCartas, listasAnteriores, mesmaCarta, setDoId };
   if (typeof module === "object" && module.exports) module.exports = api;

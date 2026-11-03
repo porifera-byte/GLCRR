@@ -103,12 +103,17 @@
     return colecoesPromessa;
   }
 
-  /* Detalhe da carta em inglês (regras do GLC e nome gravado), guardado por 30 dias */
+  /* Detalhe da carta em inglês (regras do GLC e nome gravado), guardado por 30 dias.
+     Sem imagem em inglês, guarda a do português (imagem_pt), se houver. */
   async function detalhe(id) {
-    const chave = `carta:${id}`;
+    const chave = `carta2:${id}`;
     const guardado = cache.ler(chave, 30 * DIA);
     if (guardado) return guardado;
     const d = R.resumirDetalhe(await ler(R.urlCarta(id, "en")));
+    if (d && !d.image) {
+      const pt = await ler(R.urlCarta(id, "pt")).catch(() => null);
+      if (pt && pt.image) d.imagem_pt = pt.image;
+    }
     if (d) cache.gravar(chave, d);
     return d;
   }
@@ -160,6 +165,16 @@
       siglas[s] = await colecaoPorSigla(s, colecoes).catch(() => null);
     });
     const achadas = R.idsDasLinhas(linhas, siglas);
+    /* Sigla que não bate (ex.: listas antigas com o código do pokemontcg.io): procura pelo nome exato e pelo número */
+    await emParalelo(achadas.filter(a => !a.id && !a.linha.basica && a.linha.nome && a.linha.numero), 4, async a => {
+      const lista = await ler(R.urlNomeExato(a.linha.nome)).catch(() => null);
+      const b = R.escolherPorNumero(lista, a.linha.numero, colecoes);
+      if (b) {
+        a.id = b.id;
+        const set = await colecao(R.setDoId(b.id)).catch(() => null);
+        if (set && set.sigla) a.linha = { ...a.linha, colecao: set.sigla };
+      }
+    });
     const detalhes = {};
     await emParalelo([...new Set(achadas.map(a => a.id).filter(Boolean))], 6, async id => {
       detalhes[id] = await detalhe(id).catch(() => null);
@@ -169,8 +184,16 @@
 
   /* ---------- Tela ---------- */
 
-  const imgCarta = (url, classe) => R.CARTA_IMG_VALIDA.test(url || "")
-    ? `<img class="${classe}" src="${esc(url)}" alt="" loading="lazy" decoding="async">` : `<span class="${classe} adm-carta-sem"></span>`;
+  const imgCarta = (url, classe, indice) => R.CARTA_IMG_VALIDA.test(url || "")
+    ? `<img class="${classe}" src="${esc(url)}" alt="" loading="lazy" decoding="async"${indice != null ? ` data-carta="${indice}"` : ""}>` : `<span class="${classe} adm-carta-sem"></span>`;
+  /* A imagem existe? (carrega fora da página; sem handler inline, então vale a CSP) */
+  const imagemExiste = url => new Promise(ok => {
+    if (!R.CARTA_IMG_VALIDA.test(url || "")) { ok(false); return; }
+    const img = new Image();
+    img.addEventListener("load", () => ok(true));
+    img.addEventListener("error", () => ok(false));
+    img.src = url;
+  });
   const codigo = c => [c.colecao, c.numero].filter(Boolean).join(" ");
 
   let sequencia = 0;
@@ -272,7 +295,7 @@
         const soma = doGrupo.reduce((s, [c]) => s + c.qtd, 0);
         return `<h5>${esc(cat)} <span>${soma}</span></h5><ul class="adm-cartas">${doGrupo.map(([c, i]) => `
           <li class="adm-carta">
-            ${imgCarta(c.img, "adm-carta-mini")}
+            ${imgCarta(c.img, "adm-carta-mini", i)}
             <span class="adm-carta-nome"><b>${esc(c.nome)}</b><small>${esc(codigo(c))}</small></span>
             <span class="adm-carta-qtd">
               <button class="btn btn-line" type="button" data-menos="${i}" aria-label="Tirar uma ${esc(c.nome)}">−</button>
@@ -344,12 +367,12 @@
       incluindo.add(r.id);
       marcarResultados();
       try {
-        const [colecoes, d] = await Promise.all([colecoesGLC(), detalhe(r.id)]);
-        const motivo = R.motivoIlegal(d, colecoes, banlist);
+        const [colecoes, d, set] = await Promise.all([colecoesGLC(), detalhe(r.id), colecao(R.setDoId(r.id)).catch(() => null)]);
+        const sigla = (set && set.sigla) || R.setDoId(r.id);
+        const motivo = R.motivoIlegal(d, colecoes, banlist, sigla);
         if (motivo) { mensagem(msgBusca, `${r.nome}: não vale no GLC (${motivo}).`, "erro"); return; }
-        const set = await colecao(R.setDoId(r.id)).catch(() => null);
-        const carta = R.cartaDoDetalhe(d, (set && set.sigla) || R.setDoId(r.id), colecoes);
-        if (!carta.img && R.CARTA_IMG_VALIDA.test(r.img)) carta.img = r.img.replace("/pt/", "/en/");
+        const carta = R.cartaDoDetalhe(d, sigla);
+        if (!carta.img && R.CARTA_IMG_VALIDA.test(r.img)) carta.img = r.img;
         const impede = R.impedimento(cartas, carta, opcoes.tipo);
         if (impede) { mensagem(msgBusca, impede, "erro"); return; }
         cartas = R.sanitizarCartas(R.somar(cartas, carta));
@@ -390,7 +413,9 @@
         const r = await resolverLinhas(antigas.map(c => ({ ...c })), banlist);
         const novas = r.cartas.filter(c => R.CARTA_IMG_VALIDA.test(c.img || "") && /tcgdex/.test(c.img));
         if (!novas.length) { mensagem(msgLista, ""); return; }
-        cartas = R.sanitizarCartas([...cartas.filter(c => !R.precisaConverter(c)), ...r.cartas]);
+        /* Troca só as cartas separadas no início: a lista pode ter mudado enquanto a conversão rodava */
+        const separadas = new Set(antigas.map(c => `${c.nome}|${c.colecao}|${c.numero}`));
+        cartas = R.sanitizarCartas([...cartas.filter(c => !separadas.has(`${c.nome}|${c.colecao}|${c.numero}`)), ...r.cartas]);
         mudou();
         mensagem(msgLista, `${novas.length} ${novas.length === 1 ? "carta atualizada" : "cartas atualizadas"} para a base TCGdex. Salve a decklist para gravar.`, "ok");
       } catch (e) {
@@ -459,9 +484,29 @@
     el.addEventListener("error", e => {
       const img = e.target;
       if (!(img instanceof HTMLImageElement)) return;
-      if (img.src.includes("assets.tcgdex.net/pt/")) { img.src = img.src.replace("/pt/", "/en/"); return; }
+      const indice = img.dataset.carta;
       img.replaceWith(Object.assign(document.createElement("span"), { className: `${img.className} adm-carta-sem` }));
+      if (indice != null) corrigirImagem(cartas[Number(indice)]);
     }, true);
+
+    /* Imagem quebrada numa carta da lista (listas salvas antes desta correção, ou imagem que saiu da TCGdex):
+       tenta a do detalhe em inglês e a do português; sem nenhuma, a carta fica só com o nome. Uma vez por carta. */
+    const corrigidas = new Set();
+    async function corrigirImagem(carta) {
+      if (!carta || !carta.id || corrigidas.has(carta.id) || !/tcgdex/.test(carta.img || "")) return;
+      corrigidas.add(carta.id);
+      const d = await detalhe(carta.id).catch(() => null);
+      const pt = d && !d.imagem_pt ? await ler(R.urlCarta(carta.id, "pt")).catch(() => null) : null;
+      const opcoes = [R.imagemBaixa(d && d.image), R.imagemBaixa(d && d.imagem_pt), R.imagemBaixa(pt && pt.image)]
+        .filter((u, i, a) => u && u !== carta.img && a.indexOf(u) === i);
+      let nova = "";
+      for (const u of opcoes) { if (await imagemExiste(u)) { nova = u; break; } }
+      const alvo = cartas.find(c => c.id === carta.id);
+      if (!alvo) return;
+      if (nova) alvo.img = nova; else delete alvo.img;
+      mudou();
+      mensagem(msgLista, nova ? "Imagens corrigidas. Salve a decklist para gravar." : "Algumas cartas não têm imagem na TCGdex e ficam só com o nome. Salve a decklist para gravar.", "ok");
+    }
 
     desenharLista();
     desenharAvisos();

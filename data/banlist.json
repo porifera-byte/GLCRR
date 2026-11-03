@@ -1,5 +1,108 @@
 {
-  "atualizado_em": "",
-  "fonte": "https://gymleaderchallenge.com",
-  "cartas": []
+  "atualizado_em": "2026-11-03",
+  "fonte": "https://gymleaderchallenge.com/ban-list",
+  "cartas": [
+    {
+      "nome": "Lysandre's Trump Card",
+      "colecao": "PHF",
+      "numero": "99",
+      "todas_versoes": true
+    },
+    {
+      "nome": "Lysandre's Trump Card",
+      "colecao": "PHF",
+      "numero": "118",
+      "todas_versoes": true
+    },
+    {
+      "nome": "Oranguru",
+      "colecao": "UPR",
+      "numero": "114",
+      "todas_versoes": false
+    },
+    {
+      "nome": "Forest of Giant Plants",
+      "colecao": "AOR",
+      "numero": "74",
+      "todas_versoes": true
+    },
+    {
+      "nome": "Chip-Chip Ice Axe",
+      "colecao": "UNB",
+      "numero": "165",
+      "todas_versoes": true
+    },
+    {
+      "nome": "Hiker",
+      "colecao": "CES",
+      "numero": "133",
+      "todas_versoes": true
+    },
+    {
+      "nome": "Hiker",
+      "colecao": "HIF",
+      "numero": "SV85",
+      "todas_versoes": true
+    },
+    {
+      "nome": "Kyogre",
+      "colecao": "SHF",
+      "numero": "21",
+      "todas_versoes": false
+    },
+    {
+      "nome": "Pokémon Research Lab",
+      "colecao": "UNM",
+      "numero": "205",
+      "todas_versoes": true
+    },
+    {
+      "nome": "Raikou",
+      "colecao": "VIV",
+      "numero": "50",
+      "todas_versoes": false
+    },
+    {
+      "nome": "Marshadow",
+      "colecao": "SLG",
+      "numero": "45",
+      "todas_versoes": false
+    },
+    {
+      "nome": "Marshadow",
+      "colecao": "PR-SM",
+      "numero": "SM85",
+      "todas_versoes": false
+    },
+    {
+      "nome": "Duskull",
+      "colecao": "CEC",
+      "numero": "83",
+      "todas_versoes": false
+    },
+    {
+      "nome": "Double Colorless Energy",
+      "colecao": "SLG",
+      "numero": "69",
+      "todas_versoes": true
+    },
+    {
+      "nome": "Twin Energy",
+      "colecao": "RCL",
+      "numero": "174",
+      "todas_versoes": true
+    },
+    {
+      "nome": "Twin Energy",
+      "colecao": "RCL",
+      "numero": "209",
+      "todas_versoes": true
+    },
+    {
+      "nome": "Dimension Valley",
+      "colecao": "PHF",
+      "numero": "93",
+      "todas_versoes": true
+    }
+  ]
 }
