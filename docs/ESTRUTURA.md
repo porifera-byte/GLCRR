@@ -11,13 +11,21 @@ Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página 
 | `#inicio` | Logo, texto principal, menu de botões, botões do Instagram e do YouTube e patrocinadores | `config.json`, `patrocinadores.json` |
 | `#calendario` | Próximos eventos e eventos realizados | `eventos.json` |
 | `#ranking` | Participações e colocações da temporada (sem pontos até a regra ser definida) | `resultados.json`, `eventos.json`, `jogadores.json`, `config.json` |
+| `#decks` | Estatísticas por tipo do deck (uso, % do total, jogadores, V-D-E, % de vitórias, Top 3, 1º lugar) e melhores colocações (Top 3 de todos os eventos, com a decklist), com filtro de período (tudo, 3, 6 e 12 meses, ano) e de tipo | `resultados.json`, `decklists.json`, `eventos.json`, `jogadores.json` |
 | `#regras` | Resumo do GLC, regras locais e banlist | `banlist.json` |
 | `#jogadores` | Cartões dos jogadores com totais | `jogadores.json`, `resultados.json` |
 | `#jogadores/<id>` | Perfil: totais, histórico de eventos, colocação, V-D-E e decklist do Top 3 | `jogadores.json`, `resultados.json`, `decklists.json`, `eventos.json` |
 
-Não há seções próprias de Decklists nem de Inscrições:
-- **Inscrições:** botão "Inscreva-se" nos próximos eventos do Calendário, com o link do Google Forms (`inscricao_url`).
-- **Decklists:** aparecem no pop-up de resultados do evento (Top 3) e no histórico do perfil do jogador.
+Não há seção própria de Inscrições: o botão "Inscreva-se" fica nos próximos eventos do Calendário, com o link do Google Forms (`inscricao_url`).
+
+## Decks
+
+A aba `#decks` tem dois blocos, sob um filtro de período (chips `data-filtro="periodo"`: tudo, 3, 6 e 12 meses até hoje, e cada ano com resultado; `periodoDatas()` em `data.js`):
+
+- **Estatísticas por tipo:** `estatisticasDecks(inicio, fim)` em `data.js` soma, por tipo do deck (`tipo_pokemon` da linha do resultado), o uso (participações), a % do total, os jogadores diferentes, o V-D-E, a % de vitórias (V ÷ (V + D + E); o bye já entra como vitória), o Top 3 e os 1º lugares. Linha sem tipo aparece como "Não informado", no fim. Acima da tabela, o resumo do período: eventos, jogadores e participações. A tabela (`htmlEstatDecks()` em `main.js`) é refeita a cada troca de período. Só números: a página não interpreta os dados. Não há confronto entre tipos (matchups) porque `resultados.json` não guarda os pareamentos.
+- **Melhores colocações:** `decksTop3()` lista o Top 3 de todos os eventos (reaproveita `decklistTop3()`: quem ainda não tem decklist aparece com "Em breve" e a reserva), com "1º de N" e o V-D-E. Os cartões reaproveitam o estilo `.podio` do pop-up e o botão abre o mesmo pop-up de decklist. O filtro de tipo (`data-filtro="tipo"`) vale só para esta lista; o de período, para as duas.
+
+Os filtros não mudam a rota (`aplicarFiltroDecks()` em `main.js`), para não disparar o slide. As decklists continuam também no pop-up de resultados do evento e no perfil. Nada muda no painel.
 
 ## Pop-up de resultados
 
