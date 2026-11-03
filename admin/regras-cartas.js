@@ -21,8 +21,6 @@
 
   /* GLC: sem Rule Box (EX, GX, V, ex, Radiant, Prism Star, BREAK etc.) e sem ACE SPEC. Regra oficial em gymleaderchallenge.com */
   const SUBTIPOS_RULE_BOX = ["EX", "GX", "TAG TEAM", "V", "VMAX", "VSTAR", "V-UNION", "ex", "Radiant", "BREAK", "MEGA", "Prism Star"];
-  const EXCLUSOES_CONSULTA = '-subtypes:EX -subtypes:GX -subtypes:VMAX -subtypes:VSTAR -subtypes:"V-UNION" -subtypes:"TAG TEAM" ' +
-    '-subtypes:Radiant -subtypes:BREAK -subtypes:"ACE SPEC"';
   /* Pelo nome (para listas importadas ou antigas, sem os subtipos da API) */
   const NOME_RULE_BOX = /(?:[\s-](?:EX|GX|V|VMAX|VSTAR|V-UNION|ex|BREAK)$)|◇|\{\*\}|^Radiant\s/;
 
@@ -43,7 +41,9 @@
     const cat = categoria === "Treinador" ? " supertype:trainer"
       : categoria === "Energia" ? " supertype:energy"
       : categoria === "Pokémon" ? " -supertype:trainer -supertype:energy" : "";
-    return `${nome} legalities.expanded:legal ${EXCLUSOES_CONSULTA}${cat}`;
+    /* Consulta curta: a lista de exclusões deixava a API lenta e com mais erros. Rule Box, ACE SPEC e banlist
+       saem na tela, por motivoIlegal(). */
+    return `${nome} legalities.expanded:legal${cat}`;
   }
 
   function urlBusca(termo, categoria, pagina) {

@@ -13,8 +13,7 @@ const BAN = { cartas: [{ nome: "Lysandre's Trump Card", colecao: "PHF", numero: 
 
 test("consulta de busca", () => {
   const q = R.montarConsulta("  Dusk  ", "");
-  assert.ok(q.startsWith("name:dusk* legalities.expanded:legal "));
-  assert.ok(q.includes('-subtypes:"ACE SPEC"'));
+  assert.strictEqual(q, "name:dusk* legalities.expanded:legal");
   assert.ok(R.montarConsulta("Professor's Research", "Treinador").startsWith("name:professor* name:research* "));
   assert.ok(R.montarConsulta("pikachu", "Treinador").endsWith(" supertype:trainer"));
   assert.ok(R.montarConsulta("pikachu", "Pokémon").endsWith(" -supertype:trainer -supertype:energy"));
