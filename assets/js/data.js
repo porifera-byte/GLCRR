@@ -130,11 +130,42 @@ const cartasDe = d => (d && Array.isArray(d.cartas) ? d.cartas : [])
 /* Cartas em grupos na ordem do TCG Live: Pokémon, Treinador, Energia (categoria desconhecida vai para Treinador) */
 const GRUPOS_CARTAS = [
   { categoria: "Pokémon", live: "Pokémon" }, { categoria: "Treinador", live: "Trainer" }, { categoria: "Energia", live: "Energy" }];
+/* Ordem das cartas dentro de cada grupo (decisão de 03/11/2026):
+   - Pokémon: por linha de evolução (do Básico ao último estágio), linhas em ordem alfabética pelo primeiro Pokémon;
+   - Treinador: Apoiador, Item, Ferramenta, Estádio, cada um em ordem alfabética;
+   - Energia: Especiais primeiro, depois Básicas, cada uma em ordem alfabética.
+   Usa "estagio", "evolui_de" e "subtipo", gravados pelo painel; carta antiga sem esses campos vai como Básico / no fim. */
+const ESTAGIO_ORDEM = { Basic: 0, Restored: 0, Stage1: 1, Stage2: 2 };
+const SUBTIPO_ORDEM = { "Apoiador": 0, "Item": 1, "Ferramenta": 2, "Estádio": 3 };
+const nomeOrdem = n => String(n || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const porNome = (a, b) => nomeOrdem(a.nome).localeCompare(nomeOrdem(b.nome), "pt-BR") || String(a.colecao).localeCompare(String(b.colecao));
+function ordenarCartas(cartas, categoria) {
+  const lista = [...cartas];
+  if (categoria === "Pokémon") {
+    const porNomeExato = new Map(lista.map(c => [nomeOrdem(c.nome), c]));
+    /* Raiz da linha: sobe por "evolui_de" enquanto o anterior estiver na lista; se não estiver, a raiz é o nome dele */
+    const raiz = c => {
+      let atual = c;
+      for (let passos = 0; atual.evolui_de && passos < 4; passos++) {
+        const anterior = porNomeExato.get(nomeOrdem(atual.evolui_de));
+        if (!anterior || anterior === atual) return nomeOrdem(atual.evolui_de);
+        atual = anterior;
+      }
+      return nomeOrdem(atual.nome);
+    };
+    const estagio = c => ESTAGIO_ORDEM[c.estagio] ?? (c.evolui_de ? 1 : 0);
+    return lista.sort((a, b) => raiz(a).localeCompare(raiz(b), "pt-BR") || estagio(a) - estagio(b) || porNome(a, b));
+  }
+  if (categoria === "Treinador") return lista.sort((a, b) => (SUBTIPO_ORDEM[a.subtipo] ?? 4) - (SUBTIPO_ORDEM[b.subtipo] ?? 4) || porNome(a, b));
+  if (categoria === "Energia") return lista.sort((a, b) => (a.basica ? 1 : 0) - (b.basica ? 1 : 0) || porNome(a, b));
+  return lista.sort(porNome);
+}
+
 function agruparCartas(cartas) {
   const lista = (cartas || []).filter(c => c && c.nome && Number(c.qtd) >= 1);
   const grupoDe = c => GRUPOS_CARTAS.some(g => g.categoria === c.categoria) ? c.categoria : "Treinador";
   return GRUPOS_CARTAS.map(g => {
-    const doGrupo = lista.filter(c => grupoDe(c) === g.categoria);
+    const doGrupo = ordenarCartas(lista.filter(c => grupoDe(c) === g.categoria), g.categoria);
     return { ...g, total: doGrupo.reduce((s, c) => s + Number(c.qtd), 0), cartas: doGrupo };
   }).filter(g => g.cartas.length);
 }

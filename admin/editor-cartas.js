@@ -106,7 +106,7 @@
   /* Detalhe da carta em inglês (regras do GLC e nome gravado), guardado por 30 dias.
      Sem imagem em inglês, guarda a do português (imagem_pt), se houver. */
   async function detalhe(id) {
-    const chave = `carta2:${id}`;
+    const chave = `carta3:${id}`;
     const guardado = cache.ler(chave, 30 * DIA);
     if (guardado) return guardado;
     const d = R.resumirDetalhe(await ler(R.urlCarta(id, "en")));
@@ -296,7 +296,8 @@
         return;
       }
       caixa.innerHTML = R.CATEGORIAS.map(cat => {
-        const doGrupo = cartas.map((c, i) => [c, i]).filter(([c]) => c.categoria === cat);
+        /* Mesma ordem do site (ordenarCartas, em data.js) */
+        const doGrupo = ordenarCartas(cartas.filter(c => c.categoria === cat), cat).map(c => [c, cartas.indexOf(c)]);
         if (!doGrupo.length) return "";
         const soma = doGrupo.reduce((s, [c]) => s + c.qtd, 0);
         return `<h5>${esc(cat)} <span>${soma}</span></h5><ul class="adm-cartas">${doGrupo.map(([c, i]) => `
@@ -464,7 +465,7 @@
         avisosImportacao = [];
         mudou();
         mensagem(msg, `Lista de ${a.nome} copiada (${R.total(cartas)} cartas). Ajuste o que mudou e salve a decklist.`, "ok");
-        converterAntigas();
+        converterAntigas().then(completarOrdem);
         return;
       }
       if (b.hasAttribute("data-categoria")) {
@@ -528,9 +529,26 @@
       mensagem(msgLista, "Imagens de cartas ajustadas (as que a TCGdex não tem vêm de outra fonte ou ficam só com o nome). Salve a decklist para gravar.", "ok");
     }
 
+    /* Listas salvas antes da ordem por evolução e por subtipo: completa estágio, evolução e subtipo pelos detalhes (em cache) */
+    async function completarOrdem() {
+      const faltam = cartas.filter(R.faltaOrdem);
+      if (!faltam.length) return;
+      let completas = 0;
+      await emParalelo(faltam, 6, async c => {
+        const d = await detalhe(c.id).catch(() => null);
+        if (!d) return;
+        const dados = R.dadosDeOrdem(d);
+        if (Object.keys(dados).length) { Object.assign(c, dados); completas++; }
+      });
+      if (!completas) return;
+      cartas = R.sanitizarCartas(cartas);
+      mudou();
+      if (!msgLista.textContent) mensagem(msgLista, "Lista reorganizada (evolução, tipo de Treinador e Energias). Salve a decklist para gravar.", "ok");
+    }
+
     desenharLista();
     desenharAvisos();
-    converterAntigas();
+    converterAntigas().then(completarOrdem);
 
     return {
       el,
