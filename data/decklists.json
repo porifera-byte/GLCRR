@@ -666,16 +666,6 @@
       },
       {
         "qtd": 1,
-        "nome": "Dragapult",
-        "colecao": "SHF",
-        "numero": "SV062",
-        "categoria": "Pokémon",
-        "tipos": [
-          "Psychic"
-        ]
-      },
-      {
-        "qtd": 1,
         "nome": "Inkay",
         "colecao": "LOR",
         "numero": "77",
@@ -772,6 +762,16 @@
       },
       {
         "qtd": 1,
+        "nome": "Dragapult",
+        "colecao": "SHF",
+        "numero": "SV062",
+        "categoria": "Pokémon",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
         "nome": "Teammates",
         "colecao": "PRC",
         "numero": "141",
@@ -787,13 +787,6 @@
         "categoria": "Treinador",
         "id": "sm3-115",
         "img": "https://assets.tcgdex.net/en/sm/sm3/115/low.webp"
-      },
-      {
-        "qtd": 1,
-        "nome": "Iono",
-        "colecao": "SV4PT5",
-        "numero": "80",
-        "categoria": "Treinador"
       },
       {
         "qtd": 1,
@@ -1091,6 +1084,15 @@
         "categoria": "Treinador",
         "id": "sv04-181",
         "img": "https://assets.tcgdex.net/en/sv/sv04/181/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Iono",
+        "colecao": "PAF",
+        "numero": "80",
+        "categoria": "Treinador",
+        "id": "sv04.5-080",
+        "img": "https://assets.tcgdex.net/en/sv/sv04.5/080/low.webp"
       },
       {
         "qtd": 7,
