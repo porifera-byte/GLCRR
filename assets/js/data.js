@@ -139,6 +139,19 @@ function estatisticasDe(jogadorId, temporada) {
   }, { eventos: 0, top3: 0, melhor: Infinity, v: 0, d: 0, e: 0 });
 }
 
+/* Todas as decklists do Top 3 (aba Decks), do evento mais recente para o mais antigo e, no mesmo evento, pela posição.
+   Inclui quem ainda não tem decklist enviada (decklistTop3 devolve a reserva). Evento sem cadastro em eventos.json fica de fora. */
+function decksTop3() {
+  const itens = [];
+  DADOS.resultados.forEach(r => {
+    const ev = eventoPorId(r.evento_id);
+    if (!ev) return;
+    (r.colocacoes || []).filter(c => c.posicao >= 1 && c.posicao <= 3).forEach(c =>
+      itens.push({ evento: ev, colocacao: c, decklist: decklistTop3(ev.id, c.jogador_id, c.posicao) }));
+  });
+  return itens.sort((a, b) => b.evento.data.localeCompare(a.evento.data) || a.colocacao.posicao - b.colocacao.posicao);
+}
+
 function eventosSeparados() {
   const hoje = hojeBV();
   return {

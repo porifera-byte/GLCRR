@@ -1,11 +1,11 @@
 /* Liga GLC Roraima — navegação, páginas, e pop-up de resultados.
    Site de uma página (SPA) com rotas por âncora:
-   #inicio, #calendario, #ranking, #regras, #jogadores e #jogadores/<id> (perfil).
+   #inicio, #calendario, #ranking, #decks, #regras, #jogadores e #jogadores/<id> (perfil).
    Ao trocar de rota, a página desliza na direção da ordem do menu. */
 
 const MENU = [
   ["inicio", "Início"], ["calendario", "Calendário"], ["ranking", "Ranking"],
-  ["regras", "Regras"], ["jogadores", "Jogadores"]
+  ["decks", "Decks"], ["regras", "Regras"], ["jogadores", "Jogadores"]
 ];
 
 const LOGO = "assets/icons/GLCRR-logo.png";
@@ -14,6 +14,7 @@ const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const ICONES = {
   calendario: svg('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
   ranking: svg('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/>'),
+  decks: svg('<rect x="7" y="3" width="13" height="17" rx="2"/><path d="M4 7v12a2 2 0 0 0 2 2h9"/><path d="M11 8h5M11 12h5"/>'),
   regras: svg('<path d="M4 4h11a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3z"/><path d="M8 9h6M8 13h6"/>'),
   jogadores: svg('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14a5 5 0 0 1 4.5 5"/>')
 };
@@ -156,6 +157,39 @@ const PAGES = {
         <table><thead><tr><th>Jogador</th><th>Eventos</th><th>Top 3</th><th>Melhor colocação</th><th>V-D-E</th></tr></thead>
         <tbody>${linhas || `<tr><td colspan="5" class="muted">Sem dados nesta temporada</td></tr>`}</tbody></table>
       </div>`);
+  },
+
+  /* Decklists do Top 3 de todos os eventos, com filtro por tipo do deck e, se houver mais de uma, por temporada.
+     O filtro só esconde cartões (aplicarFiltroDecks); não muda a rota, para não disparar o slide. */
+  decks() {
+    const itens = decksTop3();
+    if (!itens.length) {
+      return interna(`<div><span class="eyebrow">Top 3 dos eventos</span><h1>Decks</h1></div>
+        ${vazio("Nenhuma decklist publicada ainda.", "As listas do Top 3 aparecem aqui depois que os resultados de cada evento forem publicados.")}`);
+    }
+    const tipos = [...new Set(itens.map(x => tipoDoDeck(x.colocacao, x.decklist)).filter(Boolean))]
+      .sort((a, b) => a.localeCompare(b, "pt-BR"));
+    const anos = [...new Set(itens.map(x => x.evento.data.slice(0, 4)))];
+    const chip = (grupo, valor, rotulo, ativo) => `<button type="button" class="chip-filtro" data-filtro="${grupo}" data-valor="${esc(valor)}" aria-pressed="${ativo}">${rotulo}</button>`;
+    const filtroTipo = tipos.length > 1 ? `<div class="filtros" role="group" aria-label="Filtrar por tipo do deck">
+        ${chip("tipo", "", "Todos", true)}${tipos.map(t => chip("tipo", slugTipo(t), `${TIPOS_COM_ICONE.includes(slugTipo(t))
+          ? `<img src="assets/img/tipos/${slugTipo(t)}.png" alt="" width="18" height="18">` : ""}${esc(t)}`, false)).join("")}</div>` : "";
+    const filtroAno = anos.length > 1 ? `<div class="filtros" role="group" aria-label="Filtrar por temporada">
+        ${chip("ano", "", "Todas", true)}${anos.map(a => chip("ano", a, esc(a), false)).join("")}</div>` : "";
+    const cartoes = itens.map(({ evento: ev, colocacao: c, decklist: d }) => {
+      const tipo = tipoDoDeck(c, d);
+      return `<li class="deck-card" data-tipo="${esc(slugTipo(tipo))}" data-ano="${esc(ev.data.slice(0, 4))}">
+        <span class="pos p${Number(c.posicao)}">${esc(c.posicao)}º</span>
+        <span class="quem"><span class="quem-nome"><b>${esc(apelidoDe(c.jogador_id))}</b>${htmlTipo(tipo)}</span>
+          <small>${esc(ev.nome)} · ${dataBR(ev.data)}</small></span>
+        <span class="acoes"><button type="button" class="btn ${d.reserva ? "btn-line" : "btn-ouro"} btn-sm" data-decklist="${esc(ev.id)}|${esc(c.jogador_id)}">${d.reserva ? "Em breve" : "Decklist"}</button></span>
+      </li>`;
+    }).join("");
+    return interna(`<div><span class="eyebrow">Top 3 dos eventos</span><h1>Decks</h1></div>
+      <p class="lead">As listas de quem ficou no Top 3 de cada evento da liga, da mais recente para a mais antiga.</p>
+      ${filtroTipo}${filtroAno}
+      <ol class="podio decks">${cartoes}</ol>
+      <div class="empty decks-vazio" hidden><b>Nenhuma lista com esse filtro.</b><span>Escolha outro tipo ou temporada.</span></div>`);
   },
 
   regras() {
@@ -327,8 +361,25 @@ function htmlDecklist(eventoId, jogadorId, veioDaLista) {
     <a class="btn btn-line btn-sm" href="${linkPerfil(jogadorId)}">Ver perfil de ${esc(nome)}</a>`;
 }
 
-/* Cliques em botões de resultado/decklist e fechamento do pop-up */
+/* Filtro da aba Decks: um chip ativo por grupo (tipo, ano); "" = todos */
+function aplicarFiltroDecks(chip) {
+  const pagina = chip.closest(".page");
+  pagina.querySelectorAll(`[data-filtro="${chip.dataset.filtro}"]`).forEach(b => b.setAttribute("aria-pressed", String(b === chip)));
+  const ativo = grupo => pagina.querySelector(`[data-filtro="${grupo}"][aria-pressed="true"]`)?.dataset.valor || "";
+  const tipo = ativo("tipo"), ano = ativo("ano");
+  let visiveis = 0;
+  pagina.querySelectorAll(".deck-card").forEach(li => {
+    const mostra = (!tipo || li.dataset.tipo === tipo) && (!ano || li.dataset.ano === ano);
+    li.hidden = !mostra;
+    if (mostra) visiveis++;
+  });
+  pagina.querySelector(".decks-vazio").hidden = visiveis > 0;
+}
+
+/* Cliques em botões de resultado/decklist, filtros da aba Decks e fechamento do pop-up */
 document.addEventListener("click", e => {
+  const filtro = e.target.closest("[data-filtro]");
+  if (filtro) { aplicarFiltroDecks(filtro); return; }
   const alvo = e.target.closest("[data-resultados],[data-decklist],[data-fechar]");
   if (!alvo) return;
   if (alvo.hasAttribute("data-fechar")) { fecharModal(); return; }

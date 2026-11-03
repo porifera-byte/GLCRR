@@ -11,13 +11,16 @@ Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página 
 | `#inicio` | Logo, texto principal, menu de botões, botões do Instagram e do YouTube e patrocinadores | `config.json`, `patrocinadores.json` |
 | `#calendario` | Próximos eventos e eventos realizados | `eventos.json` |
 | `#ranking` | Participações e colocações da temporada (sem pontos até a regra ser definida) | `resultados.json`, `eventos.json`, `jogadores.json`, `config.json` |
+| `#decks` | Decklists do Top 3 de todos os eventos, da mais recente para a mais antiga, com filtro por tipo do deck (e por temporada, quando houver mais de uma) | `resultados.json`, `decklists.json`, `eventos.json`, `jogadores.json` |
 | `#regras` | Resumo do GLC, regras locais e banlist | `banlist.json` |
 | `#jogadores` | Cartões dos jogadores com totais | `jogadores.json`, `resultados.json` |
 | `#jogadores/<id>` | Perfil: totais, histórico de eventos, colocação, V-D-E e decklist do Top 3 | `jogadores.json`, `resultados.json`, `decklists.json`, `eventos.json` |
 
-Não há seções próprias de Decklists nem de Inscrições:
-- **Inscrições:** botão "Inscreva-se" nos próximos eventos do Calendário, com o link do Google Forms (`inscricao_url`).
-- **Decklists:** aparecem no pop-up de resultados do evento (Top 3) e no histórico do perfil do jogador.
+Não há seção própria de Inscrições: o botão "Inscreva-se" fica nos próximos eventos do Calendário, com o link do Google Forms (`inscricao_url`).
+
+## Decks
+
+A aba `#decks` lista todas as decklists do Top 3 (`decksTop3()` em `data.js`, que reaproveita `decklistTop3()`: quem ainda não tem decklist aparece com o botão "Em breve" e a reserva). Os cartões reaproveitam o estilo `.podio` do pop-up, e o botão abre o mesmo pop-up de decklist. Os filtros (chips `.chip-filtro`, `data-filtro="tipo"` ou `"ano"`) só aparecem com mais de um tipo ou temporada e só escondem cartões (`aplicarFiltroDecks()` em `main.js`), sem mudar a rota. A aba só exibe as listas, sem contagem nem análise de decks. As decklists continuam também no pop-up de resultados do evento e no histórico do perfil do jogador. Nada muda no painel: as decklists seguem sendo enviadas na tela de Resultados.
 
 ## Pop-up de resultados
 

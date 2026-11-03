@@ -66,3 +66,20 @@ test("logo de patrocinador só em assets/img/patrocinadores/", () => {
     "assets/img/jogadores/a.webp", "assets/img/patrocinadores/Logo.PNG", "assets/img/patrocinadores/a.gif"]
     .forEach(v => assert.ok(!ok(v), v));
 });
+
+test("aba Decks: todo o Top 3, do evento mais recente para o mais antigo", () => {
+  site(`DADOS.eventos = ${JSON.stringify([
+    { id: "2026-01-10-a", nome: "A", data: "2026-01-10" },
+    { id: "2026-02-10-b", nome: "B", data: "2026-02-10" }
+  ])}`);
+  site(`DADOS.resultados = ${JSON.stringify([
+    { evento_id: "2026-01-10-a", colocacoes: [{ posicao: 2, jogador_id: "y" }, { posicao: 1, jogador_id: "x" }, { posicao: 4, jogador_id: "z" }] },
+    { evento_id: "2026-02-10-b", colocacoes: [{ posicao: 1, jogador_id: "z", tipo_pokemon: "Fogo" }] },
+    { evento_id: "sem-evento", colocacoes: [{ posicao: 1, jogador_id: "w" }] }
+  ])}`);
+  site(`DADOS.decklists = ${JSON.stringify([
+    { evento_id: "2026-01-10-a", jogador_id: "x", posicao: 1, imagem: "assets/img/decklists/2026-01-10-a-1-x.jpg?v=20260110120000" }
+  ])}`);
+  const lista = JSON.parse(site(`JSON.stringify(decksTop3().map(i => [i.evento.id, i.colocacao.jogador_id, !!i.decklist.reserva]))`));
+  assert.deepStrictEqual(lista, [["2026-02-10-b", "z", true], ["2026-01-10-a", "x", false], ["2026-01-10-a", "y", true]]);
+});
