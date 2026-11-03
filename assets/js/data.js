@@ -63,6 +63,9 @@ function urlSegura(url) {
    o teste admin/testes/site-dados.test.js confere que continuam iguais. */
 const ICONE_VALIDO = /^assets\/img\/jogadores\/[a-z0-9-]+\.(png|webp|jpg)$/;
 const DECKLIST_VALIDA = /^assets\/img\/decklists\/[a-z0-9-]+\.(png|jpg|jpeg|webp)(\?v=\d{14})?$/;
+/* Imagem de carta da lista montada no painel: só o endereço de imagens do pokemontcg.io.
+   É a mesma regra de admin/regras-cartas.js (o teste site-dados.test.js confere). */
+const CARTA_IMG_VALIDA = /^https:\/\/images\.pokemontcg\.io\/[a-z][a-z0-9.-]*\/[A-Za-z0-9-]+\.png$/;
 /* Logos dos patrocinadores: enviadas por PR (não passam pelo painel) */
 const LOGO_PATROCINADOR_VALIDA = /^assets\/img\/patrocinadores\/[a-z0-9-]+\.(png|webp|jpg|svg)$/;
 
@@ -102,13 +105,37 @@ function htmlTipo(tipo, opcoes) {
     `<img src="${base}assets/img/tipos/${s}.png" alt="" width="22" height="22" loading="lazy" decoding="async"></span>${comTexto ? texto : ""}`;
 }
 
-/* Decklist do Top 3 sempre disponível: sem cadastro, ou sem imagem e sem lista em texto,
-   devolve a imagem de reserva até a organização enviar a foto pelo painel */
+/* Lista montada no painel (campo "cartas" da decklist): só itens com nome e quantidade */
+const cartasDe = d => (d && Array.isArray(d.cartas) ? d.cartas : [])
+  .filter(c => c && c.nome && Number(c.qtd) >= 1);
+
+/* Cartas em grupos na ordem do TCG Live: Pokémon, Treinador, Energia (categoria desconhecida vai para Treinador) */
+const GRUPOS_CARTAS = [
+  { categoria: "Pokémon", live: "Pokémon" }, { categoria: "Treinador", live: "Trainer" }, { categoria: "Energia", live: "Energy" }];
+function agruparCartas(cartas) {
+  const lista = (cartas || []).filter(c => c && c.nome && Number(c.qtd) >= 1);
+  const grupoDe = c => GRUPOS_CARTAS.some(g => g.categoria === c.categoria) ? c.categoria : "Treinador";
+  return GRUPOS_CARTAS.map(g => {
+    const doGrupo = lista.filter(c => grupoDe(c) === g.categoria);
+    return { ...g, total: doGrupo.reduce((s, c) => s + Number(c.qtd), 0), cartas: doGrupo };
+  }).filter(g => g.cartas.length);
+}
+
+/* Texto no formato de importação do TCG Live ("qtd Nome COLEÇÃO número", por grupo) */
+function textoTcgLive(cartas) {
+  const grupos = agruparCartas(cartas);
+  const linha = c => [Number(c.qtd), c.nome, c.colecao, c.numero].filter(v => v !== "" && v != null).join(" ");
+  const partes = grupos.map(g => `${g.live}: ${g.total}\n${g.cartas.map(linha).join("\n")}`);
+  return `${partes.join("\n\n")}\n\nTotal Cards: ${grupos.reduce((s, g) => s + g.total, 0)}`;
+}
+
+/* Decklist do Top 3 sempre disponível: sem cadastro, ou sem lista montada, imagem e lista em texto,
+   devolve a imagem de reserva até a organização enviar a lista pelo painel */
 const IMAGEM_RESERVA_DECKLIST = "assets/img/decklists/sem-imagem.svg";
 function decklistTop3(eventoId, jogadorId, posicao) {
   if (!(posicao >= 1 && posicao <= 3)) return null;
   const d = decklistDe(eventoId, jogadorId);
-  if (d && (DECKLIST_VALIDA.test(d.imagem || "") || d.lista_texto)) return d;
+  if (d && (cartasDe(d).length || DECKLIST_VALIDA.test(d.imagem || "") || d.lista_texto)) return d;
   return { evento_id: eventoId, jogador_id: jogadorId, posicao, tipo_pokemon: d ? d.tipo_pokemon || "" : "",
     lista_texto: "", imagem: IMAGEM_RESERVA_DECKLIST, reserva: true };
 }

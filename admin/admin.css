@@ -156,6 +156,48 @@ td .tipo-ic{margin-right:6px}
 .adm-oculto{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (min-width:640px){.adm-deck{grid-template-columns:220px 1fr;align-items:start}}
 
+/* Montador de decklist (busca de cartas do pokemontcg.io): lista e busca lado a lado no computador, uma sobre a outra no celular */
+.adm-montar-resumo{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.adm-montar-resumo .adm-nota{flex:1 1 200px}
+.adm-montar{grid-column:1/-1;display:grid;gap:12px;min-width:0;padding-top:12px;border-top:1px dashed var(--line)}
+.adm-montar-topo{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.adm-montar-topo h4{margin:0;font-family:var(--f-display);font-size:1.15rem}
+.adm-montar-total{font-family:var(--f-body);font-weight:600;font-size:.9rem;color:var(--muted)}
+.adm-montar-topo .btn{min-height:44px}
+.adm-montar-avisos{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:.88rem}
+.adm-montar-avisos:empty{display:none}
+.adm-montar-avisos li{padding:6px 10px;border-radius:8px;border-left:4px solid var(--ouro);background:var(--chip)}
+.adm-montar-grade{display:grid;gap:16px;min-width:0}
+.adm-montar-grade > *{min-width:0}
+.adm-montar-lista h5{margin:10px 0 6px;font-size:.95rem;display:flex;gap:8px;align-items:center}
+.adm-montar-lista h5 span{font-family:var(--f-mono);font-size:.8rem;padding:1px 8px;border-radius:999px;background:var(--chip)}
+.adm-cartas{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.adm-carta{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:10px;padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.adm-carta-mini{display:block;width:34px;height:47px;object-fit:cover;border-radius:3px;background:var(--chip)}
+.adm-carta-nome{display:grid;min-width:0;line-height:1.25}
+.adm-carta-nome b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adm-carta-nome small{font-family:var(--f-mono);font-size:.75rem;color:var(--muted)}
+.adm-carta-qtd{display:flex;align-items:center;gap:6px}
+.adm-carta-qtd b{min-width:2ch;text-align:center;font-family:var(--f-mono)}
+.adm-carta-qtd .btn{min-width:44px;min-height:44px;padding:0;justify-content:center;font-size:1.2rem}
+.adm-montar-campo{display:flex;gap:8px;align-items:flex-end}
+.adm-montar-campo .campo{flex:1;min-width:0}
+.adm-montar-campo .btn{min-height:44px}
+.adm-montar-resultados{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+.adm-res{position:relative;display:grid;gap:2px;width:100%;padding:6px;border:2px solid var(--line);border-radius:10px;background:var(--surface);
+  color:var(--fg);font:inherit;text-align:left;cursor:pointer}
+.adm-res:hover{border-color:var(--ceu)}
+.adm-res-img{display:block;width:100%;aspect-ratio:63/88;object-fit:cover;border-radius:6px;background:var(--chip)}
+.adm-res-nome{font-weight:800;font-size:.82rem;line-height:1.2;overflow-wrap:anywhere}
+.adm-res small{font-size:.7rem;color:var(--muted);line-height:1.2}
+.adm-res-qtd{position:absolute;top:10px;right:10px;min-width:30px;padding:2px 6px;border-radius:999px;background:var(--ouro);color:#111;
+  font-family:var(--f-mono);font-weight:800;font-size:.8rem;text-align:center}
+.adm-carta-sem{display:block}
+@media (min-width:900px){
+  .adm-montar-grade{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);align-items:start}
+  .adm-montar-lista{position:sticky;top:12px;max-height:calc(100dvh - 24px);overflow:auto}
+}
+
 @media (max-width:479px){.adm-bar .brand small{display:none}.adm-quem{max-width:9ch}}
 @media (min-width:640px){.adm-btn{width:fit-content;padding-inline:28px}}
 
