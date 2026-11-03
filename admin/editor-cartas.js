@@ -88,14 +88,14 @@
           <div class="adm-montar-campo" role="search">
             <label class="campo">
               <span>Buscar carta</span>
-              <input type="search" name="termo" placeholder="Ex.: dusclops, iono, energy" autocomplete="off" spellcheck="false" maxlength="60">
+              <input type="search" name="termo" placeholder="Ex.: dusclops, ultra bola, energia psíquica" autocomplete="off" spellcheck="false" maxlength="60">
             </label>
             <button class="btn btn-ouro" type="button" data-acao="buscar">Buscar</button>
           </div>
           <div class="filtros" role="group" aria-label="Categoria da carta">
             ${["", ...R.CATEGORIAS].map(c => `<button type="button" class="chip-filtro" data-categoria="${esc(c)}" aria-pressed="${c === ""}">${c || "Todas"}</button>`).join("")}
           </div>
-          <p class="adm-msg" data-msg="busca" role="status" aria-live="polite">Só aparecem cartas legais no Expanded, sem Rule Box nem ACE SPEC. Toque numa carta para incluir.</p>
+          <p class="adm-msg" data-msg="busca" role="status" aria-live="polite">Busque em português ou inglês (a lista fica com os nomes em inglês, como no TCG Live). Só aparecem cartas legais no Expanded, sem Rule Box nem ACE SPEC. Toque numa carta para incluir.</p>
           <ul class="adm-montar-resultados"></ul>
           <button class="btn btn-line adm-btn" type="button" data-acao="mais" hidden>Mostrar mais</button>
         </div>
@@ -213,7 +213,7 @@
         desenharResultados(inicio);
         const vistas = pagina * R.POR_PAGINA;
         botaoMais.hidden = vistas >= totalBusca;
-        mensagem(msgBusca, !resultados.length ? "Nenhuma carta encontrada. Confira o nome (em inglês, como no TCG Live)."
+        mensagem(msgBusca, !resultados.length ? "Nenhuma carta encontrada. Confira o nome; se a carta tem nome traduzido, tente o nome em inglês."
           : `${resultados.length} ${resultados.length === 1 ? "carta" : "cartas"}${totalBusca > vistas ? ` de ${totalBusca}` : ""}` +
             `${escondidas ? ` (${escondidas} fora do GLC escondidas)` : ""}. Toque para incluir.`, resultados.length ? "ok" : "erro");
       } catch (e) {

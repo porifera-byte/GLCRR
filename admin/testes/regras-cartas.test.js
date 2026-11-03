@@ -199,3 +199,17 @@ test("listas anteriores do mesmo jogador", () => {
   assert.strictEqual(decklists[1].cartas[0].qtd, 60);
   assert.deepStrictEqual(R.listasAnteriores(decklists, eventos, "ninguem", "e5"), []);
 });
+
+test("busca em português vira palavras em inglês", () => {
+  const nome = t => R.montarConsulta(t, "").replace(" legalities.expanded:legal", "");
+  assert.strictEqual(nome("Ultra Bola"), "name:ultra* name:ball*");
+  assert.strictEqual(nome("Ordens do Chefe"), "name:orders* name:boss*");
+  assert.strictEqual(nome("Pesquisa de Professores"), "name:research* name:professor*");
+  assert.strictEqual(nome("energia psíquica básica"), "name:energy* name:psychic* name:basic*");
+  assert.strictEqual(nome("Doce Raro"), "name:candy* name:rare*");
+  /* Nome de Pokémon e palavra em inglês seguem como digitados */
+  assert.strictEqual(nome("Dusclops"), "name:dusclops*");
+  assert.strictEqual(nome("Boss's Orders"), "name:boss* name:orders*");
+  /* Só palavra vazia: busca por ela mesma, sem quebrar */
+  assert.strictEqual(nome("de"), "name:de*");
+});
