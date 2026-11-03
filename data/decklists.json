@@ -77,6 +77,132 @@
     "imagem": "",
     "cartas": [
       {
+        "qtd": 1,
+        "nome": "Dusclops",
+        "colecao": "PRE",
+        "numero": "36",
+        "categoria": "Pokémon",
+        "id": "sv8pt5-36",
+        "img": "https://images.pokemontcg.io/sv8pt5/36.png",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
+        "nome": "Dusknoir",
+        "colecao": "PRE",
+        "numero": "37",
+        "categoria": "Pokémon",
+        "id": "sv8pt5-37",
+        "img": "https://images.pokemontcg.io/sv8pt5/37.png",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
+        "nome": "Duskull",
+        "colecao": "PRE",
+        "numero": "35",
+        "categoria": "Pokémon",
+        "id": "sv8pt5-35",
+        "img": "https://images.pokemontcg.io/sv8pt5/35.png",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
+        "nome": "Dreepy",
+        "colecao": "RCL",
+        "numero": "89",
+        "categoria": "Pokémon",
+        "id": "swsh2-89",
+        "img": "https://images.pokemontcg.io/swsh2/89.png",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
+        "nome": "Drakloak",
+        "colecao": "FST",
+        "numero": "129",
+        "categoria": "Pokémon",
+        "id": "swsh8-129",
+        "img": "https://images.pokemontcg.io/swsh8/129.png",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
+        "nome": "Dragapult",
+        "colecao": "SHF",
+        "numero": "SV062",
+        "categoria": "Pokémon",
+        "id": "swsh45sv-SV062",
+        "img": "https://images.pokemontcg.io/swsh45sv/SV062.png",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
+        "nome": "Teammates",
+        "colecao": "PRC",
+        "numero": "141",
+        "categoria": "Treinador",
+        "id": "xy5-141",
+        "img": "https://images.pokemontcg.io/xy5/141.png"
+      },
+      {
+        "qtd": 1,
+        "nome": "Guzma",
+        "colecao": "BUS",
+        "numero": "115",
+        "categoria": "Treinador",
+        "id": "sm3-115",
+        "img": "https://images.pokemontcg.io/sm3/115.png"
+      },
+      {
+        "qtd": 1,
+        "nome": "Iono",
+        "colecao": "SV4PT5",
+        "numero": "80",
+        "categoria": "Treinador",
+        "id": "sv4pt5-80",
+        "img": "https://images.pokemontcg.io/sv4pt5/80.png"
+      },
+      {
+        "qtd": 1,
+        "nome": "N",
+        "colecao": "FCO",
+        "numero": "105",
+        "categoria": "Treinador",
+        "id": "xy10-105",
+        "img": "https://images.pokemontcg.io/xy10/105.png"
+      },
+      {
+        "qtd": 1,
+        "nome": "Professor Sycamore",
+        "colecao": "BKP",
+        "numero": "107",
+        "categoria": "Treinador",
+        "id": "xy9-107",
+        "img": "https://images.pokemontcg.io/xy9/107.png"
+      },
+      {
+        "qtd": 1,
+        "nome": "Boss's Orders",
+        "colecao": "MEG",
+        "numero": "114",
+        "categoria": "Treinador",
+        "id": "me1-114",
+        "img": "https://images.pokemontcg.io/me1/114.png"
+      },
+      {
         "qtd": 6,
         "nome": "Basic Psychic Energy",
         "colecao": "SVE",
