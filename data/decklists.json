@@ -1055,8 +1055,7 @@
         "colecao": "BKT",
         "numero": "146a",
         "categoria": "Treinador",
-        "id": "xy8-146a",
-        "img": "https://assets.tcgdex.net/en/xy/xy8/146a/low.webp"
+        "id": "xy8-146a"
       },
       {
         "qtd": 1,
@@ -1101,7 +1100,6 @@
         "numero": "5",
         "categoria": "Energia",
         "id": "sve-005",
-        "img": "https://assets.tcgdex.net/en/sv/sve/005/low.webp",
         "basica": true
       },
       {
