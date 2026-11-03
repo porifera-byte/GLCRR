@@ -307,3 +307,11 @@ test("campos de ordem a partir do detalhe", () => {
   assert.strictEqual(R.faltaOrdem({ id: "sve-005", categoria: "Energia" }), false);
   assert.strictEqual(R.faltaOrdem({ categoria: "Treinador" }), false);
 });
+
+test("Energia Especial que a TCGdex marca como Normal não vira Básica", () => {
+  const tele = det({ id: "me03-088", localId: "088", name: "Telepathic Psychic Energy", category: "Energy", energyType: "Normal", stage: undefined, types: undefined, set: { id: "me03" } });
+  assert.strictEqual(R.cartaDoDetalhe(tele, "POR").basica, undefined);
+  assert.strictEqual(R.cartaDoDetalhe(det({ name: "Basic Psychic Energy", category: "Energy", energyType: "Normal", stage: undefined, types: undefined }), "SVE").basica, true);
+  assert.deepStrictEqual(R.sanitizarCartas([{ qtd: 2, nome: "Telepathic Psychic Energy", categoria: "Energia", basica: true },
+    { qtd: 7, nome: "Psychic Energy", categoria: "Energia", basica: true }]).map(c => c.basica), [undefined, true]);
+});

@@ -212,3 +212,27 @@ test("ordem das cartas na decklist", () => {
   /* O texto do TCG Live segue a mesma ordem */
   assert.ok(site(`textoTcgLive(${JSON.stringify(cartas)})`).includes("Trainer: 7\n1 Arven\n1 Iono\n1 Nest Ball"));
 });
+
+test("Energia Especial gravada como Básica por engano vai entre as Especiais", () => {
+  const g = JSON.parse(site(`JSON.stringify(agruparCartas(${JSON.stringify([
+    { qtd: 7, nome: "Psychic Energy", categoria: "Energia", basica: true },
+    { qtd: 1, nome: "Telepathic Psychic Energy", categoria: "Energia", basica: true },
+    { qtd: 1, nome: "Counter Energy", categoria: "Energia" }])}))`));
+  assert.deepStrictEqual(g[0].cartas.map(c => c.nome), ["Counter Energy", "Telepathic Psychic Energy", "Psychic Energy"]);
+});
+
+test("listas gravadas: ordem por evolução e por tipo de Treinador", () => {
+  const dl = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "data", "decklists.json"), "utf8"));
+  const lista = dl.find(d => d.evento_id === "2026-10-31-5-torneio-pokemon-tcg-glc-2026" && d.jogador_id === "rosso");
+  if (!lista || !lista.cartas) return;
+  const g = JSON.parse(site(`JSON.stringify(agruparCartas(${JSON.stringify(lista.cartas)}))`));
+  const nomes = g.map(x => x.cartas.map(c => c.nome));
+  /* Linhas de evolução juntas, do Básico ao último estágio */
+  const pos = n => nomes[0].indexOf(n);
+  assert.ok(pos("Duskull") < pos("Dusclops") && pos("Dusclops") < pos("Dusknoir") && pos("Dusknoir") - pos("Duskull") === 2);
+  assert.ok(pos("Dreepy") < pos("Drakloak") && pos("Drakloak") < pos("Dragapult"));
+  /* Apoiadores antes dos Itens; Especiais antes das Básicas */
+  const sub = g[1].cartas.map(c => c.subtipo);
+  assert.deepStrictEqual(sub, [...sub].sort((a, b) => ["Apoiador", "Item", "Ferramenta", "Estádio"].indexOf(a) - ["Apoiador", "Item", "Ferramenta", "Estádio"].indexOf(b)));
+  assert.strictEqual(nomes[2][nomes[2].length - 1], "Psychic Energy");
+});

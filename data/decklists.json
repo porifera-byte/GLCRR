@@ -72,7 +72,9 @@
         "img": "https://assets.tcgdex.net/en/sv/sv08.5/036/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Stage1",
+        "evolui_de": "Duskull"
       },
       {
         "qtd": 1,
@@ -84,7 +86,9 @@
         "img": "https://assets.tcgdex.net/en/sv/sv08.5/037/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Stage2",
+        "evolui_de": "Dusclops"
       },
       {
         "qtd": 1,
@@ -96,7 +100,8 @@
         "img": "https://assets.tcgdex.net/en/sv/sv08.5/035/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -108,7 +113,8 @@
         "img": "https://assets.tcgdex.net/en/swsh/swsh2/89/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -120,7 +126,9 @@
         "img": "https://assets.tcgdex.net/en/swsh/swsh8/129/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Stage1",
+        "evolui_de": "Dreepy"
       },
       {
         "qtd": 1,
@@ -132,7 +140,8 @@
         "img": "https://assets.tcgdex.net/en/swsh/swsh11/077/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -144,7 +153,9 @@
         "img": "https://assets.tcgdex.net/en/sm/sm6/51/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Stage1",
+        "evolui_de": "Inkay"
       },
       {
         "qtd": 1,
@@ -156,7 +167,8 @@
         "img": "https://assets.tcgdex.net/en/sv/sv08.5/046/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -168,7 +180,8 @@
         "img": "https://assets.tcgdex.net/en/sm/sm2/58/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -180,7 +193,8 @@
         "img": "https://assets.tcgdex.net/en/me/me05/040/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -192,7 +206,9 @@
         "img": "https://assets.tcgdex.net/en/me/me05/034/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Stage1",
+        "evolui_de": "Shuppet"
       },
       {
         "qtd": 1,
@@ -204,7 +220,8 @@
         "img": "https://assets.tcgdex.net/en/sv/sv01/087/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -216,7 +233,8 @@
         "img": "https://assets.tcgdex.net/en/me/me04/034/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -228,7 +246,9 @@
         "img": "https://assets.tcgdex.net/en/swsh/swsh2/91/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Stage2",
+        "evolui_de": "Drakloak"
       },
       {
         "qtd": 1,
@@ -237,7 +257,8 @@
         "numero": "141",
         "categoria": "Treinador",
         "id": "xy5-141",
-        "img": "https://assets.tcgdex.net/en/xy/xy5/141/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy5/141/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -246,7 +267,8 @@
         "numero": "115",
         "categoria": "Treinador",
         "id": "sm3-115",
-        "img": "https://assets.tcgdex.net/en/sm/sm3/115/low.webp"
+        "img": "https://assets.tcgdex.net/en/sm/sm3/115/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -255,7 +277,8 @@
         "numero": "105",
         "categoria": "Treinador",
         "id": "xy10-105",
-        "img": "https://assets.tcgdex.net/en/xy/xy10/105/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy10/105/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -264,7 +287,8 @@
         "numero": "107",
         "categoria": "Treinador",
         "id": "xy9-107",
-        "img": "https://assets.tcgdex.net/en/xy/xy9/107/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy9/107/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -273,7 +297,8 @@
         "numero": "114",
         "categoria": "Treinador",
         "id": "me01-114",
-        "img": "https://assets.tcgdex.net/en/me/me01/114/low.webp"
+        "img": "https://assets.tcgdex.net/en/me/me01/114/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -282,7 +307,8 @@
         "numero": "56",
         "categoria": "Treinador",
         "id": "swsh3.5-56",
-        "img": "https://assets.tcgdex.net/en/swsh/swsh3.5/56/low.webp"
+        "img": "https://assets.tcgdex.net/en/swsh/swsh3.5/56/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -291,7 +317,8 @@
         "numero": "119",
         "categoria": "Treinador",
         "id": "sm5-119",
-        "img": "https://assets.tcgdex.net/en/sm/sm5/119/low.webp"
+        "img": "https://assets.tcgdex.net/en/sm/sm5/119/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -300,7 +327,8 @@
         "numero": "192",
         "categoria": "Treinador",
         "id": "me02.5-192",
-        "img": "https://assets.tcgdex.net/en/me/me02.5/192/low.webp"
+        "img": "https://assets.tcgdex.net/en/me/me02.5/192/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -309,7 +337,8 @@
         "numero": "75",
         "categoria": "Treinador",
         "id": "xy7-75",
-        "img": "https://assets.tcgdex.net/en/xy/xy7/75/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy7/75/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -318,7 +347,8 @@
         "numero": "69",
         "categoria": "Treinador",
         "id": "xy7-69",
-        "img": "https://assets.tcgdex.net/en/xy/xy7/69/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy7/69/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -327,7 +357,8 @@
         "numero": "118",
         "categoria": "Treinador",
         "id": "bw8-118",
-        "img": "https://assets.tcgdex.net/en/bw/bw8/118/low.webp"
+        "img": "https://assets.tcgdex.net/en/bw/bw8/118/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -336,7 +367,8 @@
         "numero": "166",
         "categoria": "Treinador",
         "id": "sv01-166",
-        "img": "https://assets.tcgdex.net/en/sv/sv01/166/low.webp"
+        "img": "https://assets.tcgdex.net/en/sv/sv01/166/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -345,7 +377,8 @@
         "numero": "113",
         "categoria": "Treinador",
         "id": "sm6-113",
-        "img": "https://assets.tcgdex.net/en/sm/sm6/113/low.webp"
+        "img": "https://assets.tcgdex.net/en/sm/sm6/113/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -354,7 +387,8 @@
         "numero": "99",
         "categoria": "Treinador",
         "id": "xy9-99",
-        "img": "https://assets.tcgdex.net/en/xy/xy9/99/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy9/99/low.webp",
+        "subtipo": "Ferramenta"
       },
       {
         "qtd": 1,
@@ -363,7 +397,8 @@
         "numero": "211",
         "categoria": "Treinador",
         "id": "sm11-211",
-        "img": "https://assets.tcgdex.net/en/sm/sm11/211/low.webp"
+        "img": "https://assets.tcgdex.net/en/sm/sm11/211/low.webp",
+        "subtipo": "Ferramenta"
       },
       {
         "qtd": 1,
@@ -372,7 +407,8 @@
         "numero": "125",
         "categoria": "Treinador",
         "id": "sm2-125",
-        "img": "https://assets.tcgdex.net/en/sm/sm2/125/low.webp"
+        "img": "https://assets.tcgdex.net/en/sm/sm2/125/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -381,7 +417,8 @@
         "numero": "213",
         "categoria": "Treinador",
         "id": "me02.5-213",
-        "img": "https://assets.tcgdex.net/en/me/me02.5/213/low.webp"
+        "img": "https://assets.tcgdex.net/en/me/me02.5/213/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -390,7 +427,8 @@
         "numero": "130",
         "categoria": "Treinador",
         "id": "sm2-130",
-        "img": "https://assets.tcgdex.net/en/sm/sm2/130/low.webp"
+        "img": "https://assets.tcgdex.net/en/sm/sm2/130/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -399,7 +437,8 @@
         "numero": "163",
         "categoria": "Treinador",
         "id": "swsh1-163",
-        "img": "https://assets.tcgdex.net/en/swsh/swsh1/163/low.webp"
+        "img": "https://assets.tcgdex.net/en/swsh/swsh1/163/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -408,7 +447,8 @@
         "numero": "84",
         "categoria": "Treinador",
         "id": "sv04.5-084",
-        "img": "https://assets.tcgdex.net/en/sv/sv04.5/084/low.webp"
+        "img": "https://assets.tcgdex.net/en/sv/sv04.5/084/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -417,7 +457,8 @@
         "numero": "150",
         "categoria": "Treinador",
         "id": "xy8-150",
-        "img": "https://assets.tcgdex.net/en/xy/xy8/150/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy8/150/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -426,7 +467,8 @@
         "numero": "145",
         "categoria": "Treinador",
         "id": "xy8-145",
-        "img": "https://assets.tcgdex.net/en/xy/xy8/145/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy8/145/low.webp",
+        "subtipo": "Estádio"
       },
       {
         "qtd": 1,
@@ -435,7 +477,8 @@
         "numero": "147",
         "categoria": "Treinador",
         "id": "swsh6-147",
-        "img": "https://assets.tcgdex.net/en/swsh/swsh6/147/low.webp"
+        "img": "https://assets.tcgdex.net/en/swsh/swsh6/147/low.webp",
+        "subtipo": "Estádio"
       },
       {
         "qtd": 1,
@@ -444,7 +487,8 @@
         "numero": "125",
         "categoria": "Treinador",
         "id": "me01-125",
-        "img": "https://assets.tcgdex.net/en/me/me01/125/low.webp"
+        "img": "https://assets.tcgdex.net/en/me/me01/125/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -453,7 +497,8 @@
         "numero": "109",
         "categoria": "Treinador",
         "id": "xy4-109",
-        "img": "https://assets.tcgdex.net/en/xy/xy4/109/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy4/109/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -462,7 +507,8 @@
         "numero": "184",
         "categoria": "Treinador",
         "id": "me02.5-184",
-        "img": "https://assets.tcgdex.net/en/me/me02.5/184/low.webp"
+        "img": "https://assets.tcgdex.net/en/me/me02.5/184/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -471,7 +517,8 @@
         "numero": "137",
         "categoria": "Treinador",
         "id": "xy8-137",
-        "img": "https://assets.tcgdex.net/en/xy/xy8/137/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy8/137/low.webp",
+        "subtipo": "Ferramenta"
       },
       {
         "qtd": 1,
@@ -480,7 +527,8 @@
         "numero": "140",
         "categoria": "Treinador",
         "id": "swsh6-140",
-        "img": "https://assets.tcgdex.net/en/swsh/swsh6/140/low.webp"
+        "img": "https://assets.tcgdex.net/en/swsh/swsh6/140/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -489,7 +537,8 @@
         "numero": "94",
         "categoria": "Treinador",
         "id": "me02-094",
-        "img": "https://assets.tcgdex.net/en/me/me02/094/low.webp"
+        "img": "https://assets.tcgdex.net/en/me/me02/094/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -498,7 +547,8 @@
         "numero": "166",
         "categoria": "Treinador",
         "id": "sv04-166",
-        "img": "https://assets.tcgdex.net/en/sv/sv04/166/low.webp"
+        "img": "https://assets.tcgdex.net/en/sv/sv04/166/low.webp",
+        "subtipo": "Ferramenta"
       },
       {
         "qtd": 1,
@@ -507,7 +557,8 @@
         "numero": "81",
         "categoria": "Treinador",
         "id": "me03-081",
-        "img": "https://assets.tcgdex.net/en/me/me03/081/low.webp"
+        "img": "https://assets.tcgdex.net/en/me/me03/081/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -515,7 +566,8 @@
         "colecao": "BKT",
         "numero": "146a",
         "categoria": "Treinador",
-        "id": "xy8-146a"
+        "id": "xy8-146a",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -524,7 +576,8 @@
         "numero": "76",
         "categoria": "Treinador",
         "id": "xy7-76",
-        "img": "https://assets.tcgdex.net/en/xy/xy7/76/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy7/76/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -533,7 +586,8 @@
         "numero": "179",
         "categoria": "Treinador",
         "id": "swsh1-179",
-        "img": "https://assets.tcgdex.net/en/swsh/swsh1/179/low.webp"
+        "img": "https://assets.tcgdex.net/en/swsh/swsh1/179/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -542,7 +596,8 @@
         "numero": "181",
         "categoria": "Treinador",
         "id": "sv04-181",
-        "img": "https://assets.tcgdex.net/en/sv/sv04/181/low.webp"
+        "img": "https://assets.tcgdex.net/en/sv/sv04/181/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -551,7 +606,8 @@
         "numero": "80",
         "categoria": "Treinador",
         "id": "sv04.5-080",
-        "img": "https://assets.tcgdex.net/en/sv/sv04.5/080/low.webp"
+        "img": "https://assets.tcgdex.net/en/sv/sv04.5/080/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 7,
@@ -587,8 +643,7 @@
         "numero": "88",
         "categoria": "Energia",
         "id": "me03-088",
-        "img": "https://assets.tcgdex.net/en/me/me03/088/low.webp",
-        "basica": true
+        "img": "https://assets.tcgdex.net/en/me/me03/088/low.webp"
       }
     ]
   },
@@ -616,7 +671,9 @@
         "img": "https://assets.tcgdex.net/en/sv/sv08.5/036/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Stage1",
+        "evolui_de": "Duskull"
       },
       {
         "qtd": 1,
@@ -628,7 +685,9 @@
         "img": "https://assets.tcgdex.net/en/sv/sv08.5/037/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Stage2",
+        "evolui_de": "Dusclops"
       },
       {
         "qtd": 1,
@@ -640,7 +699,8 @@
         "img": "https://assets.tcgdex.net/en/sv/sv08.5/035/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -652,7 +712,8 @@
         "img": "https://assets.tcgdex.net/en/swsh/swsh2/89/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -664,7 +725,9 @@
         "img": "https://assets.tcgdex.net/en/swsh/swsh8/129/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Stage1",
+        "evolui_de": "Dreepy"
       },
       {
         "qtd": 1,
@@ -676,7 +739,8 @@
         "img": "https://assets.tcgdex.net/en/swsh/swsh11/077/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -688,7 +752,9 @@
         "img": "https://assets.tcgdex.net/en/sm/sm6/51/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Stage1",
+        "evolui_de": "Inkay"
       },
       {
         "qtd": 1,
@@ -700,7 +766,8 @@
         "img": "https://assets.tcgdex.net/en/sv/sv08.5/046/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -712,7 +779,8 @@
         "img": "https://assets.tcgdex.net/en/sm/sm2/58/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -724,7 +792,8 @@
         "img": "https://assets.tcgdex.net/en/me/me05/040/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -736,7 +805,9 @@
         "img": "https://assets.tcgdex.net/en/me/me05/034/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Stage1",
+        "evolui_de": "Shuppet"
       },
       {
         "qtd": 1,
@@ -748,7 +819,8 @@
         "img": "https://assets.tcgdex.net/en/sv/sv01/087/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -760,7 +832,8 @@
         "img": "https://assets.tcgdex.net/en/me/me04/034/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Basic"
       },
       {
         "qtd": 1,
@@ -772,7 +845,9 @@
         "img": "https://assets.tcgdex.net/en/swsh/swsh2/91/low.webp",
         "tipos": [
           "Psychic"
-        ]
+        ],
+        "estagio": "Stage2",
+        "evolui_de": "Drakloak"
       },
       {
         "qtd": 1,
@@ -781,7 +856,8 @@
         "numero": "141",
         "categoria": "Treinador",
         "id": "xy5-141",
-        "img": "https://assets.tcgdex.net/en/xy/xy5/141/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy5/141/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -790,7 +866,8 @@
         "numero": "115",
         "categoria": "Treinador",
         "id": "sm3-115",
-        "img": "https://assets.tcgdex.net/en/sm/sm3/115/low.webp"
+        "img": "https://assets.tcgdex.net/en/sm/sm3/115/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -799,7 +876,8 @@
         "numero": "105",
         "categoria": "Treinador",
         "id": "xy10-105",
-        "img": "https://assets.tcgdex.net/en/xy/xy10/105/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy10/105/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -808,7 +886,8 @@
         "numero": "107",
         "categoria": "Treinador",
         "id": "xy9-107",
-        "img": "https://assets.tcgdex.net/en/xy/xy9/107/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy9/107/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -817,7 +896,8 @@
         "numero": "114",
         "categoria": "Treinador",
         "id": "me01-114",
-        "img": "https://assets.tcgdex.net/en/me/me01/114/low.webp"
+        "img": "https://assets.tcgdex.net/en/me/me01/114/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -826,7 +906,8 @@
         "numero": "56",
         "categoria": "Treinador",
         "id": "swsh3.5-56",
-        "img": "https://assets.tcgdex.net/en/swsh/swsh3.5/56/low.webp"
+        "img": "https://assets.tcgdex.net/en/swsh/swsh3.5/56/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -835,7 +916,8 @@
         "numero": "119",
         "categoria": "Treinador",
         "id": "sm5-119",
-        "img": "https://assets.tcgdex.net/en/sm/sm5/119/low.webp"
+        "img": "https://assets.tcgdex.net/en/sm/sm5/119/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -844,7 +926,8 @@
         "numero": "192",
         "categoria": "Treinador",
         "id": "me02.5-192",
-        "img": "https://assets.tcgdex.net/en/me/me02.5/192/low.webp"
+        "img": "https://assets.tcgdex.net/en/me/me02.5/192/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -853,7 +936,8 @@
         "numero": "75",
         "categoria": "Treinador",
         "id": "xy7-75",
-        "img": "https://assets.tcgdex.net/en/xy/xy7/75/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy7/75/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -862,7 +946,8 @@
         "numero": "69",
         "categoria": "Treinador",
         "id": "xy7-69",
-        "img": "https://assets.tcgdex.net/en/xy/xy7/69/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy7/69/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -871,7 +956,8 @@
         "numero": "118",
         "categoria": "Treinador",
         "id": "bw8-118",
-        "img": "https://assets.tcgdex.net/en/bw/bw8/118/low.webp"
+        "img": "https://assets.tcgdex.net/en/bw/bw8/118/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -880,7 +966,8 @@
         "numero": "166",
         "categoria": "Treinador",
         "id": "sv01-166",
-        "img": "https://assets.tcgdex.net/en/sv/sv01/166/low.webp"
+        "img": "https://assets.tcgdex.net/en/sv/sv01/166/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -889,7 +976,8 @@
         "numero": "113",
         "categoria": "Treinador",
         "id": "sm6-113",
-        "img": "https://assets.tcgdex.net/en/sm/sm6/113/low.webp"
+        "img": "https://assets.tcgdex.net/en/sm/sm6/113/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -898,7 +986,8 @@
         "numero": "99",
         "categoria": "Treinador",
         "id": "xy9-99",
-        "img": "https://assets.tcgdex.net/en/xy/xy9/99/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy9/99/low.webp",
+        "subtipo": "Ferramenta"
       },
       {
         "qtd": 1,
@@ -907,7 +996,8 @@
         "numero": "211",
         "categoria": "Treinador",
         "id": "sm11-211",
-        "img": "https://assets.tcgdex.net/en/sm/sm11/211/low.webp"
+        "img": "https://assets.tcgdex.net/en/sm/sm11/211/low.webp",
+        "subtipo": "Ferramenta"
       },
       {
         "qtd": 1,
@@ -916,7 +1006,8 @@
         "numero": "125",
         "categoria": "Treinador",
         "id": "sm2-125",
-        "img": "https://assets.tcgdex.net/en/sm/sm2/125/low.webp"
+        "img": "https://assets.tcgdex.net/en/sm/sm2/125/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -925,7 +1016,8 @@
         "numero": "213",
         "categoria": "Treinador",
         "id": "me02.5-213",
-        "img": "https://assets.tcgdex.net/en/me/me02.5/213/low.webp"
+        "img": "https://assets.tcgdex.net/en/me/me02.5/213/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -934,7 +1026,8 @@
         "numero": "130",
         "categoria": "Treinador",
         "id": "sm2-130",
-        "img": "https://assets.tcgdex.net/en/sm/sm2/130/low.webp"
+        "img": "https://assets.tcgdex.net/en/sm/sm2/130/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -943,7 +1036,8 @@
         "numero": "163",
         "categoria": "Treinador",
         "id": "swsh1-163",
-        "img": "https://assets.tcgdex.net/en/swsh/swsh1/163/low.webp"
+        "img": "https://assets.tcgdex.net/en/swsh/swsh1/163/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -952,7 +1046,8 @@
         "numero": "84",
         "categoria": "Treinador",
         "id": "sv04.5-084",
-        "img": "https://assets.tcgdex.net/en/sv/sv04.5/084/low.webp"
+        "img": "https://assets.tcgdex.net/en/sv/sv04.5/084/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -961,7 +1056,8 @@
         "numero": "150",
         "categoria": "Treinador",
         "id": "xy8-150",
-        "img": "https://assets.tcgdex.net/en/xy/xy8/150/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy8/150/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -970,7 +1066,8 @@
         "numero": "145",
         "categoria": "Treinador",
         "id": "xy8-145",
-        "img": "https://assets.tcgdex.net/en/xy/xy8/145/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy8/145/low.webp",
+        "subtipo": "Estádio"
       },
       {
         "qtd": 1,
@@ -979,7 +1076,8 @@
         "numero": "147",
         "categoria": "Treinador",
         "id": "swsh6-147",
-        "img": "https://assets.tcgdex.net/en/swsh/swsh6/147/low.webp"
+        "img": "https://assets.tcgdex.net/en/swsh/swsh6/147/low.webp",
+        "subtipo": "Estádio"
       },
       {
         "qtd": 1,
@@ -988,7 +1086,8 @@
         "numero": "125",
         "categoria": "Treinador",
         "id": "me01-125",
-        "img": "https://assets.tcgdex.net/en/me/me01/125/low.webp"
+        "img": "https://assets.tcgdex.net/en/me/me01/125/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -997,7 +1096,8 @@
         "numero": "109",
         "categoria": "Treinador",
         "id": "xy4-109",
-        "img": "https://assets.tcgdex.net/en/xy/xy4/109/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy4/109/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -1006,7 +1106,8 @@
         "numero": "184",
         "categoria": "Treinador",
         "id": "me02.5-184",
-        "img": "https://assets.tcgdex.net/en/me/me02.5/184/low.webp"
+        "img": "https://assets.tcgdex.net/en/me/me02.5/184/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -1015,7 +1116,8 @@
         "numero": "137",
         "categoria": "Treinador",
         "id": "xy8-137",
-        "img": "https://assets.tcgdex.net/en/xy/xy8/137/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy8/137/low.webp",
+        "subtipo": "Ferramenta"
       },
       {
         "qtd": 1,
@@ -1024,7 +1126,8 @@
         "numero": "140",
         "categoria": "Treinador",
         "id": "swsh6-140",
-        "img": "https://assets.tcgdex.net/en/swsh/swsh6/140/low.webp"
+        "img": "https://assets.tcgdex.net/en/swsh/swsh6/140/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -1033,7 +1136,8 @@
         "numero": "94",
         "categoria": "Treinador",
         "id": "me02-094",
-        "img": "https://assets.tcgdex.net/en/me/me02/094/low.webp"
+        "img": "https://assets.tcgdex.net/en/me/me02/094/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -1042,7 +1146,8 @@
         "numero": "166",
         "categoria": "Treinador",
         "id": "sv04-166",
-        "img": "https://assets.tcgdex.net/en/sv/sv04/166/low.webp"
+        "img": "https://assets.tcgdex.net/en/sv/sv04/166/low.webp",
+        "subtipo": "Ferramenta"
       },
       {
         "qtd": 1,
@@ -1051,7 +1156,8 @@
         "numero": "81",
         "categoria": "Treinador",
         "id": "me03-081",
-        "img": "https://assets.tcgdex.net/en/me/me03/081/low.webp"
+        "img": "https://assets.tcgdex.net/en/me/me03/081/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -1059,7 +1165,8 @@
         "colecao": "BKT",
         "numero": "146a",
         "categoria": "Treinador",
-        "id": "xy8-146a"
+        "id": "xy8-146a",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -1068,7 +1175,8 @@
         "numero": "76",
         "categoria": "Treinador",
         "id": "xy7-76",
-        "img": "https://assets.tcgdex.net/en/xy/xy7/76/low.webp"
+        "img": "https://assets.tcgdex.net/en/xy/xy7/76/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -1077,7 +1185,8 @@
         "numero": "179",
         "categoria": "Treinador",
         "id": "swsh1-179",
-        "img": "https://assets.tcgdex.net/en/swsh/swsh1/179/low.webp"
+        "img": "https://assets.tcgdex.net/en/swsh/swsh1/179/low.webp",
+        "subtipo": "Item"
       },
       {
         "qtd": 1,
@@ -1086,7 +1195,8 @@
         "numero": "181",
         "categoria": "Treinador",
         "id": "sv04-181",
-        "img": "https://assets.tcgdex.net/en/sv/sv04/181/low.webp"
+        "img": "https://assets.tcgdex.net/en/sv/sv04/181/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 1,
@@ -1095,7 +1205,8 @@
         "numero": "80",
         "categoria": "Treinador",
         "id": "sv04.5-080",
-        "img": "https://assets.tcgdex.net/en/sv/sv04.5/080/low.webp"
+        "img": "https://assets.tcgdex.net/en/sv/sv04.5/080/low.webp",
+        "subtipo": "Apoiador"
       },
       {
         "qtd": 7,
@@ -1131,8 +1242,7 @@
         "numero": "88",
         "categoria": "Energia",
         "id": "me03-088",
-        "img": "https://assets.tcgdex.net/en/me/me03/088/low.webp",
-        "basica": true
+        "img": "https://assets.tcgdex.net/en/me/me03/088/low.webp"
       }
     ]
   }
