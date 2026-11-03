@@ -469,7 +469,8 @@
     });
     botaoMontar.addEventListener("click", () => {
       if (!editor) {
-        editor = EditorCartas.criar({ cartas: cartasGravadas(), tipo: c.tipo_pokemon || "", banlist: lerBanlist(), aoMudar: atualizarVista });
+        editor = EditorCartas.criar({ cartas: cartasGravadas(), tipo: c.tipo_pokemon || "", banlist: lerBanlist(), aoMudar: atualizarVista,
+          anteriores: RegrasCartas.listasAnteriores(d.decklists, d.eventos, c.jogador_id, ev.id) });
         editor.el.hidden = true;
         cartao.appendChild(editor.el);
       }

@@ -225,7 +225,19 @@
     return cartas.map((c, i) => [c, i]).sort((a, b) => ordem(a[0]) - ordem(b[0]) || a[1] - b[1]).map(x => x[0]);
   }
 
-  const api = { API, POR_PAGINA, CARTA_IMG_VALIDA, CATEGORIAS, TIPO_PT_EN, montarConsulta, urlBusca, motivoIlegal, cartaDaApi,
+  /* Listas montadas do mesmo jogador em outros eventos, da mais recente para a mais antiga.
+     Servem de ponto de partida: o organizador copia e ajusta só o que mudou no torneio. */
+  function listasAnteriores(decklists, eventos, jogadorId, eventoAtualId) {
+    const evento = id => (eventos || []).find(e => e.id === id);
+    return (decklists || [])
+      .filter(d => d.jogador_id === jogadorId && d.evento_id !== eventoAtualId && evento(d.evento_id))
+      .map(d => ({ evento_id: d.evento_id, nome: evento(d.evento_id).nome || d.evento_id, data: evento(d.evento_id).data || "",
+        cartas: sanitizarCartas(d.cartas) }))
+      .filter(x => x.cartas.length)
+      .sort((a, b) => String(b.data).localeCompare(String(a.data)));
+  }
+
+  const api = { API, POR_PAGINA, listasAnteriores, CARTA_IMG_VALIDA, CATEGORIAS, TIPO_PT_EN, montarConsulta, urlBusca, motivoIlegal, cartaDaApi,
     energiaBasica, lerTextoLive, consultasImportacao, resolverImportacao, somar, total, conferirLista, sanitizarCartas, mesmaCarta };
   if (typeof module === "object" && module.exports) module.exports = api;
   raiz.RegrasCartas = api;

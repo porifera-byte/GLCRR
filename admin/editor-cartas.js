@@ -32,10 +32,12 @@
 
   let sequencia = 0;
 
-  /* opcoes: { cartas, tipo (do deck, em português), banlist (Promise de data/banlist.json), aoMudar } */
+  /* opcoes: { cartas, tipo (do deck, em português), banlist (Promise de data/banlist.json), aoMudar,
+     anteriores: RegrasCartas.listasAnteriores(...) do mesmo jogador, para copiar e ajustar } */
   function criar(opcoes) {
     const id = `mt${++sequencia}`;
     let cartas = R.sanitizarCartas(opcoes.cartas);
+    const anteriores = opcoes.anteriores || [];
     let banlist = { cartas: [] };
     let avisosImportacao = [];
     let resultados = [];
@@ -50,6 +52,11 @@
         <h4 id="${id}-t">Lista montada <span class="adm-montar-total"></span></h4>
         <button class="btn btn-line btn-sm adm-btn-texto-perigo" type="button" data-acao="limpar">Limpar lista</button>
       </div>
+      ${anteriores.length ? `<div class="adm-montar-anteriores">
+        <p class="adm-nota">Partir de uma lista anterior do jogador (substitui a lista atual; depois é só ajustar o que mudou):</p>
+        <div class="adm-acoes">${anteriores.map((a, i) => `<button class="btn btn-line btn-sm" type="button" data-anterior="${i}">${esc(a.nome)}${a.data ? ` · ${esc(dataBR(a.data))}` : ""} (${R.total(a.cartas)} cartas)</button>`).join("")}</div>
+        <p class="adm-msg" data-msg="anterior" role="status" aria-live="polite"></p>
+      </div>` : ""}
       <ul class="adm-montar-avisos" aria-live="polite"></ul>
       <div class="adm-montar-grade">
         <div class="adm-montar-lista" aria-label="Cartas da lista"></div>
@@ -233,6 +240,23 @@
         cartas = [];
         avisosImportacao = [];
         mudou();
+        return;
+      }
+      if (b.dataset.anterior != null) {
+        const a = anteriores[Number(b.dataset.anterior)];
+        const msg = $("[data-msg=anterior]");
+        if (cartas.length && b.dataset.confirmar !== "1") {
+          el.querySelectorAll("[data-anterior]").forEach(x => { x.dataset.confirmar = ""; });
+          b.dataset.confirmar = "1";
+          mensagem(msg, `A lista atual (${R.total(cartas)} cartas) será substituída. Toque de novo em "${a.nome}" para confirmar.`, "erro");
+          setTimeout(() => { if (b.dataset.confirmar === "1") { b.dataset.confirmar = ""; mensagem(msg, ""); } }, 5000);
+          return;
+        }
+        b.dataset.confirmar = "";
+        cartas = R.sanitizarCartas(a.cartas);
+        avisosImportacao = [];
+        mudou();
+        mensagem(msg, `Lista de ${a.nome} copiada (${R.total(cartas)} cartas). Ajuste o que mudou e salve a decklist.`, "ok");
         return;
       }
       if (b.hasAttribute("data-categoria")) {
