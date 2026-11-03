@@ -82,8 +82,8 @@
         "colecao": "PRE",
         "numero": "36",
         "categoria": "Pokémon",
-        "id": "sv8pt5-36",
-        "img": "https://images.pokemontcg.io/sv8pt5/36.png",
+        "id": "sv08.5-036",
+        "img": "https://assets.tcgdex.net/en/sv/sv08.5/036/low.webp",
         "tipos": [
           "Psychic"
         ]
@@ -94,8 +94,8 @@
         "colecao": "PRE",
         "numero": "37",
         "categoria": "Pokémon",
-        "id": "sv8pt5-37",
-        "img": "https://images.pokemontcg.io/sv8pt5/37.png",
+        "id": "sv08.5-037",
+        "img": "https://assets.tcgdex.net/en/sv/sv08.5/037/low.webp",
         "tipos": [
           "Psychic"
         ]
@@ -106,8 +106,8 @@
         "colecao": "PRE",
         "numero": "35",
         "categoria": "Pokémon",
-        "id": "sv8pt5-35",
-        "img": "https://images.pokemontcg.io/sv8pt5/35.png",
+        "id": "sv08.5-035",
+        "img": "https://assets.tcgdex.net/en/sv/sv08.5/035/low.webp",
         "tipos": [
           "Psychic"
         ]
@@ -119,7 +119,7 @@
         "numero": "89",
         "categoria": "Pokémon",
         "id": "swsh2-89",
-        "img": "https://images.pokemontcg.io/swsh2/89.png",
+        "img": "https://assets.tcgdex.net/en/swsh/swsh2/89/low.webp",
         "tipos": [
           "Psychic"
         ]
@@ -131,7 +131,7 @@
         "numero": "129",
         "categoria": "Pokémon",
         "id": "swsh8-129",
-        "img": "https://images.pokemontcg.io/swsh8/129.png",
+        "img": "https://assets.tcgdex.net/en/swsh/swsh8/129/low.webp",
         "tipos": [
           "Psychic"
         ]
@@ -142,8 +142,102 @@
         "colecao": "SHF",
         "numero": "SV062",
         "categoria": "Pokémon",
-        "id": "swsh45sv-SV062",
-        "img": "https://images.pokemontcg.io/swsh45sv/SV062.png",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
+        "nome": "Inkay",
+        "colecao": "LOR",
+        "numero": "77",
+        "categoria": "Pokémon",
+        "id": "swsh11-077",
+        "img": "https://assets.tcgdex.net/en/swsh/swsh11/077/low.webp",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
+        "nome": "Malamar",
+        "colecao": "FLI",
+        "numero": "51",
+        "categoria": "Pokémon",
+        "id": "sm6-51",
+        "img": "https://assets.tcgdex.net/en/sm/sm6/51/low.webp",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
+        "nome": "Iron Boulder",
+        "colecao": "PRE",
+        "numero": "46",
+        "categoria": "Pokémon",
+        "id": "sv08.5-046",
+        "img": "https://assets.tcgdex.net/en/sv/sv08.5/046/low.webp",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
+        "nome": "Mimikyu",
+        "colecao": "GRI",
+        "numero": "58",
+        "categoria": "Pokémon",
+        "id": "sm2-58",
+        "img": "https://assets.tcgdex.net/en/sm/sm2/58/low.webp",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
+        "nome": "Marshadow",
+        "colecao": "PBL",
+        "numero": "40",
+        "categoria": "Pokémon",
+        "id": "me05-040",
+        "img": "https://assets.tcgdex.net/en/me/me05/040/low.webp",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
+        "nome": "Banette",
+        "colecao": "PBL",
+        "numero": "34",
+        "categoria": "Pokémon",
+        "id": "me05-034",
+        "img": "https://assets.tcgdex.net/en/me/me05/034/low.webp",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
+        "nome": "Shuppet",
+        "colecao": "SVI",
+        "numero": "87",
+        "categoria": "Pokémon",
+        "id": "sv01-087",
+        "img": "https://assets.tcgdex.net/en/sv/sv01/087/low.webp",
+        "tipos": [
+          "Psychic"
+        ]
+      },
+      {
+        "qtd": 1,
+        "nome": "Deoxys",
+        "colecao": "CRI",
+        "numero": "34",
+        "categoria": "Pokémon",
+        "id": "me04-034",
+        "img": "https://assets.tcgdex.net/en/me/me04/034/low.webp",
         "tipos": [
           "Psychic"
         ]
@@ -155,7 +249,7 @@
         "numero": "141",
         "categoria": "Treinador",
         "id": "xy5-141",
-        "img": "https://images.pokemontcg.io/xy5/141.png"
+        "img": "https://assets.tcgdex.net/en/xy/xy5/141/low.webp"
       },
       {
         "qtd": 1,
@@ -164,16 +258,14 @@
         "numero": "115",
         "categoria": "Treinador",
         "id": "sm3-115",
-        "img": "https://images.pokemontcg.io/sm3/115.png"
+        "img": "https://assets.tcgdex.net/en/sm/sm3/115/low.webp"
       },
       {
         "qtd": 1,
         "nome": "Iono",
         "colecao": "SV4PT5",
         "numero": "80",
-        "categoria": "Treinador",
-        "id": "sv4pt5-80",
-        "img": "https://images.pokemontcg.io/sv4pt5/80.png"
+        "categoria": "Treinador"
       },
       {
         "qtd": 1,
@@ -182,7 +274,7 @@
         "numero": "105",
         "categoria": "Treinador",
         "id": "xy10-105",
-        "img": "https://images.pokemontcg.io/xy10/105.png"
+        "img": "https://assets.tcgdex.net/en/xy/xy10/105/low.webp"
       },
       {
         "qtd": 1,
@@ -191,7 +283,7 @@
         "numero": "107",
         "categoria": "Treinador",
         "id": "xy9-107",
-        "img": "https://images.pokemontcg.io/xy9/107.png"
+        "img": "https://assets.tcgdex.net/en/xy/xy9/107/low.webp"
       },
       {
         "qtd": 1,
@@ -199,17 +291,287 @@
         "colecao": "MEG",
         "numero": "114",
         "categoria": "Treinador",
-        "id": "me1-114",
-        "img": "https://images.pokemontcg.io/me1/114.png"
+        "id": "me01-114",
+        "img": "https://assets.tcgdex.net/en/me/me01/114/low.webp"
       },
       {
-        "qtd": 6,
-        "nome": "Basic Psychic Energy",
+        "qtd": 1,
+        "nome": "Marnie",
+        "colecao": "CPA",
+        "numero": "56",
+        "categoria": "Treinador",
+        "id": "swsh3.5-56",
+        "img": "https://assets.tcgdex.net/en/swsh/swsh3.5/56/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Cynthia",
+        "colecao": "UPR",
+        "numero": "119",
+        "categoria": "Treinador",
+        "id": "sm5-119",
+        "img": "https://assets.tcgdex.net/en/sm/sm5/119/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Lillie's Determination",
+        "colecao": "ASC",
+        "numero": "192",
+        "categoria": "Treinador",
+        "id": "me02.5-192",
+        "img": "https://assets.tcgdex.net/en/me/me02.5/192/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Hex Maniac",
+        "colecao": "AOR",
+        "numero": "75",
+        "categoria": "Treinador",
+        "id": "xy7-75",
+        "img": "https://assets.tcgdex.net/en/xy/xy7/75/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Ace Trainer",
+        "colecao": "AOR",
+        "numero": "69",
+        "categoria": "Treinador",
+        "id": "xy7-69",
+        "img": "https://assets.tcgdex.net/en/xy/xy7/69/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Colress",
+        "colecao": "PLS",
+        "numero": "118",
+        "categoria": "Treinador",
+        "id": "bw8-118",
+        "img": "https://assets.tcgdex.net/en/bw/bw8/118/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Arven",
+        "colecao": "SVI",
+        "numero": "166",
+        "categoria": "Treinador",
+        "id": "sv01-166",
+        "img": "https://assets.tcgdex.net/en/sv/sv01/166/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Mysterious Treasure",
+        "colecao": "FLI",
+        "numero": "113",
+        "categoria": "Treinador",
+        "id": "sm6-113",
+        "img": "https://assets.tcgdex.net/en/sm/sm6/113/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Fighting Fury Belt",
+        "colecao": "BKP",
+        "numero": "99",
+        "categoria": "Treinador",
+        "id": "xy9-99",
+        "img": "https://assets.tcgdex.net/en/xy/xy9/99/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "U-Turn Board",
+        "colecao": "UNM",
+        "numero": "211",
+        "categoria": "Treinador",
+        "id": "sm11-211",
+        "img": "https://assets.tcgdex.net/en/sm/sm11/211/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Field Blower",
+        "colecao": "GRI",
+        "numero": "125",
+        "categoria": "Treinador",
+        "id": "sm2-125",
+        "img": "https://assets.tcgdex.net/en/sm/sm2/125/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Ultra Ball",
+        "colecao": "ASC",
+        "numero": "213",
+        "categoria": "Treinador",
+        "id": "me02.5-213",
+        "img": "https://assets.tcgdex.net/en/me/me02.5/213/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Rescue Stretcher",
+        "colecao": "GRI",
+        "numero": "130",
+        "categoria": "Treinador",
+        "id": "sm2-130",
+        "img": "https://assets.tcgdex.net/en/sm/sm2/130/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Evolution Incense",
+        "colecao": "SSH",
+        "numero": "163",
+        "categoria": "Treinador",
+        "id": "swsh1-163",
+        "img": "https://assets.tcgdex.net/en/swsh/swsh1/163/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Nest Ball",
+        "colecao": "PAF",
+        "numero": "84",
+        "categoria": "Treinador",
+        "id": "sv04.5-084",
+        "img": "https://assets.tcgdex.net/en/sv/sv04.5/084/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Town Map",
+        "colecao": "BKT",
+        "numero": "150",
+        "categoria": "Treinador",
+        "id": "xy8-150",
+        "img": "https://assets.tcgdex.net/en/xy/xy8/150/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Parallel City",
+        "colecao": "BKT",
+        "numero": "145",
+        "categoria": "Treinador",
+        "id": "xy8-145",
+        "img": "https://assets.tcgdex.net/en/xy/xy8/145/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Old Cemetery",
+        "colecao": "CRE",
+        "numero": "147",
+        "categoria": "Treinador",
+        "id": "swsh6-147",
+        "img": "https://assets.tcgdex.net/en/swsh/swsh6/147/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Rare Candy",
+        "colecao": "MEG",
+        "numero": "125",
+        "categoria": "Treinador",
+        "id": "me01-125",
+        "img": "https://assets.tcgdex.net/en/me/me01/125/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "VS Seeker",
+        "colecao": "PHF",
+        "numero": "109",
+        "categoria": "Treinador",
+        "id": "xy4-109",
+        "img": "https://assets.tcgdex.net/en/xy/xy4/109/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Buddy-Buddy Poffin",
+        "colecao": "ASC",
+        "numero": "184",
+        "categoria": "Treinador",
+        "id": "me02.5-184",
+        "img": "https://assets.tcgdex.net/en/me/me02.5/184/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Float Stone",
+        "colecao": "BKT",
+        "numero": "137",
+        "categoria": "Treinador",
+        "id": "xy8-137",
+        "img": "https://assets.tcgdex.net/en/xy/xy8/137/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Fog Crystal",
+        "colecao": "CRE",
+        "numero": "140",
+        "categoria": "Treinador",
+        "id": "swsh6-140",
+        "img": "https://assets.tcgdex.net/en/swsh/swsh6/140/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Wondrous Patch",
+        "colecao": "PFL",
+        "numero": "94",
+        "categoria": "Treinador",
+        "id": "me02-094",
+        "img": "https://assets.tcgdex.net/en/me/me02/094/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Luxurious Cape",
+        "colecao": "PAR",
+        "numero": "166",
+        "categoria": "Treinador",
+        "id": "sv04-166",
+        "img": "https://assets.tcgdex.net/en/sv/sv04/166/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Poké Pad",
+        "colecao": "POR",
+        "numero": "81",
+        "categoria": "Treinador",
+        "id": "me03-081",
+        "img": "https://assets.tcgdex.net/en/me/me03/081/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Professor's Letter",
+        "colecao": "BKT",
+        "numero": "146a",
+        "categoria": "Treinador",
+        "id": "xy8-146a",
+        "img": "https://assets.tcgdex.net/en/xy/xy8/146a/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Level Ball",
+        "colecao": "AOR",
+        "numero": "76",
+        "categoria": "Treinador",
+        "id": "xy7-76",
+        "img": "https://assets.tcgdex.net/en/xy/xy7/76/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Quick Ball",
+        "colecao": "SSH",
+        "numero": "179",
+        "categoria": "Treinador",
+        "id": "swsh1-179",
+        "img": "https://assets.tcgdex.net/en/swsh/swsh1/179/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Tulip",
+        "colecao": "PAR",
+        "numero": "181",
+        "categoria": "Treinador",
+        "id": "sv04-181",
+        "img": "https://assets.tcgdex.net/en/sv/sv04/181/low.webp"
+      },
+      {
+        "qtd": 7,
+        "nome": "Psychic Energy",
         "colecao": "SVE",
         "numero": "5",
         "categoria": "Energia",
-        "id": "sve-5",
-        "img": "https://images.pokemontcg.io/sve/5.png",
+        "id": "sve-005",
+        "img": "https://assets.tcgdex.net/en/sv/sve/005/low.webp",
         "basica": true
       },
       {
@@ -219,7 +581,7 @@
         "numero": "172",
         "categoria": "Energia",
         "id": "swsh2-172",
-        "img": "https://images.pokemontcg.io/swsh2/172.png"
+        "img": "https://assets.tcgdex.net/en/swsh/swsh2/172/low.webp"
       },
       {
         "qtd": 1,
@@ -228,7 +590,17 @@
         "numero": "100",
         "categoria": "Energia",
         "id": "sm4-100",
-        "img": "https://images.pokemontcg.io/sm4/100.png"
+        "img": "https://assets.tcgdex.net/en/sm/sm4/100/low.webp"
+      },
+      {
+        "qtd": 1,
+        "nome": "Telepathic Psychic Energy",
+        "colecao": "POR",
+        "numero": "88",
+        "categoria": "Energia",
+        "id": "me03-088",
+        "img": "https://assets.tcgdex.net/en/me/me03/088/low.webp",
+        "basica": true
       }
     ]
   }
