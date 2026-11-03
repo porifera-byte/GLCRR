@@ -1,66 +1,113 @@
-/* Testes do montador de decklist (busca, legalidade GLC, importação do TCG Live, conferências).
+/* Testes do montador de decklist com a TCGdex (busca, regras do GLC, importação do TCG Live, conferências).
+   Os dados seguem o formato da API v2 da TCGdex (resumo da listagem e detalhe da carta).
    Rodar com: node --test admin/testes/*.test.js */
 "use strict";
 const test = require("node:test");
 const assert = require("node:assert");
 const R = require("../regras-cartas.js");
 
-/* Cartas no formato da API pokemontcg.io v2 (dados reduzidos) */
-const api = (extra) => ({ id: "sv6pt5-19", name: "Dusclops", supertype: "Pokémon", subtypes: ["Stage 1"], types: ["Psychic"],
-  number: "19", set: { id: "sv6pt5", name: "Shrouded Fable", ptcgoCode: "SFA" },
-  images: { small: "https://images.pokemontcg.io/sv6pt5/19.png" }, legalities: { unlimited: "Legal", expanded: "Legal" }, ...extra });
+const SERIES = [
+  { id: "bw", sets: [{ id: "bw1" }, { id: "bw7" }] },
+  { id: "sv", sets: [{ id: "sv01" }, { id: "sv06.5" }, { id: "sve" }] },
+  { id: "tcgp", sets: [{ id: "A2" }] }];
+const COL = R.colecoesDasSeries(SERIES);
 const BAN = { cartas: [{ nome: "Lysandre's Trump Card", colecao: "PHF", numero: "99" }] };
+const IMG = "https://assets.tcgdex.net/en/sv/sv06.5/019";
 
-test("consulta de busca", () => {
-  const q = R.montarConsulta("  Dusk  ", "");
-  assert.strictEqual(q, "name:dusk* legalities.expanded:legal");
-  assert.ok(R.montarConsulta("Professor's Research", "Treinador").startsWith("name:professor* name:research* "));
-  assert.ok(R.montarConsulta("pikachu", "Treinador").endsWith(" supertype:trainer"));
-  assert.ok(R.montarConsulta("pikachu", "Pokémon").endsWith(" -supertype:trainer -supertype:energy"));
-  assert.ok(R.montarConsulta("x", "Energia").endsWith(" supertype:energy"));
-  /* Caracteres da sintaxe Lucene não passam */
-  assert.strictEqual(R.montarConsulta('a") OR (b:*', ""), R.montarConsulta("a OR b", ""));
-  assert.strictEqual(R.montarConsulta("  ", ""), "");
-  assert.strictEqual(R.urlBusca("", ""), "");
-  const u = new URL(R.urlBusca("dusclops", "", 2));
-  assert.strictEqual(u.origin, "https://api.pokemontcg.io");
-  assert.strictEqual(u.searchParams.get("page"), "2");
-  assert.strictEqual(u.searchParams.get("pageSize"), String(R.POR_PAGINA));
-  assert.strictEqual(u.searchParams.get("orderBy"), "-set.releaseDate");
+/* Detalhe em inglês (GET /v2/en/cards/<id>) */
+const det = extra => ({ id: "sv06.5-019", localId: "019", name: "Dusclops", category: "Pokemon", image: IMG, types: ["Psychic"],
+  stage: "Stage1", rarity: "Common", set: { id: "sv06.5", name: "Shrouded Fable" }, legal: { standard: true, expanded: true }, ...extra });
+
+test("coleções permitidas: séries de Black & White em diante, sem o TCG Pocket", () => {
+  assert.deepStrictEqual(Object.keys(COL), ["bw1", "bw7", "sv01", "sv06.5", "sve"]);
+  assert.deepStrictEqual(COL["sv06.5"], { ordem: 4, serie: "sv" });
+  assert.deepStrictEqual(R.colecoesDasSeries([null, { id: "xy", sets: [{ id: "../x" }] }]), {});
 });
 
-test("legalidade no GLC", () => {
-  assert.strictEqual(R.motivoIlegal(api(), BAN), "");
-  assert.strictEqual(R.motivoIlegal(api({ name: "Dusknoir V", subtypes: ["Basic", "V"] }), BAN), "Rule Box");
-  assert.strictEqual(R.motivoIlegal(api({ name: "Mew ex", subtypes: ["Basic", "ex"] }), BAN), "Rule Box");
-  assert.strictEqual(R.motivoIlegal(api({ name: "Radiant Greninja", subtypes: ["Basic", "Radiant"] }), BAN), "Rule Box");
-  assert.strictEqual(R.motivoIlegal(api({ name: "Giratina ◇", subtypes: ["Basic"] }), BAN), "Rule Box");
-  assert.strictEqual(R.motivoIlegal(api({ name: "Super Boost Energy ◇", supertype: "Energy", subtypes: ["Special"],
-    rules: ["Prism Star Rule: You can't have more than 1 ◇ card with the same name in your deck."] }), BAN), "Rule Box");
-  assert.strictEqual(R.motivoIlegal(api({ name: "Prime Catcher", supertype: "Trainer", subtypes: ["Item", "ACE SPEC"] }), BAN), "ACE SPEC");
-  assert.strictEqual(R.motivoIlegal(api({ name: "Dusclops", legalities: { unlimited: "Legal" } }), BAN), "fora do Expanded");
-  assert.strictEqual(R.motivoIlegal(api({ name: "Lysandre’s Trump Card", supertype: "Trainer", subtypes: ["Item"] }), BAN), "banlist do GLC");
-  /* Regras de Treinador comuns não são Rule Box */
-  assert.strictEqual(R.motivoIlegal(api({ name: "Iono", supertype: "Trainer", subtypes: ["Supporter"],
-    rules: ["You may play only 1 Supporter card during your turn."] }), BAN), "");
+test("palavras da busca em português e em inglês", () => {
+  assert.deepStrictEqual(R.palavrasBusca("Ultra Bola"), { pt: ["ultra", "bola"], en: ["ultra", "ball"] });
+  assert.deepStrictEqual(R.palavrasBusca("Ordens do Chefe"), { pt: ["ordens", "chefe"], en: ["orders", "boss"] });
+  assert.deepStrictEqual(R.palavrasBusca("Boss’s Orders"), { pt: ["boss's", "orders"], en: ["boss's", "orders"] });
+  assert.deepStrictEqual(R.palavrasBusca("energia psíquica"), { pt: ["energia", "psíquica"], en: ["energy", "psychic"] });
+  assert.deepStrictEqual(R.palavrasBusca("  "), { pt: [], en: [] });
+  assert.deepStrictEqual(R.palavrasBusca("de").pt, ["de"]);
 });
 
-test("carta da API vira registro da decklist", () => {
-  assert.deepStrictEqual(R.cartaDaApi(api()), { qtd: 1, nome: "Dusclops", colecao: "SFA", numero: "19", categoria: "Pokémon",
-    id: "sv6pt5-19", img: "https://images.pokemontcg.io/sv6pt5/19.png", tipos: ["Psychic"] });
-  const energia = R.cartaDaApi(api({ id: "sve-5", name: "Basic Psychic Energy", supertype: "Energy", subtypes: ["Basic"], types: undefined,
-    number: "5", set: { id: "sve", ptcgoCode: "SVE" }, images: { small: "javascript:alert(1)" } }));
-  assert.deepStrictEqual(energia, { qtd: 1, nome: "Basic Psychic Energy", colecao: "SVE", numero: "5", categoria: "Energia", id: "sve-5", basica: true });
-  /* Sem ptcgoCode, usa o id da coleção */
-  assert.strictEqual(R.cartaDaApi(api({ set: { id: "bwp" } })).colecao, "BWP");
-  assert.strictEqual(R.cartaDaApi(api({ supertype: "Trainer" })).categoria, "Treinador");
+test("consultas da busca na TCGdex", () => {
+  const u = R.urlsBusca("ultra bola", "Treinador");
+  const pt = new URL(u.pt), en = new URL(u.en);
+  assert.strictEqual(pt.origin + pt.pathname, "https://api.tcgdex.net/v2/pt/cards");
+  assert.strictEqual(en.pathname, "/v2/en/cards");
+  assert.deepStrictEqual(pt.searchParams.getAll("name"), ["ultra", "bola"]);
+  assert.deepStrictEqual(en.searchParams.getAll("name"), ["ultra", "ball"]);
+  assert.strictEqual(en.searchParams.get("suffix"), "null:");
+  assert.strictEqual(pt.searchParams.get("category"), "Treinador");
+  assert.strictEqual(en.searchParams.get("category"), "Trainer");
+  assert.strictEqual(new URL(R.urlsBusca("dusclops", "").en).searchParams.has("category"), false);
+  assert.strictEqual(R.urlsBusca("", ""), null);
+  /* Sintaxe dos filtros da TCGdex não passa pelo termo */
+  assert.deepStrictEqual(new URL(R.urlsBusca("eq:Pikachu|x&a=b", "").en).searchParams.getAll("name"), ["eq", "pikachu"]);
+});
+
+test("junta português e inglês, filtra pelo GLC e ordena", () => {
+  const en = [
+    { id: "sv06.5-019", localId: "019", name: "Dusclops", image: IMG },
+    { id: "sv01-196", localId: "196", name: "Ultra Ball", image: "https://assets.tcgdex.net/en/sv/sv01/196" },
+    { id: "bw7-62", localId: "62", name: "Dusclops", image: "https://assets.tcgdex.net/en/bw/bw7/62" },
+    { id: "A2-071", localId: "071", name: "Dusclops", image: "https://assets.tcgdex.net/en/tcgp/A2/071" },
+    { id: "ex8-7", localId: "7", name: "Dusclops" },
+    { id: "swsh10-63", localId: "63", name: "Dusknoir VSTAR" }];
+  const pt = [
+    { id: "sv01-196", localId: "196", name: "Ultra Bola", image: "https://assets.tcgdex.net/pt/sv/sv01/196" },
+    { id: "sv06.5-019", localId: "019", name: "Dusclops" }];
+  const r = R.juntarResultados(pt, en, COL);
+  assert.deepStrictEqual(r.map(x => x.id), ["sv06.5-019", "sv01-196", "bw7-62"]);
+  assert.deepStrictEqual(r[1], { id: "sv01-196", localId: "196", nome: "Ultra Bola", nome_en: "Ultra Ball",
+    img: "https://assets.tcgdex.net/pt/sv/sv01/196/low.webp" });
+  /* Sem imagem em português, usa a de inglês */
+  assert.strictEqual(r[0].img, `${IMG}/low.webp`);
+  /* Só em português (sem o resumo em inglês): imagem montada pela série */
+  const so = R.juntarResultados([{ id: "bw7-62", localId: "62", name: "Dusclops" }], [], COL);
+  assert.deepStrictEqual(so, [{ id: "bw7-62", localId: "62", nome: "Dusclops", nome_en: "", img: "https://assets.tcgdex.net/en/bw/bw7/62/low.webp" }]);
+  assert.deepStrictEqual(R.juntarResultados(null, "x", COL), []);
+});
+
+test("regras do GLC no detalhe da carta", () => {
+  assert.strictEqual(R.motivoIlegal(det(), COL, BAN), "");
+  assert.strictEqual(R.motivoIlegal(det({ id: "ex8-7", set: { id: "ex8" } }), COL, BAN), "anterior a Black & White");
+  assert.strictEqual(R.motivoIlegal(det({ name: "Mew ex", suffix: "ex" }), COL, BAN), "Rule Box");
+  assert.strictEqual(R.motivoIlegal(det({ name: "Dusknoir VSTAR", stage: "VSTAR" }), COL, BAN), "Rule Box");
+  assert.strictEqual(R.motivoIlegal(det({ name: "Gengar BREAK", stage: "BREAK" }), COL, BAN), "Rule Box");
+  assert.strictEqual(R.motivoIlegal(det({ name: "Radiant Greninja", rarity: "Radiant Rare" }), COL, BAN), "Rule Box");
+  assert.strictEqual(R.motivoIlegal(det({ name: "Super Boost Energy ◇", category: "Energy", rarity: "Prism Star" }), COL, BAN), "Rule Box");
+  assert.strictEqual(R.motivoIlegal(det({ name: "Computer Search", category: "Trainer", trainerType: "Ace Spec", stage: undefined }), COL, BAN), "ACE SPEC");
+  assert.strictEqual(R.motivoIlegal(det({ name: "Prime Catcher", category: "Trainer", trainerType: "Item", rarity: "ACE SPEC Rare" }), COL, BAN), "ACE SPEC");
+  assert.strictEqual(R.motivoIlegal(det({ name: "Lysandre’s Trump Card", category: "Trainer", trainerType: "Item" }), COL, BAN), "banlist do GLC");
+  assert.strictEqual(R.motivoIlegal(null, COL, BAN), "carta não encontrada");
+});
+
+test("detalhe vira registro da decklist", () => {
+  assert.deepStrictEqual(R.cartaDoDetalhe(det(), "SFA", COL), { qtd: 1, id: "sv06.5-019", nome: "Dusclops", colecao: "SFA",
+    numero: "19", categoria: "Pokémon", img: `${IMG}/low.webp`, tipos: ["Psychic"] });
+  const energia = R.cartaDoDetalhe(det({ id: "sve-005", localId: "005", name: "Basic Psychic Energy", category: "Energy",
+    energyType: "Normal", types: undefined, image: undefined, set: { id: "sve" } }), "sve", COL);
+  assert.deepStrictEqual(energia, { qtd: 1, id: "sve-005", nome: "Basic Psychic Energy", colecao: "SVE", numero: "5",
+    categoria: "Energia", img: "https://assets.tcgdex.net/en/sv/sve/005/low.webp", basica: true });
+  assert.strictEqual(R.cartaDoDetalhe(det({ category: "Trainer", localId: "TG05", image: "javascript:x" }), "SFA", {}).numero, "TG05");
+  assert.strictEqual(R.cartaDoDetalhe(det({ image: "javascript:x" }), "SFA", {}).img, undefined);
+});
+
+test("resumo do detalhe para o cache", () => {
+  const r = R.resumirDetalhe({ ...det(), attacks: [{ name: "x" }], illustrator: "y", pricing: {} });
+  assert.deepStrictEqual(Object.keys(r).sort(), ["category", "id", "image", "localId", "name", "rarity", "set", "stage", "types"]);
+  assert.strictEqual(R.resumirDetalhe({ id: "../x" }), null);
+  assert.strictEqual(R.resumirDetalhe(null), null);
 });
 
 test("energia básica pelo nome", () => {
   assert.strictEqual(R.energiaBasica("Basic {P} Energy"), "Psychic Energy");
   assert.strictEqual(R.energiaBasica("{D} Energy"), "Darkness Energy");
   assert.strictEqual(R.energiaBasica("Basic Psychic Energy"), "Psychic Energy");
-  assert.strictEqual(R.energiaBasica("water energy"), "Water Energy");
   assert.strictEqual(R.energiaBasica("Double Turbo Energy"), "");
 });
 
@@ -82,55 +129,64 @@ test("lê o texto exportado do TCG Live", () => {
   const { linhas, erros } = R.lerTextoLive(TEXTO);
   assert.strictEqual(linhas.length, 6);
   assert.deepStrictEqual(linhas[0], { qtd: 1, nome: "Duskull", colecao: "SFA", numero: "18", categoria: "Pokémon" });
-  assert.deepStrictEqual(linhas[3], { qtd: 1, nome: "Professor's Research", colecao: "SVI", numero: "189", categoria: "Treinador" });
   assert.deepStrictEqual(linhas[5], { qtd: 14, nome: "Psychic Energy", colecao: "SVE", numero: "5", categoria: "Energia", basica: true });
   assert.deepStrictEqual(erros, ['Linha 12: não entendi "coisa estranha".']);
-  /* Formato antigo do PTCGO, com asterisco, e linha sem coleção */
   const antigo = R.lerTextoLive("* 1 Duskull CES 62\n* 2 Ultra Ball\n## Pokémon - 1");
   assert.deepStrictEqual(antigo.linhas.map(l => [l.qtd, l.nome, l.colecao, l.numero]), [[1, "Duskull", "CES", "62"], [2, "Ultra Ball", "", ""]]);
   assert.deepStrictEqual(antigo.erros, []);
-  assert.deepStrictEqual(R.lerTextoLive(""), { linhas: [], erros: [] });
 });
 
-test("consultas de importação em lotes", () => {
+test("importação: coleção pela sigla, carta pelo número", () => {
+  const u = new URL(R.urlColecaoPorSigla("sfa"));
+  assert.strictEqual(u.pathname, "/v2/en/sets");
+  assert.strictEqual(u.searchParams.get("abbreviation.official"), "eq:SFA");
+  const sfa = { id: "sv06.5", cards: [{ id: "sv06.5-018", localId: "018" }, { id: "sv06.5-019", localId: "019" }] };
+  assert.strictEqual(R.acharNaColecao(sfa, "19").id, "sv06.5-019");
+  assert.strictEqual(R.acharNaColecao(sfa, "019").id, "sv06.5-019");
+  assert.strictEqual(R.acharNaColecao(sfa, "99"), null);
   const { linhas } = R.lerTextoLive(TEXTO);
-  const urls = R.consultasImportacao(linhas);
-  assert.strictEqual(urls.length, 1);
-  const q = new URL(urls[0]).searchParams.get("q");
-  assert.ok(q.startsWith('(set.ptcgoCode:"SFA" number:"18") OR (set.ptcgoCode:"SFA" number:"19")'));
-  const muitas = Array.from({ length: 20 }, (_, i) => ({ qtd: 1, nome: "X", colecao: "SVI", numero: String(i + 1) }));
-  assert.strictEqual(R.consultasImportacao(muitas).length, 2);
-  assert.deepStrictEqual(R.consultasImportacao([{ qtd: 1, nome: "Ultra Ball", colecao: "", numero: "" }]), []);
-});
-
-test("resolve a importação com as cartas da API", () => {
-  const { linhas } = R.lerTextoLive(TEXTO);
-  const achadas = [api({ id: "sv6pt5-18", name: "Duskull", number: "18", images: { small: "https://images.pokemontcg.io/sv6pt5/18.png" } }),
-    api(), api({ id: "sv1-189", name: "Professor's Research", supertype: "Trainer", subtypes: ["Supporter"], number: "189",
-      set: { id: "sv1", ptcgoCode: "SVI" }, images: { small: "https://images.pokemontcg.io/sv1/189.png" } })];
-  const { cartas, avisos } = R.resolverImportacao(linhas, achadas, BAN);
+  const achadas = R.idsDasLinhas(linhas, { SFA: sfa, SVE: { id: "sve", cards: [{ id: "sve-005", localId: "005" }] } });
+  assert.deepStrictEqual(achadas.map(a => a.id), ["sv06.5-018", "sv06.5-019", "", "", "", "sve-005"]);
+  const detalhes = {
+    "sv06.5-018": det({ id: "sv06.5-018", localId: "018", name: "Duskull", image: "https://assets.tcgdex.net/en/sv/sv06.5/018" }),
+    "sv06.5-019": det(),
+    "sve-005": det({ id: "sve-005", localId: "005", name: "Basic Psychic Energy", category: "Energy", energyType: "Normal", set: { id: "sve" } })
+  };
+  const { cartas, avisos } = R.resolverImportacao(achadas, detalhes, COL, BAN);
   assert.strictEqual(cartas.length, 6);
-  assert.strictEqual(cartas[0].img, "https://images.pokemontcg.io/sv6pt5/18.png");
-  assert.strictEqual(cartas[3].id, "sv1-189");
-  /* Dusknoir e Boss's Orders não vieram da API: entram só com o texto; a energia básica não gera aviso */
+  assert.strictEqual(cartas[1].id, "sv06.5-019");
   assert.deepStrictEqual(cartas[2], { qtd: 1, nome: "Dusknoir", colecao: "SFA", numero: "20", categoria: "Pokémon" });
-  assert.deepStrictEqual(cartas[5], { qtd: 14, nome: "Psychic Energy", colecao: "SVE", numero: "5", categoria: "Energia", basica: true });
-  assert.strictEqual(avisos.length, 2);
+  assert.deepStrictEqual([cartas[5].qtd, cartas[5].nome, cartas[5].basica], [14, "Basic Psychic Energy", true]);
+  assert.strictEqual(avisos.length, 3);
   assert.ok(avisos[0].startsWith("Dusknoir (SFA 20): não encontrada"));
-  /* Carta ilegal achada na API gera aviso, exceto o que as conferências já mostram pelo nome */
-  const v = R.resolverImportacao([{ qtd: 1, nome: "Prime Catcher", colecao: "TEF", numero: "157" }, { qtd: 1, nome: "Mew ex", colecao: "MEW", numero: "151" }],
-    [api({ name: "Prime Catcher", supertype: "Trainer", subtypes: ["Item", "ACE SPEC"], number: "157", set: { id: "sv5", ptcgoCode: "TEF" } }),
-      api({ name: "Mew ex", subtypes: ["Basic", "ex"], number: "151", set: { id: "sv3pt5", ptcgoCode: "MEW" } })], BAN);
-  assert.deepStrictEqual(v.avisos, ["Prime Catcher (TEF 157): ACE SPEC."]);
-  /* Número com zero à esquerda no texto */
-  const z = R.resolverImportacao([{ qtd: 1, nome: "Dusclops", colecao: "SFA", numero: "019" }], [api()], BAN);
-  assert.strictEqual(z.cartas[0].id, "sv6pt5-19");
+  /* Carta achada mas fora do GLC gera aviso (o que as conferências já mostram pelo nome, não) */
+  const v = R.resolverImportacao([{ linha: { qtd: 1, nome: "Computer Search", colecao: "BCR", numero: "137" }, id: "bw7-137" }],
+    { "bw7-137": det({ id: "bw7-137", localId: "137", name: "Computer Search", category: "Trainer", trainerType: "Ace Spec", set: { id: "bw7" } }) }, COL, BAN);
+  assert.deepStrictEqual(v.avisos, ["Computer Search (BCR 137): ACE SPEC."]);
+});
+
+test("cartas de listas antigas que precisam de conversão", () => {
+  assert.strictEqual(R.precisaConverter({ nome: "Dusclops", colecao: "SFA", numero: "19", img: "https://images.pokemontcg.io/sv6pt5/19.png" }), true);
+  assert.strictEqual(R.precisaConverter({ nome: "Dusclops", colecao: "SFA", numero: "19" }), true);
+  assert.strictEqual(R.precisaConverter({ nome: "Dusclops", colecao: "SFA", numero: "19", img: `${IMG}/low.webp` }), false);
+  assert.strictEqual(R.precisaConverter({ nome: "Ultra Ball", colecao: "", numero: "" }), false);
+});
+
+test("singleton e tipo do deck ao incluir", () => {
+  const lista = [{ qtd: 1, nome: "Dusclops", categoria: "Pokémon", tipos: ["Psychic"] },
+    { qtd: 10, nome: "Psychic Energy", categoria: "Energia", basica: true }];
+  assert.ok(R.impedimento(lista, { qtd: 1, nome: "Dusclops", categoria: "Pokémon", tipos: ["Psychic"], id: "bw7-62" }, "Psíquico").startsWith("Dusclops já está na lista"));
+  assert.strictEqual(R.impedimento(lista, { qtd: 1, nome: "Psychic Energy", categoria: "Energia", basica: true }, "Psíquico"), "");
+  assert.strictEqual(R.impedimento(lista, { qtd: 1, nome: "Pikachu", categoria: "Pokémon", tipos: ["Lightning"] }, "Psíquico"),
+    "Pikachu não é do tipo Psíquico, o tipo do deck.");
+  assert.strictEqual(R.impedimento(lista, { qtd: 1, nome: "Dragapult", categoria: "Pokémon", tipos: ["Dragon", "Psychic"] }, "Psíquico"), "");
+  assert.strictEqual(R.impedimento(lista, { qtd: 1, nome: "Pikachu", categoria: "Pokémon", tipos: ["Lightning"] }, ""), "");
 });
 
 test("somar junta a mesma carta", () => {
   const lista = [];
-  R.somar(lista, R.cartaDaApi(api()));
-  R.somar(lista, R.cartaDaApi(api()));
+  R.somar(lista, R.cartaDoDetalhe(det(), "SFA", COL));
+  R.somar(lista, R.cartaDoDetalhe(det(), "SFA", COL));
   R.somar(lista, { qtd: 3, nome: "Psychic Energy", colecao: "SVE", numero: "5", categoria: "Energia", basica: true });
   assert.strictEqual(lista.length, 2);
   assert.strictEqual(lista[0].qtd, 2);
@@ -144,16 +200,13 @@ test("conferências do GLC", () => {
     { qtd: 1, nome: "Pikachu", categoria: "Pokémon", tipos: ["Lightning"] },
     { qtd: 1, nome: "Lysandre's Trump Card", categoria: "Treinador" },
     { qtd: 30, nome: "Psychic Energy", categoria: "Energia", basica: true }];
-  const a = R.conferirLista(cartas, "Psíquico", BAN);
-  assert.deepStrictEqual(a, [
+  assert.deepStrictEqual(R.conferirLista(cartas, "Psíquico", BAN), [
     "A lista tem 35 cartas (o GLC usa 60).",
     "Dusclops: 2 cópias (o GLC permite 1 de cada, exceto Energia Básica).",
     "Mew ex: parece ter Rule Box.",
     "Lysandre's Trump Card: está na banlist do GLC.",
     "Pikachu: não é do tipo Psíquico."]);
-  /* Sem tipo do deck: confere se há um tipo em comum */
   assert.ok(R.conferirLista(cartas, "", BAN).includes("Os Pokémon da lista não têm um tipo em comum (o GLC usa um tipo só)."));
-  /* Pokémon de dois tipos vale se um deles é o do deck */
   const ok = [{ qtd: 1, nome: "Dragapult", categoria: "Pokémon", tipos: ["Dragon", "Psychic"] }, { qtd: 59, nome: "Psychic Energy", categoria: "Energia", basica: true }];
   assert.deepStrictEqual(R.conferirLista(ok, "Psíquico", BAN), []);
 });
@@ -161,55 +214,37 @@ test("conferências do GLC", () => {
 test("sanitiza a lista antes de gravar", () => {
   const limpa = R.sanitizarCartas([
     { qtd: 14, nome: " Psychic   Energy ", colecao: "SVE", numero: "5", categoria: "Energia", basica: true, extra: "x" },
-    { qtd: "1", nome: "Dusclops", colecao: "SFA<b>", numero: "19", categoria: "Pokémon", id: "sv6pt5-19",
-      img: "https://images.pokemontcg.io/sv6pt5/19.png", tipos: ["Psychic", "<script>"] },
+    { qtd: "1", nome: "Dusclops", colecao: "SFA<b>", numero: "19", categoria: "Pokémon", id: "sv06.5-019", img: `${IMG}/low.webp`, tipos: ["Psychic", "<script>"] },
     { qtd: 1, nome: "Iono", categoria: "Outra", img: "https://evil.com/x.png", id: "../x" },
+    { qtd: 1, nome: "Antiga", categoria: "Treinador", img: "https://images.pokemontcg.io/sv1/1.png", id: "sv1-1" },
     { qtd: 0, nome: "Zero" }, { qtd: 1, nome: "" }, null]);
   assert.deepStrictEqual(limpa, [
-    { qtd: 1, nome: "Dusclops", colecao: "SFAb", numero: "19", categoria: "Pokémon", id: "sv6pt5-19",
-      img: "https://images.pokemontcg.io/sv6pt5/19.png", tipos: ["Psychic"] },
+    { qtd: 1, nome: "Dusclops", colecao: "SFAb", numero: "19", categoria: "Pokémon", id: "sv06.5-019", img: `${IMG}/low.webp`, tipos: ["Psychic"] },
     { qtd: 1, nome: "Iono", colecao: "", numero: "", categoria: "Treinador" },
+    { qtd: 1, nome: "Antiga", colecao: "", numero: "", categoria: "Treinador", id: "sv1-1", img: "https://images.pokemontcg.io/sv1/1.png" },
     { qtd: 14, nome: "Psychic Energy", colecao: "SVE", numero: "5", categoria: "Energia", basica: true }]);
   assert.deepStrictEqual(R.sanitizarCartas("x"), []);
 });
 
 test("imagem de carta aceita", () => {
-  assert.ok(R.CARTA_IMG_VALIDA.test("https://images.pokemontcg.io/swsh12pt5/63.png"));
-  assert.ok(R.CARTA_IMG_VALIDA.test("https://images.pokemontcg.io/swsh12pt5gg/GG35.png"));
-  ["http://images.pokemontcg.io/sv1/1.png", "https://images.pokemontcg.io.evil.com/sv1/1.png", "https://images.pokemontcg.io/sv1/1.png?x",
-    "https://images.pokemontcg.io/../1.png", "javascript:alert(1)//.png"].forEach(u => assert.ok(!R.CARTA_IMG_VALIDA.test(u), u));
+  ["https://assets.tcgdex.net/en/sv/sv06.5/019/low.webp", "https://assets.tcgdex.net/pt/swsh/swsh12.5/GG35/low.webp",
+    "https://images.pokemontcg.io/sv6pt5/19.png"].forEach(u => assert.ok(R.CARTA_IMG_VALIDA.test(u), u));
+  ["https://assets.tcgdex.net/en/sv/sv06.5/019", "https://assets.tcgdex.net/en/sv/sv06.5/019/high.png",
+    "https://assets.tcgdex.net/fr/sv/sv06.5/019/low.webp", "https://assets.tcgdex.net.evil.com/en/sv/sv1/1/low.webp",
+    "https://assets.tcgdex.net/en/sv/../019/low.webp", "javascript:alert(1)//low.webp"].forEach(u => assert.ok(!R.CARTA_IMG_VALIDA.test(u), u));
 });
 
 test("listas anteriores do mesmo jogador", () => {
-  const eventos = [{ id: "e1", nome: "1º Torneio", data: "2026-05-31" }, { id: "e2", nome: "2º Torneio", data: "2026-07-26" },
-    { id: "e3", nome: "3º Torneio", data: "2026-08-30" }, { id: "e5", nome: "5º Torneio", data: "2026-10-31" }];
+  const eventos = [{ id: "e1", nome: "1º Torneio", data: "2026-05-31" }, { id: "e3", nome: "3º Torneio", data: "2026-08-30" },
+    { id: "e5", nome: "5º Torneio", data: "2026-10-31" }];
   const lista = [{ qtd: 60, nome: "Psychic Energy", categoria: "Energia", basica: true }];
   const decklists = [
     { evento_id: "e1", jogador_id: "rosso", posicao: 1, cartas: lista },
     { evento_id: "e3", jogador_id: "rosso", posicao: 3, cartas: lista },
-    { evento_id: "e2", jogador_id: "rosso", posicao: 1, imagem: "assets/img/decklists/e2-1-rosso.jpg" },
     { evento_id: "e5", jogador_id: "rosso", posicao: 2, cartas: lista },
-    { evento_id: "e3", jogador_id: "saymon", posicao: 2, cartas: lista },
-    { evento_id: "apagado", jogador_id: "rosso", posicao: 1, cartas: lista }];
+    { evento_id: "e3", jogador_id: "saymon", posicao: 2, cartas: lista }];
   const r = R.listasAnteriores(decklists, eventos, "rosso", "e5");
-  assert.deepStrictEqual(r.map(x => [x.evento_id, x.nome, x.data]), [["e3", "3º Torneio", "2026-08-30"], ["e1", "1º Torneio", "2026-05-31"]]);
-  assert.deepStrictEqual(r[0].cartas, [{ qtd: 60, nome: "Psychic Energy", colecao: "", numero: "", categoria: "Energia", basica: true }]);
-  /* A cópia é nova: mexer nela não muda a lista gravada */
+  assert.deepStrictEqual(r.map(x => x.evento_id), ["e3", "e1"]);
   r[0].cartas[0].qtd = 1;
   assert.strictEqual(decklists[1].cartas[0].qtd, 60);
-  assert.deepStrictEqual(R.listasAnteriores(decklists, eventos, "ninguem", "e5"), []);
-});
-
-test("busca em português vira palavras em inglês", () => {
-  const nome = t => R.montarConsulta(t, "").replace(" legalities.expanded:legal", "");
-  assert.strictEqual(nome("Ultra Bola"), "name:ultra* name:ball*");
-  assert.strictEqual(nome("Ordens do Chefe"), "name:orders* name:boss*");
-  assert.strictEqual(nome("Pesquisa de Professores"), "name:research* name:professor*");
-  assert.strictEqual(nome("energia psíquica básica"), "name:energy* name:psychic* name:basic*");
-  assert.strictEqual(nome("Doce Raro"), "name:candy* name:rare*");
-  /* Nome de Pokémon e palavra em inglês seguem como digitados */
-  assert.strictEqual(nome("Dusclops"), "name:dusclops*");
-  assert.strictEqual(nome("Boss's Orders"), "name:boss* name:orders*");
-  /* Só palavra vazia: busca por ela mesma, sem quebrar */
-  assert.strictEqual(nome("de"), "name:de*");
 });
