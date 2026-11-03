@@ -52,6 +52,14 @@ function tratarFalhaImagem(img) {
     img.dataset.trocou = "1";
     img.src = img.src.includes("/en/") ? img.src.replace("/en/", "/pt/") : img.src.replace("/pt/", "/en/");
   }
+  else if (img.dataset.falha === "carta" && img.dataset.alt && CARTA_IMG_VALIDA.test(img.dataset.alt)) {
+    /* TCGdex sem a imagem nos dois idiomas: tenta a reserva (pokemontcg.io) uma vez */
+    const alt = img.dataset.alt;
+    delete img.dataset.alt;
+    img.src = alt;
+    const link = img.closest("a");
+    if (link) link.href = cartaImgGrande(alt);
+  }
   else if (img.dataset.falha === "carta") (img.closest("a") || img).outerHTML = `<span class="carta-txt">${esc(img.dataset.nome || img.alt)}</span>`;
   else if (img.dataset.falha === "reserva") (img.closest("a") || img).outerHTML = imgReserva("Decklist em breve: a imagem ainda não está disponível.");
 }
@@ -368,11 +376,13 @@ function htmlCartas(cartas) {
   const grupos = agruparCartas(cartas);
   const carta = c => {
     const nome = `${c.nome}${c.colecao || c.numero ? ` (${[c.colecao, c.numero].filter(Boolean).join(" ")})` : ""}`;
-    const img = CARTA_IMG_VALIDA.test(c.img || "") ? c.img : "";
+    /* Imagem da TCGdex; sem ela (ou se falhar), a reserva do pokemontcg.io pelo id da carta */
+    const reserva = imgReservaCarta(c.id);
+    const img = CARTA_IMG_VALIDA.test(c.img || "") ? c.img : reserva;
     const grande = cartaImgGrande(img);
     return `<li class="carta" title="${esc(`${c.qtd}× ${nome}`)}">
       ${img ? `<a href="${esc(grande)}" target="_blank" rel="noopener" aria-label="${esc(`${c.qtd}× ${nome}: abrir imagem`)}">
-        <img src="${esc(img)}" alt="${esc(`${c.qtd}× ${nome}`)}" data-nome="${esc(c.nome)}" data-falha="carta" loading="lazy" decoding="async" width="245" height="342"></a>`
+        <img src="${esc(img)}" alt="${esc(`${c.qtd}× ${nome}`)}" data-nome="${esc(c.nome)}"${reserva && reserva !== img ? ` data-alt="${esc(reserva)}"` : ""} data-falha="carta" loading="lazy" decoding="async" width="245" height="342"></a>`
         : `<span class="carta-txt">${esc(c.nome)}</span>`}
       <span class="carta-qtd" aria-hidden="true">${Number(c.qtd)}</span></li>`;
   };

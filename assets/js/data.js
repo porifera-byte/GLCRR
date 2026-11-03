@@ -66,7 +66,22 @@ const DECKLIST_VALIDA = /^assets\/img\/decklists\/[a-z0-9-]+\.(png|jpg|jpeg|webp
 /* Imagem de carta da lista montada no painel: servidor de imagens da TCGdex (en ou pt).
    Listas montadas até 03/11/2026 usavam o pokemontcg.io e continuam aceitas até serem salvas de novo no painel.
    É a mesma regra de admin/regras-cartas.js (o teste site-dados.test.js confere). */
-const CARTA_IMG_VALIDA = /^https:\/\/(?:assets\.tcgdex\.net\/(?:en|pt)\/[a-z0-9]+\/[a-z0-9]+(?:\.[0-9]+)?\/[A-Za-z0-9]+\/low\.webp|images\.pokemontcg\.io\/[a-z][a-z0-9.-]*\/[A-Za-z0-9-]+\.png)$/;
+const CARTA_IMG_VALIDA = /^https:\/\/(?:assets\.tcgdex\.net\/(?:en|pt)\/[a-z0-9]+\/[a-z0-9]+(?:\.[0-9]+[a-z]*)?\/[A-Za-z0-9]+\/low\.webp|images\.pokemontcg\.io\/[a-z][a-z0-9.-]*\/[A-Za-z0-9-]+\.png)$/;
+/* Imagem de reserva da carta, quando a TCGdex não tem a imagem: a mesma carta no servidor de imagens do pokemontcg.io,
+   pelo id da TCGdex. Os códigos das coleções diferem: sv01 → sv1, sv06.5 → sv6pt5, swsh4.5sv → swsh45sv, sm3.5 → sm35,
+   swsh12.5 → swsh12pt5, sv10.5b → zsv10pt5. Número sem zero à esquerda. Pode não existir: a página tenta e, se falhar, mostra o nome. */
+const COLECAO_POKEMONTCG = { "sv10.5b": "zsv10pt5", "sv10.5w": "rsv10pt5", "swsh10.5": "pgo", "cel25cc": "cel25c" };
+function imgReservaCarta(id) {
+  const m = /^([a-z0-9]+(?:\.[0-9]+[a-z]*)?)-([A-Za-z0-9]+)$/.exec(id || "");
+  if (!m) return "";
+  let set = COLECAO_POKEMONTCG[m[1]] || m[1]
+    .replace(/^(sv|me)0(\d)/, "$1$2")                         /* sv01 → sv1, me02.5 → me2.5 */
+    .replace(/^(sv|me|swsh12)(\d*)\.5([a-z]*)$/, "$1$2pt5$3")  /* sv06.5 → sv6pt5, swsh12.5gg → swsh12pt5gg */
+    .replace(/^(sm|swsh)(\d+)\.5([a-z]*)$/, "$1$25$3");        /* sm3.5 → sm35, swsh4.5sv → swsh45sv */
+  const numero = /^\d+$/.test(m[2]) ? String(Number(m[2])) : m[2];
+  const url = `https://images.pokemontcg.io/${set}/${numero}.png`;
+  return CARTA_IMG_VALIDA.test(url) ? url : "";
+}
 /* Imagem grande da mesma carta (para abrir em tamanho real) */
 const cartaImgGrande = url => /assets\.tcgdex\.net/.test(url) ? url.replace(/\/low\.webp$/, "/high.webp") : url.replace(/\.png$/, "_hires.png");
 /* Logos dos patrocinadores: enviadas por PR (não passam pelo painel) */

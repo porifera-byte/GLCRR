@@ -23,6 +23,11 @@ test("coleções permitidas: séries de Black & White em diante, sem o TCG Pocke
   assert.deepStrictEqual(Object.keys(COL), ["bw1", "bw7", "sv01", "sv06.5", "sve"]);
   assert.deepStrictEqual(COL["sv06.5"], { ordem: 4, serie: "sv" });
   assert.deepStrictEqual(R.colecoesDasSeries([null, { id: "xy", sets: [{ id: "../x" }] }]), {});
+  /* Subcoleções (cofre brilhante, Trainer Gallery, Galarian Gallery, Black Bolt/White Flare) */
+  assert.deepStrictEqual(Object.keys(R.colecoesDasSeries([{ id: "swsh", sets: [{ id: "swsh4.5" }, { id: "swsh4.5sv" }, { id: "swsh12.5gg" }] },
+    { id: "sv", sets: [{ id: "sv10.5b" }] }])), ["swsh4.5", "swsh4.5sv", "swsh12.5gg", "sv10.5b"]);
+  assert.ok(R.CARTA_IMG_VALIDA.test("https://assets.tcgdex.net/en/swsh/swsh4.5sv/SV062/low.webp"));
+  assert.strictEqual(R.setDoId("swsh4.5sv-SV062"), "swsh4.5sv");
 });
 
 test("palavras da busca em português e em inglês", () => {
@@ -178,8 +183,10 @@ test("importação: coleção pela sigla, carta pelo número", () => {
 test("cartas de listas antigas que precisam de conversão", () => {
   assert.strictEqual(R.precisaConverter({ nome: "Dusclops", colecao: "SFA", numero: "19", img: "https://images.pokemontcg.io/sv6pt5/19.png" }), true);
   assert.strictEqual(R.precisaConverter({ nome: "Dusclops", colecao: "SFA", numero: "19" }), true);
-  assert.strictEqual(R.precisaConverter({ nome: "Dusclops", colecao: "SFA", numero: "19", img: `${IMG}/low.webp` }), false);
+  assert.strictEqual(R.precisaConverter({ nome: "Dusclops", colecao: "SFA", numero: "19", id: "sv06.5-019", img: `${IMG}/low.webp` }), false);
   assert.strictEqual(R.precisaConverter({ nome: "Ultra Ball", colecao: "", numero: "" }), false);
+  /* Carta da TCGdex sem imagem (a TCGdex não tem): não converte de novo */
+  assert.strictEqual(R.precisaConverter({ nome: "Psychic Energy", colecao: "SVE", numero: "5", id: "sve-005" }), false);
 });
 
 test("singleton e tipo do deck ao incluir", () => {

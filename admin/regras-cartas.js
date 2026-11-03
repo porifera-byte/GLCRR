@@ -16,10 +16,10 @@
 
   /* Imagem de carta aceita: TCGdex (en ou pt, qualidade baixa em webp). Listas antigas (até 03/11/2026) usavam o pokemontcg.io.
      Igual à de assets/js/data.js (o teste site-dados.test.js confere). */
-  const CARTA_IMG_VALIDA = /^https:\/\/(?:assets\.tcgdex\.net\/(?:en|pt)\/[a-z0-9]+\/[a-z0-9]+(?:\.[0-9]+)?\/[A-Za-z0-9]+\/low\.webp|images\.pokemontcg\.io\/[a-z][a-z0-9.-]*\/[A-Za-z0-9-]+\.png)$/;
+  const CARTA_IMG_VALIDA = /^https:\/\/(?:assets\.tcgdex\.net\/(?:en|pt)\/[a-z0-9]+\/[a-z0-9]+(?:\.[0-9]+[a-z]*)?\/[A-Za-z0-9]+\/low\.webp|images\.pokemontcg\.io\/[a-z][a-z0-9.-]*\/[A-Za-z0-9-]+\.png)$/;
   const IMG_TCGDEX = /^https:\/\/assets\.tcgdex\.net\//;
-  const SET_ID = /^[a-z0-9]+(?:\.[0-9]+)?$/;
-  const ID_CARTA = /^[a-z0-9]+(?:\.[0-9]+)?-[A-Za-z0-9]+$/;
+  const SET_ID = /^[a-z0-9]+(?:\.[0-9]+[a-z]*)?$/;
+  const ID_CARTA = /^[a-z0-9]+(?:\.[0-9]+[a-z]*)?-[A-Za-z0-9]+$/;
 
   const CATEGORIAS = ["Pokémon", "Treinador", "Energia"];
   const CATEGORIA_EN = { "Pokemon": "Pokémon", "Trainer": "Treinador", "Energy": "Energia" };
@@ -99,7 +99,7 @@
   }
 
   const imagemBaixa = url => {
-    const u = /^https:\/\/assets\.tcgdex\.net\/(?:en|pt)\/[a-z0-9]+\/[a-z0-9]+(?:\.[0-9]+)?\/[A-Za-z0-9]+$/.test(url || "") ? `${url}/low.webp` : "";
+    const u = /^https:\/\/assets\.tcgdex\.net\/(?:en|pt)\/[a-z0-9]+\/[a-z0-9]+(?:\.[0-9]+[a-z]*)?\/[A-Za-z0-9]+$/.test(url || "") ? `${url}/low.webp` : "";
     return CARTA_IMG_VALIDA.test(u) ? u : "";
   };
 
@@ -268,7 +268,9 @@
   }
 
   /* Cartas da lista que ainda não vêm da TCGdex (listas antigas do pokemontcg.io ou só com o nome) */
-  const precisaConverter = c => !IMG_TCGDEX.test(c.img || "") && !!(c.colecao && c.numero);
+  /* Cartas da lista que ainda não vêm da TCGdex: listas antigas (imagem do pokemontcg.io) ou só com o nome (sem id).
+     Carta da TCGdex sem imagem (a TCGdex não tem) não é convertida de novo: a imagem de reserva vem pelo id. */
+  const precisaConverter = c => !!(c.colecao && c.numero) && (/images\.pokemontcg\.io/.test(c.img || "") || !c.id);
 
   /* ---------- Lista ---------- */
 
