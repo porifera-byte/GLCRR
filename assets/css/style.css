@@ -1,5 +1,5 @@
 /* Liga GLC Roraima — estilos v2
-   Layout: Início em tela cheia (texto e carrossel lado a lado, botões flutuantes abaixo); páginas internas com cabeçalho fixo e coluna única de até 960px. A troca de seção desliza na ordem do menu. */
+   Layout: Início em tela cheia (texto, botões do menu abaixo); páginas internas com cabeçalho fixo e coluna única de até 960px. A troca de seção desliza na ordem do menu. */
 :root{
   --ouro:#F2C230; --ceu:#3E8ED0; --verde:#1E8F4E; --vermelho:#D62828;
   --bg:#F6F9FC; --surface:#FFFFFF; --fg:#111111; --muted:#55606B; --line:#DCE4EC;
@@ -106,23 +106,22 @@ h3{font-size:1.15rem}
 @media (min-width:640px){.patro-lista{grid-template-columns:repeat(4,minmax(0,1fr))}.patro{height:96px}.patro img{height:76px}}
 @media (prefers-reduced-motion:reduce){.patro{transition:none}}
 
-/* Botões flutuantes do menu do Início */
+/* Botões do menu do Início */
 .float-menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding-block:8px}
 .float-menu a{--d:0s;position:relative;display:grid;justify-items:center;gap:8px;padding:16px 10px 14px;border-radius:18px;
   background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);color:var(--fg);text-decoration:none;font-weight:800;text-align:center;
-  animation:entra .6s var(--ease) both, flutua 3.6s ease-in-out infinite;animation-delay:var(--d), calc(var(--d) + .6s);
+  animation:entra .6s var(--ease) both;animation-delay:var(--d);
   transition:background .25s, color .25s, box-shadow .25s, border-color .25s}
 /* Entrada em sequência (sem style= no HTML, por causa da CSP) */
 .float-menu a:nth-child(2){--d:.08s}.float-menu a:nth-child(3){--d:.16s}.float-menu a:nth-child(4){--d:.24s}
 .float-menu a .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:var(--chip);color:var(--ceu-ink);
   transition:transform .35s var(--ease), background .25s, color .25s}
 .float-menu a .ic svg{width:24px;height:24px}
-.float-menu a:hover,.float-menu a:focus-visible{animation-play-state:paused;background:var(--ceu);border-color:var(--ceu);color:#fff;
+.float-menu a:hover,.float-menu a:focus-visible{background:var(--ceu);border-color:var(--ceu);color:#fff;
   box-shadow:0 22px 44px rgba(62,142,208,.35)}
 .float-menu a:hover .ic,.float-menu a:focus-visible .ic{background:var(--ouro);color:#111;transform:rotate(-8deg) scale(1.12)}
 .float-menu a:active{scale:.97}
 @keyframes entra{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-@keyframes flutua{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @media (prefers-reduced-motion:reduce){.float-menu a{animation:none}}
 @media (min-width:640px){.float-menu{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .btn{display:inline-flex;align-items:center;gap:8px;font-weight:800;text-decoration:none;padding:10px 16px;border-radius:10px;border:2px solid transparent;font-size:.95rem;width:fit-content}
@@ -136,24 +135,6 @@ button.btn{font-family:inherit;cursor:pointer}
 
 .float-menu a{translate:0 0;transition:background .25s, color .25s, box-shadow .25s, border-color .25s, translate .3s var(--ease)}
 .float-menu a:hover,.float-menu a:focus-visible{translate:0 -6px}
-.carousel{position:relative;width:100%;aspect-ratio:4/3;max-height:380px;border-radius:22px;overflow:hidden;background:var(--chip);box-shadow:var(--shadow)}
-.track{position:absolute;inset:0;display:flex;transition:transform .7s var(--ease)}
-.slide{flex:0 0 100%;position:relative;display:grid;place-items:center;overflow:hidden}
-.slide img{position:relative;width:100%;height:100%;object-fit:cover}
-.ph{position:absolute;inset:0;background:linear-gradient(135deg,#3E8ED0,#1E8F4E)}
-/* Fundo de espera de cada foto, em ciclo de 6 (sem style= no HTML, por causa da CSP) */
-.slide:nth-child(6n+2) .ph{background:linear-gradient(135deg,#1E8F4E,#F2C230)}
-.slide:nth-child(6n+3) .ph{background:linear-gradient(135deg,#F2C230,#3E8ED0)}
-.slide:nth-child(6n+4) .ph{background:linear-gradient(160deg,#2A6FA8,#3E8ED0)}
-.slide:nth-child(6n+5) .ph{background:linear-gradient(135deg,#166B3A,#3E8ED0)}
-.slide:nth-child(6n) .ph{background:linear-gradient(135deg,#D62828,#F2C230)}
-.ph::before{content:"";position:absolute;width:70%;aspect-ratio:1;max-width:100%;border-radius:50%;border:28px solid rgba(255,255,255,.22);right:-18%;top:-20%}
-.ph::after{content:"";position:absolute;width:40%;aspect-ratio:1;border-radius:50%;border:14px solid rgba(255,255,255,.18);left:-10%;bottom:-12%}
-.car-btn{position:absolute;top:50%;translate:0 -50%;width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.9);color:#111;font-size:1.4rem;cursor:pointer;display:grid;place-items:center}
-.car-btn.prev{left:12px}.car-btn.next{right:12px}
-.dots{position:absolute;left:0;right:0;bottom:14px;display:flex;justify-content:center;gap:6px}
-.dots button{width:9px;height:9px;padding:0;border-radius:999px;border:0;background:rgba(255,255,255,.55);cursor:pointer;transition:width .3s}
-.dots button[aria-current="true"]{width:26px;background:var(--ouro)}
 
 @media (min-width:760px){
   /* PC: o logo acompanha o bloco inteiro (linha de cima, título e texto de apresentação) */
@@ -161,7 +142,6 @@ button.btn{font-family:inherit;cursor:pointer}
   .home-titulo .eyebrow{grid-column:1;grid-row:1}
   .home-titulo .lead{grid-column:1;grid-row:3}
   .home-titulo .logo-home{grid-row:1 / span 3}
-  .home-top:has(.carousel){grid-template-columns:1fr minmax(0,1fr);gap:40px}
   .home{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}
 }
 

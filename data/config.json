@@ -2,11 +2,6 @@
   "temporada": 2026,
   "instagram_url": "https://www.instagram.com/glc.roraima/",
   "youtube_url": "https://www.youtube.com/@LigaGLC-Roraima",
-  "pasta_fotos": "assets/img/fotos",
-  "github": {
-    "owner": "",
-    "repo": ""
-  },
   "tipos_evento": ["Torneio Anual", "Amistoso", "Encontro da comunidade"],
   "tipos_pokemon": ["Planta", "Fogo", "Água", "Elétrico", "Psíquico", "Lutador", "Escuridão", "Metal", "Dragão", "Incolor"]
 }

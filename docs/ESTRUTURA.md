@@ -8,7 +8,7 @@ Site estático (HTML, CSS e JS puros) publicado no GitHub Pages. É uma página 
 
 | Âncora | Conteúdo | Dados usados |
 |---|---|---|
-| `#inicio` | Logo, texto principal, botões do Instagram e do YouTube, carrossel de fotos, menu de botões flutuantes e patrocinadores | `config.json`, `patrocinadores.json`, pasta de fotos |
+| `#inicio` | Logo, texto principal, menu de botões, botões do Instagram e do YouTube e patrocinadores | `config.json`, `patrocinadores.json` |
 | `#calendario` | Próximos eventos e eventos realizados | `eventos.json` |
 | `#ranking` | Participações e colocações da temporada (sem pontos até a regra ser definida) | `resultados.json`, `eventos.json`, `jogadores.json`, `config.json` |
 | `#regras` | Resumo do GLC, regras locais e banlist | `banlist.json` |
@@ -47,7 +47,7 @@ O histórico de cada jogador é montado a partir de `resultados.json` (colocaç�
 
 ## Segurança do site público (CSP)
 
-`index.html` tem uma CSP (`<meta http-equiv="Content-Security-Policy">`) no mesmo padrão da do painel: só scripts e estilos do próprio site (mais o CSS do Google Fonts), fontes do Google Fonts, imagens só do próprio site, conexões só com o próprio site e com `api.github.com` (carrossel), sem formulários, sem `<base>` e sem plugins. Com ela, um link `javascript:` ou um `onerror=` que entrasse por um JSON não executa.
+`index.html` tem uma CSP (`<meta http-equiv="Content-Security-Policy">`) no mesmo padrão da do painel: só scripts e estilos do próprio site (mais o CSS do Google Fonts), fontes do Google Fonts, imagens só do próprio site, conexões só com o próprio site, sem formulários, sem `<base>` e sem plugins. Com ela, um link `javascript:` ou um `onerror=` que entrasse por um JSON não executa.
 
 Para não quebrar a CSP:
 - Nada de `<script>` inline, `onclick=`, `onerror=` e afins, nem `style=` no HTML gerado. Eventos vão com `addEventListener`; estilos ficam em `style.css` (`el.style.x = ...` pelo JS continua permitido).
@@ -68,9 +68,8 @@ index.html                 estrutura fixa: cabeçalho, palco das seções, rodap
 assets/
   css/style.css            estilos, cores do logo em variáveis, modo claro e escuro
   js/data.js               carrega data/*.json e utilitários (datas, status, escape, validação de links e caminhos de imagem)
-  js/main.js               menu, roteador com slide, páginas, pop-up de resultados e carrossel
+  js/main.js               menu, roteador com slide, páginas e pop-up de resultados
   icons/GLCRR-logo.png     logo da liga (cabeçalho, Início e ícone da aba)
-  img/fotos/               fotos do carrossel (.jpg, .jpeg, .png, .webp), sem rostos; README.md explica o envio
   img/decklists/           imagens de decklist: [evento_id]-[posicao]-[jogador_id].jpg (enviadas pelo painel)
                            e sem-imagem.svg (reserva "Decklist em breve")
   img/tipos/               ícones dos tipos de deck: [slug].png (96 px), arte própria da liga;
@@ -78,13 +77,12 @@ assets/
   img/jogadores/           ícones dos jogadores, enviados pelo painel: [jogador_id]-[AAAAMMDDhhmmss].webp/.png (256 px)
   img/patrocinadores/      logos dos patrocinadores: [slug].webp (até 480 × 240 px), enviadas por PR
 data/
-  config.json              temporada, Instagram, YouTube (youtube_url; sem link válido, o botão some), pasta de fotos, repositório GitHub, tipos de evento, tipos de deck (tipos_pokemon)
+  config.json              temporada, Instagram, YouTube (youtube_url; sem link válido, o botão some), tipos de evento, tipos de deck (tipos_pokemon)
   eventos.json             eventos
   resultados.json          colocações por evento
   jogadores.json           perfis (só apelido e cidade)
   decklists.json           listas do Top 3
   banlist.json             banlist (atualizada só sob pedido)
-  fotos.json               reserva do carrossel: lista de nomes de arquivo
   patrocinadores.json      patrocinadores do Início: nome, url (http/https) e logo (opcional)
 docs/
   ESTRUTURA.md             este arquivo
@@ -130,13 +128,6 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 - **Resultados × suíço:** o suíço publica o resultado sozinho, com classificação, V-D-E, drop e o tipo do deck de cada jogador. Se o evento tem um suíço no painel e o resultado ainda não foi publicado por ele, a tela de Resultados avisa: em andamento (link para o torneio), falta desempate manual, ou encerrado (as linhas já vêm preenchidas pelo suíço, inclusive o tipo; se houver digitação salva na aba, aparece o botão "Usar o resultado do suíço"). Publicar por Resultados um resultado vindo do suíço também apaga o rascunho. O lançamento manual continua igual para os outros eventos.
 - **Rascunho do suíço:** `localStorage` (`glcrr-suico-<evento_id>`) a cada toque e `rascunhos/<evento_id>.json` no GLC-privado ao começar, a cada rodada fechada e em cada correção, no formato `{ estado, salvo_em }`. Ao abrir, usa o mais adiantado (mais rodadas fechadas; depois, o mais recente). A gravação recusa sobrescrever um rascunho do GitHub com mais rodadas fechadas (outro aparelho).
 - **Telas:** Início, Jogadores, Eventos, Resultados e Torneio suíço prontas.
-
-## Carrossel de fotos
-
-1. O site pede à API do GitHub a lista de arquivos de `assets/img/fotos/` (`pasta_fotos` em `config.json`; só vale uma pasta dentro de `assets/`). Dono e repositório vêm de `config.json` (`github.owner` e `github.repo`); se estiverem vazios, são deduzidos do endereço `<usuario>.github.io/<repo>`.
-2. Se a API falhar (limite de 60 consultas por hora por visitante, ou domínio próprio), usa `data/fotos.json`.
-3. Ordem: nome do arquivo. Para controlar a ordem, nomeie `foto-01.jpg`, `foto-02.jpg`...
-4. Fotos deitadas em 4:3 (1200 × 900 px ou menor), com menos de 500 KB, sem metadados e sem rosto identificável de jogadores (exceção: adultos que autorizaram a publicação, com confirmação do organizador). O quadro do carrossel é 4:3 com `object-fit: cover`: foto em outra proporção é cortada no centro.
 
 ## Campos dos JSON
 

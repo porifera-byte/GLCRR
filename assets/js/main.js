@@ -1,4 +1,4 @@
-/* Liga GLC Roraima — navegação, páginas, pop-up de resultados e carrossel.
+/* Liga GLC Roraima — navegação, páginas, e pop-up de resultados.
    Site de uma página (SPA) com rotas por âncora:
    #inicio, #calendario, #ranking, #regras, #jogadores e #jogadores/<id> (perfil).
    Ao trocar de rota, a página desliza na direção da ordem do menu. */
@@ -9,8 +9,6 @@ const MENU = [
 ];
 
 const LOGO = "assets/icons/GLCRR-logo.png";
-/* Carrossel do Início: false oculta a seção (o código e as fotos continuam no repositório) */
-const CARROSSEL_ATIVO = false;
 
 const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const ICONES = {
@@ -115,15 +113,9 @@ const PAGES = {
             <span class="eyebrow">Liga roraimense de Pokémon TCG</span>
             <h1>Torne-se um <em>Líder de Ginásio!</em></h1>
             ${logoHTML("logo-home", "Logo da Liga GLC Roraima")}
-            <p class="lead">1 tipo de Pokémon, 1 cópia de cada carta, 60 cartas no deck. Venha jogar, conhecer a comunidade e acompanhar os próximos eventos.</p>
+            <p class="lead">Venha jogar, conhecer a comunidade e acompanhar os próximos eventos.</p>
           </div>
         </div>
-        ${CARROSSEL_ATIVO ? `<section class="carousel" aria-roledescription="carrossel" aria-label="Fotos da liga" id="carousel">
-          <div class="track"></div>
-          <button class="car-btn prev" aria-label="Foto anterior">‹</button>
-          <button class="car-btn next" aria-label="Próxima foto">›</button>
-          <div class="dots"></div>
-        </section>` : ""}
       </div>
       <nav class="float-menu" aria-label="Menu principal">
         ${MENU.slice(1).map(([id, nome]) =>
@@ -346,68 +338,6 @@ document.addEventListener("click", e => {
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape") fecharModal(); });
 
-/* ---------- Fotos do carrossel ----------
-   Lista sozinha os .jpg/.jpeg/.png/.webp da pasta de fotos pela API do GitHub.
-   Dono e repositório vêm de config.json (github.owner/repo) ou do endereço <usuario>.github.io/<repo>/.
-   Reserva: data/fotos.json (lista de nomes de arquivo), para domínio próprio ou falha da API. */
-
-const EXT_FOTO = /\.(jpe?g|png|webp)$/i;
-const PASTA_FOTOS = "assets/img/fotos";
-let fotosCache = null;
-
-function repoGitHub() {
-  const gh = DADOS.config.github || {};
-  if (gh.owner && gh.repo) return { owner: gh.owner, repo: gh.repo };
-  const { hostname, pathname } = location;
-  if (!hostname.endsWith(".github.io")) return null;
-  const owner = hostname.split(".")[0];
-  const seg = pathname.split("/").filter(Boolean)[0];
-  const repo = seg && !seg.includes(".") ? seg : hostname; // site de usuário fica no repo <usuario>.github.io
-  return { owner, repo };
-}
-
-async function listarFotos() {
-  if (fotosCache) return fotosCache;
-  /* Só aceita pasta do próprio site (o valor vem de config.json e vai para a URL da API e para o src) */
-  const pastaCfg = String(DADOS.config.pasta_fotos || "");
-  const pasta = /^assets(\/[a-z0-9-]+)+$/.test(pastaCfg) ? pastaCfg : PASTA_FOTOS;
-  const caminho = nome => `${pasta}/${encodeURIComponent(nome)}`;
-  const gh = repoGitHub();
-  if (gh) {
-    const chave = `fotos:${gh.owner}/${gh.repo}`;
-    try { const s = sessionStorage.getItem(chave); if (s) return (fotosCache = JSON.parse(s)); } catch (e) { }
-    try {
-      const resp = await fetch(`https://api.github.com/repos/${gh.owner}/${gh.repo}/contents/${pasta}`);
-      if (resp.ok) {
-        const itens = await resp.json();
-        const lista = itens.filter(i => i.type === "file" && EXT_FOTO.test(i.name))
-          .map(i => i.name).sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true })).map(caminho);
-        if (lista.length) {
-          try { sessionStorage.setItem(chave, JSON.stringify(lista)); } catch (e) { }
-          return (fotosCache = lista);
-        }
-      }
-    } catch (e) { console.warn("API do GitHub indisponível; usando data/fotos.json.", e); }
-  }
-  try {
-    const resp = await fetch("data/fotos.json", { cache: "no-store" });
-    if (resp.ok) {
-      const nomes = await resp.json();
-      if (Array.isArray(nomes)) return (fotosCache = nomes.filter(n => EXT_FOTO.test(n)).map(caminho));
-    }
-  } catch (e) { }
-  return (fotosCache = []);
-}
-
-function montarSlides(root, fotos) {
-  root.querySelector(".track").innerHTML = fotos.map((src, i) => `
-    <div class="slide" role="group" aria-roledescription="slide" aria-label="Foto ${i + 1} de ${fotos.length}">
-      <div class="ph"></div>
-      <img src="${esc(src)}" alt="Foto ${i + 1} de evento da liga" ${i ? 'loading="lazy"' : ""} data-falha="remover">
-    </div>`).join("");
-  root.querySelector(".dots").innerHTML = fotos.map((_, i) => `<button aria-label="Ir para a foto ${i + 1}"></button>`).join("");
-}
-
 /* Logo do Início com a mesma altura do título: no celular, só o h1 (que pode quebrar em mais linhas);
    no PC (≥760 px), o bloco inteiro, do "Liga roraimense..." até o fim do texto de apresentação (.lead).
    Ajuste pelo CSSOM (--logo-h), permitido pela CSP; sem JS vale a altura de 2 linhas definida no CSS. */
@@ -428,45 +358,6 @@ function ajustarLogoHome() {
   [h1, sobre, texto].forEach(el => logoObs.observe(el));
 }
 PC_HOME.addEventListener("change", () => ajustarLogoHome());
-
-/* Autoplay 5 s, pausa com mouse/foco, setas, pontos e arraste no celular */
-let carTimer = null;
-async function iniciarCarrossel() {
-  clearInterval(carTimer);
-  const root = document.getElementById("carousel");
-  if (!root) return;
-  const fotos = await listarFotos();
-  if (!root.isConnected) return;
-  if (!fotos.length) { root.hidden = true; return; }
-  montarSlides(root, fotos);
-  const track = root.querySelector(".track");
-  const dots = [...root.querySelectorAll(".dots button")];
-  const n = dots.length;
-  let i = 0;
-  const ir = k => {
-    i = (k + n) % n;
-    track.style.transform = `translateX(${-i * 100}%)`;
-    dots.forEach((d, j) => d.setAttribute("aria-current", j === i ? "true" : "false"));
-  };
-  const reduzir = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const tocar = () => { clearInterval(carTimer); if (!reduzir && n > 1) carTimer = setInterval(() => ir(i + 1), 5000); };
-  root.querySelector(".prev").onclick = () => { ir(i - 1); tocar(); };
-  root.querySelector(".next").onclick = () => { ir(i + 1); tocar(); };
-  dots.forEach((d, j) => d.onclick = () => { ir(j); tocar(); });
-  root.addEventListener("mouseenter", () => clearInterval(carTimer));
-  root.addEventListener("mouseleave", tocar);
-  root.addEventListener("focusin", () => clearInterval(carTimer));
-  let x0 = null;
-  root.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, { passive: true });
-  root.addEventListener("touchend", e => {
-    if (x0 === null) return;
-    const dx = e.changedTouches[0].clientX - x0;
-    x0 = null;
-    if (Math.abs(dx) > 40) { ir(dx < 0 ? i + 1 : i - 1); tocar(); }
-  });
-  ir(0);
-  tocar();
-}
 
 /* ---------- Menu do cabeçalho com pílula deslizante ---------- */
 
@@ -544,7 +435,6 @@ function render() {
   }
   atual = rota;
   window.scrollTo({ top: 0 });
-  iniciarCarrossel();
   ajustarLogoHome();
 }
 
