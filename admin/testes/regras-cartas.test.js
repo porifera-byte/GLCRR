@@ -180,3 +180,23 @@ test("imagem de carta aceita", () => {
   ["http://images.pokemontcg.io/sv1/1.png", "https://images.pokemontcg.io.evil.com/sv1/1.png", "https://images.pokemontcg.io/sv1/1.png?x",
     "https://images.pokemontcg.io/../1.png", "javascript:alert(1)//.png"].forEach(u => assert.ok(!R.CARTA_IMG_VALIDA.test(u), u));
 });
+
+test("listas anteriores do mesmo jogador", () => {
+  const eventos = [{ id: "e1", nome: "1º Torneio", data: "2026-05-31" }, { id: "e2", nome: "2º Torneio", data: "2026-07-26" },
+    { id: "e3", nome: "3º Torneio", data: "2026-08-30" }, { id: "e5", nome: "5º Torneio", data: "2026-10-31" }];
+  const lista = [{ qtd: 60, nome: "Psychic Energy", categoria: "Energia", basica: true }];
+  const decklists = [
+    { evento_id: "e1", jogador_id: "rosso", posicao: 1, cartas: lista },
+    { evento_id: "e3", jogador_id: "rosso", posicao: 3, cartas: lista },
+    { evento_id: "e2", jogador_id: "rosso", posicao: 1, imagem: "assets/img/decklists/e2-1-rosso.jpg" },
+    { evento_id: "e5", jogador_id: "rosso", posicao: 2, cartas: lista },
+    { evento_id: "e3", jogador_id: "saymon", posicao: 2, cartas: lista },
+    { evento_id: "apagado", jogador_id: "rosso", posicao: 1, cartas: lista }];
+  const r = R.listasAnteriores(decklists, eventos, "rosso", "e5");
+  assert.deepStrictEqual(r.map(x => [x.evento_id, x.nome, x.data]), [["e3", "3º Torneio", "2026-08-30"], ["e1", "1º Torneio", "2026-05-31"]]);
+  assert.deepStrictEqual(r[0].cartas, [{ qtd: 60, nome: "Psychic Energy", colecao: "", numero: "", categoria: "Energia", basica: true }]);
+  /* A cópia é nova: mexer nela não muda a lista gravada */
+  r[0].cartas[0].qtd = 1;
+  assert.strictEqual(decklists[1].cartas[0].qtd, 60);
+  assert.deepStrictEqual(R.listasAnteriores(decklists, eventos, "ninguem", "e5"), []);
+});

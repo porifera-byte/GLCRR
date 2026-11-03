@@ -164,6 +164,8 @@ td .tipo-ic{margin-right:6px}
 .adm-montar-topo h4{margin:0;font-family:var(--f-display);font-size:1.15rem}
 .adm-montar-total{font-family:var(--f-body);font-weight:600;font-size:.9rem;color:var(--muted)}
 .adm-montar-topo .btn{min-height:44px}
+.adm-montar-anteriores{display:grid;gap:8px;padding:10px 12px;border:1px dashed var(--ceu);border-radius:10px}
+.adm-montar-anteriores .btn{min-height:44px;text-align:left}
 .adm-montar-avisos{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:.88rem}
 .adm-montar-avisos:empty{display:none}
 .adm-montar-avisos li{padding:6px 10px;border-radius:8px;border-left:4px solid var(--ouro);background:var(--chip)}
