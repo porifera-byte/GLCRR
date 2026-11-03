@@ -173,3 +173,42 @@ test("imagem de reserva da carta (pokemontcg.io) pelo id da TCGdex", () => {
   assert.strictEqual(r("../x"), "");
   assert.strictEqual(r(undefined), "");
 });
+
+test("ordem das cartas na decklist", () => {
+  const cartas = [
+    { qtd: 1, nome: "Malamar", categoria: "Pokémon", estagio: "Stage1", evolui_de: "Inkay" },
+    { qtd: 1, nome: "Dragapult", categoria: "Pokémon", estagio: "Stage2", evolui_de: "Drakloak" },
+    { qtd: 1, nome: "Mimikyu", categoria: "Pokémon", estagio: "Basic" },
+    { qtd: 1, nome: "Dusknoir", categoria: "Pokémon", estagio: "Stage2", evolui_de: "Dusclops" },
+    { qtd: 1, nome: "Dreepy", categoria: "Pokémon", estagio: "Basic" },
+    { qtd: 1, nome: "Duskull", categoria: "Pokémon", estagio: "Basic" },
+    { qtd: 1, nome: "Banette", categoria: "Pokémon", estagio: "Stage1", evolui_de: "Shuppet" },
+    { qtd: 1, nome: "Drakloak", categoria: "Pokémon", estagio: "Stage1", evolui_de: "Dreepy" },
+    { qtd: 1, nome: "Dusclops", categoria: "Pokémon", estagio: "Stage1", evolui_de: "Duskull" },
+    { qtd: 1, nome: "Inkay", categoria: "Pokémon", estagio: "Basic" },
+    { qtd: 1, nome: "Shuppet", categoria: "Pokémon", estagio: "Basic" },
+    { qtd: 1, nome: "Ultra Ball", categoria: "Treinador", subtipo: "Item" },
+    { qtd: 1, nome: "Parallel City", categoria: "Treinador", subtipo: "Estádio" },
+    { qtd: 1, nome: "Iono", categoria: "Treinador", subtipo: "Apoiador" },
+    { qtd: 1, nome: "Float Stone", categoria: "Treinador", subtipo: "Ferramenta" },
+    { qtd: 1, nome: "Arven", categoria: "Treinador", subtipo: "Apoiador" },
+    { qtd: 1, nome: "Nest Ball", categoria: "Treinador", subtipo: "Item" },
+    { qtd: 1, nome: "Sem Subtipo", categoria: "Treinador" },
+    { qtd: 7, nome: "Psychic Energy", categoria: "Energia", basica: true },
+    { qtd: 1, nome: "Horror Psychic Energy", categoria: "Energia" },
+    { qtd: 1, nome: "Counter Energy", categoria: "Energia" },
+    { qtd: 3, nome: "Darkness Energy", categoria: "Energia", basica: true }];
+  const grupos = JSON.parse(site(`JSON.stringify(agruparCartas(${JSON.stringify(cartas)}))`));
+  assert.deepStrictEqual(grupos[0].cartas.map(c => c.nome),
+    ["Dreepy", "Drakloak", "Dragapult", "Duskull", "Dusclops", "Dusknoir", "Inkay", "Malamar", "Mimikyu", "Shuppet", "Banette"]);
+  assert.deepStrictEqual(grupos[1].cartas.map(c => c.nome), ["Arven", "Iono", "Nest Ball", "Ultra Ball", "Float Stone", "Parallel City", "Sem Subtipo"]);
+  assert.deepStrictEqual(grupos[2].cartas.map(c => c.nome), ["Counter Energy", "Horror Psychic Energy", "Darkness Energy", "Psychic Energy"]);
+  /* Linha sem o Básico na lista: agrupa pelo nome de quem ele evolui */
+  const semBasico = JSON.parse(site(`JSON.stringify(agruparCartas(${JSON.stringify([
+    { qtd: 1, nome: "Dusknoir", categoria: "Pokémon", estagio: "Stage2", evolui_de: "Dusclops" },
+    { qtd: 1, nome: "Dusclops", categoria: "Pokémon", estagio: "Stage1", evolui_de: "Duskull" },
+    { qtd: 1, nome: "Dreepy", categoria: "Pokémon", estagio: "Basic" }])}))`));
+  assert.deepStrictEqual(semBasico[0].cartas.map(c => c.nome), ["Dreepy", "Dusclops", "Dusknoir"]);
+  /* O texto do TCG Live segue a mesma ordem */
+  assert.ok(site(`textoTcgLive(${JSON.stringify(cartas)})`).includes("Trainer: 7\n1 Arven\n1 Iono\n1 Nest Ball"));
+});

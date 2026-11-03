@@ -132,7 +132,7 @@
     if (!d || !ID_CARTA.test(d.id || "")) return null;
     const pick = { id: d.id, localId: String(d.localId || ""), name: String(d.name || "").slice(0, 60), category: d.category,
       image: d.image || "", set: { id: (d.set && d.set.id) || setDoId(d.id) } };
-    ["types", "stage", "suffix", "trainerType", "energyType", "rarity", "imagem_pt"].forEach(k => { if (d[k] != null) pick[k] = d[k]; });
+    ["types", "stage", "evolveFrom", "suffix", "trainerType", "energyType", "rarity", "imagem_pt"].forEach(k => { if (d[k] != null) pick[k] = d[k]; });
     return pick;
   }
 
@@ -166,8 +166,24 @@
     if (img) r.img = img;
     if (categoria === "Pokémon") r.tipos = (d.types || []).filter(t => TIPOS_EN.includes(t));
     if (categoria === "Energia" && d.energyType === "Normal") r.basica = true;
+    return { ...r, ...dadosDeOrdem(d) };
+  }
+
+  /* Campos usados para ordenar a lista (ordenarCartas, em data.js): estágio e de quem evolui (Pokémon), subtipo (Treinador) */
+  const ESTAGIOS = ["Basic", "Stage1", "Stage2", "Restored"];
+  const SUBTIPOS = { Supporter: "Apoiador", Item: "Item", Tool: "Ferramenta", "Technical Machine": "Ferramenta", Stadium: "Estádio" };
+  function dadosDeOrdem(d) {
+    const r = {};
+    if (d.category === "Pokemon") {
+      const estagio = d.stage === "RESTORED" ? "Restored" : d.stage;
+      if (ESTAGIOS.includes(estagio)) r.estagio = estagio;
+      if (d.evolveFrom) r.evolui_de = String(d.evolveFrom).slice(0, 60);
+    }
+    if (d.category === "Trainer" && SUBTIPOS[d.trainerType]) r.subtipo = SUBTIPOS[d.trainerType];
     return r;
   }
+  /* A carta ainda não tem os campos de ordem? (listas salvas antes de 03/11/2026) */
+  const faltaOrdem = c => !!c.id && ((c.categoria === "Pokémon" && !c.estagio) || (c.categoria === "Treinador" && !c.subtipo));
 
   /* ---------- Texto exportado do TCG Live ---------- */
 
@@ -339,6 +355,9 @@
       if (CARTA_IMG_VALIDA.test(c.img || "")) r.img = c.img;
       if (r.categoria === "Pokémon" && Array.isArray(c.tipos)) r.tipos = c.tipos.filter(t => TIPOS_EN.includes(t));
       if (r.categoria === "Energia" && c.basica === true) r.basica = true;
+      if (r.categoria === "Pokémon" && ESTAGIOS.includes(c.estagio)) r.estagio = c.estagio;
+      if (r.categoria === "Pokémon" && c.evolui_de) r.evolui_de = String(c.evolui_de).replace(/\s+/g, " ").trim().slice(0, 60);
+      if (r.categoria === "Treinador" && Object.values(SUBTIPOS).includes(c.subtipo)) r.subtipo = c.subtipo;
       cartas.push(r);
     });
     const ordem = c => CATEGORIAS.indexOf(c.categoria);
@@ -358,7 +377,7 @@
   }
 
   const api = { API, POR_PAGINA, SERIES_GLC, CARTA_IMG_VALIDA, CATEGORIAS, TIPO_PT_EN, palavrasBusca, urlsBusca, colecoesDasSeries,
-    juntarResultados, resumirDetalhe, motivoIlegal, banida, urlNomeExato, escolherPorNumero, imagemBaixa, cartaDoDetalhe, energiaBasica, lerTextoLive, urlColecaoPorSigla, urlColecao,
+    juntarResultados, resumirDetalhe, dadosDeOrdem, faltaOrdem, motivoIlegal, banida, urlNomeExato, escolherPorNumero, imagemBaixa, cartaDoDetalhe, energiaBasica, lerTextoLive, urlColecaoPorSigla, urlColecao,
     urlCarta, urlSerie, acharNaColecao, idsDasLinhas, resolverImportacao, precisaConverter, somar, total, impedimento,
     conferirLista, sanitizarCartas, listasAnteriores, mesmaCarta, setDoId };
   if (typeof module === "object" && module.exports) module.exports = api;

@@ -98,7 +98,7 @@ test("regras do GLC no detalhe da carta", () => {
 
 test("detalhe vira registro da decklist", () => {
   assert.deepStrictEqual(R.cartaDoDetalhe(det(), "SFA", COL), { qtd: 1, id: "sv06.5-019", nome: "Dusclops", colecao: "SFA",
-    numero: "19", categoria: "Pokémon", img: `${IMG}/low.webp`, tipos: ["Psychic"] });
+    numero: "19", categoria: "Pokémon", img: `${IMG}/low.webp`, tipos: ["Psychic"], estagio: "Stage1" });
   const energia = R.cartaDoDetalhe(det({ id: "sve-005", localId: "005", name: "Basic Psychic Energy", category: "Energy",
     energyType: "Normal", types: undefined, image: undefined, set: { id: "sve" } }), "sve", COL);
   /* Sem imagem informada, fica sem imagem (o site mostra o nome) */
@@ -286,4 +286,24 @@ test("banlist: todas as versões ou só a impressão", () => {
   assert.ok(!R.banida({ nome: "Duskull", colecao: "PRE", numero: "35" }, BAN));
   assert.ok(!R.banida({ nome: "Iono" }, BAN));
   assert.ok(!R.banida({ nome: "Duskull" }, null));
+});
+
+test("campos de ordem a partir do detalhe", () => {
+  assert.deepStrictEqual(R.dadosDeOrdem(det({ stage: "Stage1", evolveFrom: "Duskull" })), { estagio: "Stage1", evolui_de: "Duskull" });
+  assert.deepStrictEqual(R.dadosDeOrdem(det({ stage: "Basic" })), { estagio: "Basic" });
+  assert.deepStrictEqual(R.dadosDeOrdem(det({ category: "Trainer", trainerType: "Supporter", stage: undefined })), { subtipo: "Apoiador" });
+  assert.deepStrictEqual(R.dadosDeOrdem(det({ category: "Trainer", trainerType: "Tool", stage: undefined })), { subtipo: "Ferramenta" });
+  assert.deepStrictEqual(R.dadosDeOrdem(det({ category: "Energy", stage: undefined })), {});
+  const c = R.cartaDoDetalhe(det({ stage: "Stage1", evolveFrom: "Duskull" }), "SFA");
+  assert.deepStrictEqual([c.estagio, c.evolui_de], ["Stage1", "Duskull"]);
+  assert.strictEqual(R.resumirDetalhe(det({ evolveFrom: "Duskull" })).evolveFrom, "Duskull");
+  /* Gravados e limpos pela sanitização */
+  const limpa = R.sanitizarCartas([{ qtd: 1, nome: "Dusclops", categoria: "Pokémon", estagio: "Stage1", evolui_de: " Duskull ", subtipo: "Item" },
+    { qtd: 1, nome: "Iono", categoria: "Treinador", subtipo: "Apoiador", estagio: "Basic" },
+    { qtd: 1, nome: "X", categoria: "Treinador", subtipo: "<b>" }]);
+  assert.deepStrictEqual(limpa.map(x => [x.estagio, x.evolui_de, x.subtipo]), [["Stage1", "Duskull", undefined], [undefined, undefined, "Apoiador"], [undefined, undefined, undefined]]);
+  assert.strictEqual(R.faltaOrdem({ id: "sv01-087", categoria: "Pokémon" }), true);
+  assert.strictEqual(R.faltaOrdem({ id: "sv01-087", categoria: "Pokémon", estagio: "Basic" }), false);
+  assert.strictEqual(R.faltaOrdem({ id: "sve-005", categoria: "Energia" }), false);
+  assert.strictEqual(R.faltaOrdem({ categoria: "Treinador" }), false);
 });
