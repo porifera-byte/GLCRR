@@ -47,7 +47,15 @@ Os ícones são desenhos próprios da liga (selo quadrado colorido com símbolo 
 
 ## Decklist de reserva
 
-Todo jogador do Top 3 de um evento com resultado tem o botão "Decklist" no pop-up e "Ver decklist" no perfil. Sem imagem nem lista em texto cadastradas, o site mostra `assets/img/decklists/sem-imagem.svg` ("Decklist em breve"). Se a imagem enviada ainda não foi publicada pelo GitHub Pages, também aparece a reserva, e o mesmo vale para uma `imagem` fora do formato de caminho do painel (`DECKLIST_VALIDA`). A função é `decklistTop3()` em `assets/js/data.js`.
+Todo jogador do Top 3 de um evento com resultado tem o botão "Decklist" no pop-up e "Ver decklist" no perfil. Sem lista montada, imagem nem lista em texto cadastradas, o site mostra `assets/img/decklists/sem-imagem.svg` ("Decklist em breve"). Se a imagem enviada ainda não foi publicada pelo GitHub Pages, também aparece a reserva, e o mesmo vale para uma `imagem` fora do formato de caminho do painel (`DECKLIST_VALIDA`). A função é `decklistTop3()` em `assets/js/data.js`.
+
+## Lista montada (busca de cartas)
+
+Desde 03/11/2026 a decklist pode ser montada no painel com a busca de cartas do pokemontcg.io (API pública, sem chave) ou colando o texto exportado do TCG Live. A lista fica no campo `cartas` de `decklists.json`, com os dados de cada carta (nome, coleção, número, categoria e o endereço da imagem), então o site não depende da API para mostrar o que já foi publicado.
+
+- Preferência no pop-up da decklist: lista montada > foto enviada > reserva. Com lista montada, a foto continua acessível pelo link "Ver a foto da lista".
+- O site mostra as cartas por grupo (Pokémon, Treinador, Energia) com a quantidade, a lista em texto e o botão "Copiar para o TCG Live" (`htmlCartas()` e `copiarLista()` em `main.js`; `cartasDe()`, `agruparCartas()` e `textoTcgLive()` em `data.js`).
+- As imagens das cartas não ficam no repositório: são carregadas de `images.pokemontcg.io`, só com endereço validado por `CARTA_IMG_VALIDA` (igual nos dois lados; o teste `site-dados.test.js` confere). Imagem que não carrega vira o nome da carta (`data-falha="carta"`).
 
 ## Histórico dos jogadores
 
@@ -55,7 +63,7 @@ O histórico de cada jogador é montado a partir de `resultados.json` (colocaç�
 
 ## Segurança do site público (CSP)
 
-`index.html` tem uma CSP (`<meta http-equiv="Content-Security-Policy">`) no mesmo padrão da do painel: só scripts e estilos do próprio site (mais o CSS do Google Fonts), fontes do Google Fonts, imagens só do próprio site, conexões só com o próprio site, sem formulários, sem `<base>` e sem plugins. Com ela, um link `javascript:` ou um `onerror=` que entrasse por um JSON não executa.
+`index.html` tem uma CSP (`<meta http-equiv="Content-Security-Policy">`) no mesmo padrão da do painel: só scripts e estilos do próprio site (mais o CSS do Google Fonts), fontes do Google Fonts, imagens do próprio site e de `images.pokemontcg.io` (cartas da lista montada), conexões só com o próprio site, sem formulários, sem `<base>` e sem plugins. Com ela, um link `javascript:` ou um `onerror=` que entrasse por um JSON não executa.
 
 Para não quebrar a CSP:
 - Nada de `<script>` inline, `onclick=`, `onerror=` e afins, nem `style=` no HTML gerado. Eventos vão com `addEventListener`; estilos ficam em `style.css` (`el.style.x = ...` pelo JS continua permitido).
@@ -105,6 +113,9 @@ admin/                     painel administrativo (fora do menu, noindex)
   tela-jogadores.js        tela Jogadores: lista, busca, cadastro e edição
   regras-eventos.js        regras de eventos (id, validação) e de resultados (classificação, empates), sem DOM
   tela-eventos.js          tela Eventos: lista, cadastro, edição e exclusão
+  regras-cartas.js         regras do montador de decklist (busca no pokemontcg.io, legalidade GLC, texto do TCG Live,
+                           conferências), sem DOM
+  editor-cartas.js         montador de decklist (busca, lista com quantidades, importação), usado na tela Resultados
   tela-resultados.js       tela Resultados: lançamento manual com conferência, correção, exclusão e decklists do Top 3
   regras-suico.js          motor do torneio suíço (pareamento, placares, drop, atrasado, classificação e desempates), sem DOM
   tela-suico.js            tela Torneio suíço: montagem, rodadas, placar por toque, classificação, desempate manual e publicação
@@ -122,7 +133,7 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 - **Sessão:** a chave decifrada fica no `sessionStorage` e some ao fechar a aba. Chave recusada pelo GitHub (expirada ou revogada) encerra a sessão.
 - **Gravação:** commit direto na `main` pela API de conteúdo, com o `sha` atual e mensagem `[painel:<usuario>] ...`. Em conflito, relê, reaplica e tenta de novo (até 3 vezes). O JSON é validado antes de gravar.
 - **Dados:** públicos em `data/` (GLCRR); nome real e nascimento em `jogadores-privado.json` e rascunhos do suíço em `rascunhos/` (repositório privado GLC-privado).
-- **Segurança extra:** CSP restrita (só scripts próprios e `api.github.com`), sem referrer, não abre dentro de moldura.
+- **Segurança extra:** CSP restrita (só scripts próprios; conexões com `api.github.com` e `api.pokemontcg.io`; imagens de cartas de `images.pokemontcg.io`), sem referrer, não abre dentro de moldura.
 - **Rotas internas:** `#inicio`, `#jogadores`, `#jogadores/novo`, `#jogadores/<id>`, `#eventos`, `#eventos/novo`, `#eventos/<id>`, `#resultados`, `#resultados/<evento_id>`, `#suico`, `#suico/<evento_id>`. Cada tela fica em `tela-<nome>.js` e se registra em `window.TELAS_PAINEL`.
 - **Ícone do jogador:** opcional, enviado pelo painel. O painel recorta em quadrado, reduz para 256 px e regrava a imagem (some o GPS e outros dados ocultos). O organizador confirma que não há rosto nem arte, carta ou logo oficial da Pokémon. O nome do arquivo leva data e hora, para o navegador não mostrar o ícone antigo; o arquivo anterior é apagado. Sem ícone, o avatar mostra a inicial.
 - **Exclusão de jogador:** só para quem não aparece em nenhum resultado ou decklist. Apaga o registro público, o privado e o ícone, com confirmação.
@@ -131,6 +142,7 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 - **Resultados:** uma linha por jogador (posição, jogador, V, D, E, obs), com subir/descer e "Numerar pela ordem". Posição repetida exige "empate" em todos os empatados. "Conferir" mostra a tabela no formato da conferência (Template B) com avisos (buraco na classificação, vitórias ≠ derrotas, data futura); só então "Publicar" grava `data/resultados.json`, substituindo o resultado anterior do evento. A digitação fica em rascunho no `sessionStorage` da aba (só ids e números). Apagar resultado só se o evento não tiver decklist.
 - **Tipo do deck:** cada linha do resultado tem o seletor "Tipo do deck" (opcional, para todos os jogadores), com a lista `tipos_pokemon` de `config.json`. Um tipo antigo fora da lista continua aceito no mesmo resultado. O site mostra o tipo na classificação do pop-up, no perfil e na decklist (`tipoDoDeck()` em `assets/js/data.js`: primeiro o da linha do resultado, depois o de decklists antigas).
 - **Decklists do Top 3:** na tela do resultado publicado, um cartão por jogador do Top 3 com envio de imagem (PNG, JPEG ou WEBP; o painel reduz para no máximo 1600 px e grava JPEG sem metadados) e lista em texto; o tipo vem da linha do resultado. O organizador confirma que a imagem não mostra nome completo, documento, rosto nem outro dado pessoal. Enviar de novo substitui a imagem. "Usar a reserva" tira a imagem; "Apagar decklist" remove o registro. Ao corrigir um resultado, a posição das decklists acompanha; quem tem decklist e sai do Top 3 bloqueia a publicação até a decklist ser apagada.
+- **Montador de decklist:** no mesmo cartão, "Montar lista de cartas" abre a busca (pokemontcg.io; só cartas legais no Expanded, sem Rule Box nem ACE SPEC, e fora da banlist), com filtro por categoria, "Mostrar mais" e toque para incluir; a lista tem + e − por carta e "Limpar lista". "Colar lista do TCG Live" importa o texto exportado (substitui a lista atual; carta não encontrada entra só com o nome). As conferências do GLC só avisam: 60 cartas, uma cópia de cada (exceto Energia Básica), Pokémon do tipo do deck, Rule Box e banlist. "Salvar decklist" grava o campo `cartas` junto com a imagem e o texto.
 - **Torneio suíço (motor):** `regras-suico.js` guarda o torneio num estado só com ids e números (`evento_id`, `versao`, `rodadas_previstas`, `jogadores` [{`id`, `entrou_na_rodada`, `drop_apos_rodada`, `tipo_pokemon`}], `rodadas` [{`numero`, `fechada`, `mesas` [{`mesa`, `a`, `b`, `placar`}]}], `desempate_manual`). Placares (melhor de 3): 2-0, 2-1, 1-0, 1-1, 0-0, 0-1, 1-2, 0-2 e bye. 1ª rodada aleatória; depois, por pontos, sem revanche (com volta atrás quando o caminho direto trava). `paraResultado()` entrega as colocações no formato de `resultados.json` (bye conta como vitória; drop vira `obs: "drop"`). `validarEstado()` recusa rascunho com campo desconhecido. Regras em `docs/REGRAS-LOCAIS.md`.
 - **Torneio suíço (tela):** em `#suico`, a lista mostra os torneios em andamento (rascunho no aparelho ou no GitHub), os eventos de hoje e próximos sem resultado, os anteriores sem resultado e os já publicados (rodar de novo substitui o resultado). No evento: marcar os jogadores e escolher o tipo do deck de cada um (campo "Tipo do deck" com ícone; com busca e "+ Novo jogador" rápido, que também pede o tipo e checa apelido parecido), ajustar as rodadas e começar (se faltar tipo, pede confirmação; o tipo é opcional e pode ser preenchido depois); parear; lançar o placar de cada mesa por toque (2-0, 2-1, 1-0, 1-1, 0-0, 0-1, 1-2, 0-2, na ordem da mesa); fechar a rodada (ou refazer o pareamento); ver a classificação com VE, Buchholz e saldo. Em "Jogadores e opções": tipo do deck, drop e desfazer drop, incluir atrasado, mudar as rodadas, salvar no GitHub e descartar. Depois da última rodada: corrigir o placar da última rodada, ordenar os grupos empatados em tudo, conferir (Template B) e publicar em `data/resultados.json`; o rascunho é apagado e a tela leva às decklists do Top 3.
 - **Resultados × suíço:** o suíço publica o resultado sozinho, com classificação, V-D-E, drop e o tipo do deck de cada jogador. Se o evento tem um suíço no painel e o resultado ainda não foi publicado por ele, a tela de Resultados avisa: em andamento (link para o torneio), falta desempate manual, ou encerrado (as linhas já vêm preenchidas pelo suíço, inclusive o tipo; se houver digitação salva na aba, aparece o botão "Usar o resultado do suíço"). Publicar por Resultados um resultado vindo do suíço também apaga o rascunho. O lançamento manual continua igual para os outros eventos.
@@ -142,7 +154,7 @@ Página separada da SPA, sem link no menu e com `noindex`. Visitantes do site n�
 - **eventos.json**: `id` (AAAA-MM-DD-slug), `nome`, `data` (AAAA-MM-DD), `horario`, `local`, `vagas`, `tipo` (Torneio Anual, Amistoso, Encontro da comunidade), `status` (vazio = calculado; ou Agendado, Inscrições abertas, Encerrado), `inscricao_url`, `descricao`.
 - **resultados.json**: `evento_id`, `colocacoes` [{`posicao`, `jogador_id`, `vitorias`, `derrotas`, `empates`, `tipo_pokemon` (opcional, para qualquer colocação), `obs` (opcional: empate, drop)}].
 - **jogadores.json**: `id`, `apelido`, `cidade` (opcional), `desde` (ano), `icone` (opcional: caminho em `assets/img/jogadores/`).
-- **decklists.json**: `evento_id`, `jogador_id`, `posicao` (1 a 3), `lista_texto` (opcional), `imagem` (opcional; o painel grava `caminho.jpg?v=AAAAMMDDhhmmss` para o navegador não mostrar a imagem antiga do cache).
+- **decklists.json**: `evento_id`, `jogador_id`, `posicao` (1 a 3), `lista_texto` (opcional), `imagem` (opcional; o painel grava `caminho.jpg?v=AAAAMMDDhhmmss` para o navegador não mostrar a imagem antiga do cache), `cartas` (opcional; lista montada: `[{qtd, nome, colecao, numero, categoria ("Pokémon", "Treinador" ou "Energia"), id, img, tipos, basica}]`, com `id`, `img`, `tipos` e `basica` opcionais).
 - **banlist.json**: `atualizado_em`, `fonte`, `cartas` [{`nome`, `colecao`, `numero`}].
 
 Status calculado: data passada = Encerrado; futura com link real de Google Forms = Inscrições abertas; futura sem link = Agendado.

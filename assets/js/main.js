@@ -47,6 +47,7 @@ const imgReserva = alt => `<img class="deck-img deck-reserva" src="${IMAGEM_RESE
 function tratarFalhaImagem(img) {
   if (img.dataset.falha === "remover") img.remove();
   else if (img.dataset.falha === "nome") img.outerHTML = `<span class="patro-nome">${esc(img.alt)}</span>`;
+  else if (img.dataset.falha === "carta") (img.closest("a") || img).outerHTML = `<span class="carta-txt">${esc(img.dataset.nome || img.alt)}</span>`;
   else if (img.dataset.falha === "reserva") (img.closest("a") || img).outerHTML = imgReserva("Decklist em breve: a imagem ainda não está disponível.");
 }
 document.addEventListener("error", e => {
@@ -352,6 +353,26 @@ function htmlResultados(eventoId) {
     <ol class="podio">${linhas}</ol>`;
 }
 
+/* Lista montada no painel: grade de cartas por grupo (imagem do pokemontcg.io com a quantidade),
+   lista em texto e botão para copiar no formato do TCG Live. Imagem só com endereço validado (CARTA_IMG_VALIDA). */
+function htmlCartas(cartas) {
+  const grupos = agruparCartas(cartas);
+  const carta = c => {
+    const nome = `${c.nome}${c.colecao || c.numero ? ` (${[c.colecao, c.numero].filter(Boolean).join(" ")})` : ""}`;
+    const img = CARTA_IMG_VALIDA.test(c.img || "") ? c.img : "";
+    const grande = img.replace(/\.png$/, "_hires.png");
+    return `<li class="carta" title="${esc(`${c.qtd}× ${nome}`)}">
+      ${img ? `<a href="${esc(grande)}" target="_blank" rel="noopener" aria-label="${esc(`${c.qtd}× ${nome}: abrir imagem`)}">
+        <img src="${esc(img)}" alt="${esc(`${c.qtd}× ${nome}`)}" data-nome="${esc(c.nome)}" data-falha="carta" loading="lazy" decoding="async" width="245" height="342"></a>`
+        : `<span class="carta-txt">${esc(c.nome)}</span>`}
+      <span class="carta-qtd" aria-hidden="true">${Number(c.qtd)}</span></li>`;
+  };
+  return `${grupos.map(g => `<section class="deck-grupo"><h3>${esc(g.categoria)} <span>${g.total}</span></h3>
+      <ul class="deck-cartas">${g.cartas.map(carta).join("")}</ul></section>`).join("")}
+    <details class="deck-texto"><summary>Lista em texto</summary><pre class="deck-txt">${esc(textoTcgLive(cartas))}</pre></details>
+    <button type="button" class="btn btn-line btn-sm" data-copiar>Copiar para o TCG Live</button>`;
+}
+
 function htmlDecklist(eventoId, jogadorId, veioDaLista) {
   const ev = eventoPorId(eventoId);
   const colocacao = ((resultadoDo(eventoId) || {}).colocacoes || []).find(c => c.jogador_id === jogadorId);
@@ -360,15 +381,18 @@ function htmlDecklist(eventoId, jogadorId, veioDaLista) {
   const nome = apelidoDe(jogadorId);
   /* Imagem só com caminho validado (como o ícone); sem imagem válida nem texto, vale a reserva */
   const imagem = !d.reserva && DECKLIST_VALIDA.test(d.imagem || "") ? d.imagem : "";
-  const reserva = !imagem && !d.lista_texto;
+  /* Preferência: lista montada no painel > foto enviada > reserva */
+  const cartas = d.reserva ? [] : cartasDe(d);
+  const reserva = !cartas.length && !imagem && !d.lista_texto;
   return `${veioDaLista ? `<button type="button" class="link-voltar" data-resultados="${esc(eventoId)}">‹ Voltar à classificação</button>` : ""}
     <div><span class="eyebrow">Decklist · ${d.posicao}º lugar</span><h2 id="modal-titulo">${esc(nome)}</h2>
       <p class="lead">${[ev.nome, dataBR(ev.data)].map(esc).join(" · ")}</p>
       ${tipoDoDeck(colocacao, d) ? `<p class="tipo-linha">${htmlTipo(tipoDoDeck(colocacao, d), { comTexto: true })}</p>` : ""}</div>
     ${reserva ? imgReserva("Decklist em breve: a imagem desta lista ainda não foi enviada.")
+      : cartas.length ? `${htmlCartas(cartas)}${imagem ? `<a class="link-foto" href="${esc(imagem)}" target="_blank" rel="noopener">Ver a foto da lista</a>` : ""}`
       : imagem ? `<a href="${esc(imagem)}" target="_blank" rel="noopener" title="Abrir imagem em tamanho real">
         <img class="deck-img" src="${esc(imagem)}" alt="Decklist usada por ${esc(nome)} em ${esc(ev.nome)}" data-falha="reserva"></a>` : ""}
-    ${d.lista_texto ? `<pre class="deck-txt">${esc(d.lista_texto)}</pre>` : ""}
+    ${d.lista_texto && !cartas.length ? `<pre class="deck-txt">${esc(d.lista_texto)}</pre>` : ""}
     <a class="btn btn-line btn-sm" href="${linkPerfil(jogadorId)}">Ver perfil de ${esc(nome)}</a>`;
 }
 
@@ -410,6 +434,8 @@ function aplicarFiltroDecks(chip) {
 document.addEventListener("click", e => {
   const filtro = e.target.closest("[data-filtro]");
   if (filtro) { aplicarFiltroDecks(filtro); return; }
+  const copiar = e.target.closest("[data-copiar]");
+  if (copiar) { copiarLista(copiar); return; }
   const alvo = e.target.closest("[data-resultados],[data-decklist],[data-fechar]");
   if (!alvo) return;
   if (alvo.hasAttribute("data-fechar")) { fecharModal(); return; }
@@ -418,6 +444,20 @@ document.addEventListener("click", e => {
   abrirModal(htmlDecklist(ev, jog, origem === "lista"));
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape") fecharModal(); });
+
+/* Copia a lista em texto do pop-up. Sem acesso à área de transferência, abre a lista em texto para copiar à mão. */
+async function copiarLista(botao) {
+  const texto = modalBody.querySelector(".deck-texto");
+  const original = "Copiar para o TCG Live";
+  try {
+    await navigator.clipboard.writeText(texto.querySelector("pre").textContent);
+    botao.textContent = "Lista copiada!";
+  } catch (e) {
+    texto.open = true;
+    botao.textContent = "Copie a lista em texto acima";
+  }
+  setTimeout(() => { if (botao.isConnected) botao.textContent = original; }, 2500);
+}
 
 /* Logo do Início com a mesma altura do título: no celular, só o h1 (que pode quebrar em mais linhas);
    no PC (≥760 px), o bloco inteiro, do "Liga roraimense..." até o fim do texto de apresentação (.lead).

@@ -223,6 +223,22 @@ body.modal-aberto{overflow:hidden}
 .quem-nome{display:flex;align-items:center;gap:8px;min-width:0}
 .quem-nome b{overflow-wrap:anywhere}
 .deck-txt{white-space:pre-wrap;margin:0;font-family:var(--f-mono);font-size:.85rem;padding:12px;border-radius:10px;background:var(--chip)}
+/* Lista montada no painel: grade de cartas com a quantidade (3 por linha no celular, 5 no computador) */
+.deck-grupo{display:grid;gap:8px}
+.deck-grupo h3{margin:0;font-size:1.05rem;display:flex;align-items:center;gap:8px}
+.deck-grupo h3 span{font-family:var(--f-mono);font-size:.8rem;padding:1px 9px;border-radius:999px;background:var(--chip)}
+.deck-cartas{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media (min-width:520px){.deck-cartas{grid-template-columns:repeat(5,minmax(0,1fr))}}
+.carta{position:relative;padding-bottom:12px}
+.carta a{display:block;border-radius:6px}
+.carta img{display:block;width:100%;height:auto;aspect-ratio:63/88;object-fit:cover;border-radius:6px;background:var(--chip)}
+.carta-txt{display:grid;place-items:center;aspect-ratio:63/88;padding:8px;border-radius:6px;border:1px solid var(--line);background:var(--chip);
+  font-weight:800;font-size:.78rem;line-height:1.2;text-align:center;overflow-wrap:anywhere}
+.carta-qtd{position:absolute;left:50%;bottom:0;transform:translateX(-50%);min-width:30px;height:30px;padding:0 6px;display:grid;place-items:center;
+  border-radius:999px;background:var(--ouro);color:#111;border:2px solid var(--surface);font-family:var(--f-display);font-weight:800;font-size:.95rem;line-height:1}
+.deck-texto summary{cursor:pointer;font-weight:800;min-height:40px;display:flex;align-items:center}
+.deck-texto .deck-txt{margin-top:6px}
+.link-foto{font-weight:800;width:fit-content}
 .link-voltar{background:none;border:0;padding:0;font:inherit;color:var(--ceu-ink);font-weight:800;cursor:pointer;width:fit-content;text-decoration:none}
 .link-voltar:hover{text-decoration:underline}
 

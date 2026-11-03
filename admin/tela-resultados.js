@@ -338,6 +338,11 @@
   /* ---------- Decklists do Top 3 ---------- */
 
   const RESERVA = "../assets/img/decklists/sem-imagem.svg";
+  /* Banlist para as conferências do montador: lida uma vez por sessão da tela */
+  let banlistPromessa = null;
+  const lerBanlist = () => banlistPromessa || (banlistPromessa = GitHub.lerJSON("publico", "data/banlist.json", { cartas: [] })
+    .then(r => r.dados).catch(() => { banlistPromessa = null; return { cartas: [] }; }));
+  const mesmaLista = (a, b) => JSON.stringify(a || []) === JSON.stringify(b || []);
   const prepararDecklist = arquivo => Imagens.preparar(arquivo, { maxLado: 1600, minimo: 300, formatos: ["jpeg"], qualidade: 0.85 });
 
   function blocoDecklists(ev, resultado, d, apelido) {
@@ -347,7 +352,7 @@
     secao.setAttribute("aria-labelledby", "t-decklists");
     secao.innerHTML = `
       <h2 id="t-decklists">Decklists do Top 3</h2>
-      <p class="adm-nota">Enquanto não houver imagem, o site mostra a imagem de reserva "Decklist em breve". Enviar uma imagem nova substitui a anterior.</p>
+      <p class="adm-nota">No site, a lista montada (busca de cartas) aparece no lugar da foto; sem lista montada, vale a foto; sem as duas, a imagem de reserva "Decklist em breve". Enviar uma imagem nova substitui a anterior.</p>
       <div class="adm-decks"></div>`;
     const caixa = secao.querySelector(".adm-decks");
     top3.forEach(c => caixa.appendChild(cartaoDecklist(ev, c, d, apelido)));
@@ -358,6 +363,7 @@
     let atual = d.decklists.find(x => x.evento_id === ev.id && x.jogador_id === c.jogador_id) || null;
     let nova;            // imagem escolhida e ainda não gravada
     let removerImagem = false;
+    let editor = null;   // montador de cartas, criado ao abrir
     const cartao = document.createElement("article");
     cartao.className = "adm-deck";
     const idc = `dk-${c.posicao}-${c.jogador_id}`;
@@ -389,6 +395,10 @@
             <small class="adm-erro" data-erro="lista_texto"></small>
           </label>
         </details>
+        <div class="adm-montar-resumo">
+          <p class="adm-nota" data-resumo></p>
+          <button class="btn btn-line adm-btn-arquivo" type="button" data-acao="montar" aria-expanded="false"></button>
+        </div>
         <div class="adm-acoes">
           <button class="btn btn-ouro adm-btn" type="submit">Salvar decklist</button>
           <button class="btn btn-line adm-btn adm-btn-texto-perigo" type="button" data-acao="apagar">Apagar decklist</button>
@@ -404,6 +414,9 @@
     const botaoReserva = form.querySelector("[data-acao=remover-imagem]");
     const botaoApagar = form.querySelector("[data-acao=apagar]");
     const temImagemGravada = () => !!(atual && R.DECKLIST_VALIDA.test(atual.imagem || ""));
+    const botaoMontar = form.querySelector("[data-acao=montar]");
+    const cartasGravadas = () => RegrasCartas.sanitizarCartas(atual && atual.cartas);
+    const cartasAtuais = () => editor ? editor.valor() : cartasGravadas();
 
     function atualizarVista() {
       if (nova) {
@@ -414,13 +427,22 @@
         legenda.textContent = "Imagem publicada";
       } else {
         img.src = RESERVA;
-        legenda.textContent = removerImagem ? "Volta para a reserva ao salvar" : "Reserva (sem imagem enviada)";
+        legenda.textContent = cartasAtuais().length ? "Sem foto: o site mostra a lista montada"
+          : removerImagem ? "Volta para a reserva ao salvar" : "Reserva (sem imagem enviada)";
       }
       img.alt = `Decklist de ${apelido(c.jogador_id)}: ${legenda.textContent.toLowerCase()}`;
       form.querySelector(".rotulo-arquivo").textContent = temImagemGravada() || nova ? "Trocar imagem" : "Enviar imagem";
       botaoReserva.hidden = !(nova || (temImagemGravada() && !removerImagem));
       confirma.hidden = !nova;
       botaoApagar.hidden = !atual;
+      const n = RegrasCartas.total(cartasAtuais());
+      const mudouLista = !mesmaLista(cartasAtuais(), cartasGravadas());
+      form.querySelector("[data-resumo]").textContent = n
+        ? `Lista montada: ${n} ${n === 1 ? "carta" : "cartas"}${mudouLista ? " (ainda não salva)" : ""}. No site, ela aparece no lugar da foto.`
+        : "Sem lista montada.";
+      const aberto = !!editor && !editor.el.hidden;
+      botaoMontar.textContent = aberto ? "Fechar montador" : n ? "Editar lista montada" : "Montar lista de cartas";
+      botaoMontar.setAttribute("aria-expanded", String(aberto));
     }
     /* Imagem recém-enviada leva ~1 min para ser publicada: até lá, mostra a reserva */
     img.addEventListener("error", () => {
@@ -445,6 +467,16 @@
         form.arquivo.value = "";
       }
     });
+    botaoMontar.addEventListener("click", () => {
+      if (!editor) {
+        editor = EditorCartas.criar({ cartas: cartasGravadas(), tipo: c.tipo_pokemon || "", banlist: lerBanlist(), aoMudar: atualizarVista });
+        editor.el.hidden = true;
+        cartao.appendChild(editor.el);
+      }
+      editor.el.hidden = !editor.el.hidden;
+      atualizarVista();
+      if (!editor.el.hidden) editor.el.querySelector("[name=termo]").focus();
+    });
     form.imagem_ok.addEventListener("change", () => { if (form.imagem_ok.checked) erroImg.textContent = ""; });
     botaoReserva.addEventListener("click", () => {
       if (nova) { URL.revokeObjectURL(nova.url); nova = undefined; }
@@ -464,8 +496,9 @@
       }
       const antiga = temImagemGravada() ? R.semVersao(atual.imagem) : "";
       let imagem = removerImagem ? "" : atual ? atual.imagem || "" : "";
+      const cartas = cartasAtuais();
       const igual = !nova && imagem === (atual ? atual.imagem || "" : "") &&
-        dados.lista_texto === (atual ? atual.lista_texto || "" : "");
+        dados.lista_texto === (atual ? atual.lista_texto || "" : "") && mesmaLista(cartas, cartasGravadas());
       if (igual) { mostrarMensagem(msg, "Nada mudou.", "ok"); return; }
       const botoes = form.querySelectorAll("button");
       botoes.forEach(b => { b.disabled = true; });
@@ -479,11 +512,16 @@
         }
         const registro = { evento_id: ev.id, jogador_id: c.jogador_id, posicao: c.posicao,
           lista_texto: dados.lista_texto, imagem };
-        const vazio = !imagem && !dados.lista_texto;
+        if (cartas.length) registro.cartas = cartas;
+        const vazio = !imagem && !dados.lista_texto && !cartas.length;
         await GitHub.atualizarJSON("publico", "data/decklists.json", lista => {
           const i = lista.findIndex(x => x.evento_id === ev.id && x.jogador_id === c.jogador_id);
           if (vazio) { if (i >= 0) lista.splice(i, 1); return lista; }
-          if (i >= 0) { lista[i] = { ...lista[i], ...registro }; delete lista[i].tipo_pokemon; } else lista.push(registro);
+          if (i >= 0) {
+            lista[i] = { ...lista[i], ...registro };
+            delete lista[i].tipo_pokemon;
+            if (!cartas.length) delete lista[i].cartas;
+          } else lista.push(registro);
           return lista;
         }, `Decklist de ${c.jogador_id} no evento ${ev.id}`);
         if (antiga && antiga !== caminhoNovo && (nova || removerImagem)) {
@@ -524,6 +562,7 @@
         atual = null;
         d.decklists = d.decklists.filter(x => !(x.evento_id === ev.id && x.jogador_id === c.jogador_id));
         form.lista_texto.value = "";
+        if (editor) editor.definir([]);
         if (nova) { URL.revokeObjectURL(nova.url); nova = undefined; }
         removerImagem = false;
         atualizarVista();

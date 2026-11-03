@@ -116,3 +116,29 @@ test("aba Decks: estatísticas por tipo", () => {
   const so = JSON.parse(site(`JSON.stringify(estatisticasDecks("2026-05-01", "2026-12-31"))`));
   assert.deepStrictEqual([so.eventos, so.participacoes, so.tipos[0].tipo, so.tipos[0].titulos], [1, 2, "Água", 1]);
 });
+
+test("lista montada: imagem igual à do painel, grupos e texto do TCG Live", () => {
+  const RC = require("../regras-cartas.js");
+  assert.strictEqual(site("CARTA_IMG_VALIDA.source"), RC.CARTA_IMG_VALIDA.source);
+  assert.strictEqual(site("CARTA_IMG_VALIDA.flags"), RC.CARTA_IMG_VALIDA.flags);
+  const cartas = [
+    { qtd: 14, nome: "Psychic Energy", colecao: "SVE", numero: "5", categoria: "Energia", basica: true },
+    { qtd: 1, nome: "Dusclops", colecao: "SFA", numero: "19", categoria: "Pokémon" },
+    { qtd: 1, nome: "Iono", colecao: "PAL", numero: "185", categoria: "Treinador" },
+    { qtd: 1, nome: "Ultra Ball", colecao: "", numero: "", categoria: "Outra" },
+    { qtd: 0, nome: "Zero", categoria: "Pokémon" }, { nome: "", qtd: 1 }];
+  const grupos = JSON.parse(site(`JSON.stringify(agruparCartas(${JSON.stringify(cartas)}))`));
+  assert.deepStrictEqual(grupos.map(g => [g.categoria, g.total, g.cartas.length]), [["Pokémon", 1, 1], ["Treinador", 2, 2], ["Energia", 14, 1]]);
+  assert.strictEqual(site(`textoTcgLive(${JSON.stringify(cartas)})`),
+    "Pokémon: 1\n1 Dusclops SFA 19\n\nTrainer: 2\n1 Iono PAL 185\n1 Ultra Ball\n\nEnergy: 14\n14 Psychic Energy SVE 5\n\nTotal Cards: 17");
+  assert.strictEqual(site(`cartasDe({ cartas: ${JSON.stringify(cartas)} }).length`), 4);
+  assert.strictEqual(site("cartasDe({ cartas: 'x' }).length"), 0);
+});
+
+test("decklist do Top 3 com lista montada não usa a reserva", () => {
+  site(`DADOS.decklists = ${JSON.stringify([
+    { evento_id: "e", jogador_id: "m", posicao: 1, lista_texto: "", imagem: "", cartas: [{ qtd: 60, nome: "Psychic Energy", categoria: "Energia" }] },
+    { evento_id: "e", jogador_id: "n", posicao: 2, lista_texto: "", imagem: "", cartas: [] }])}`);
+  assert.strictEqual(site(`decklistTop3("e", "m", 1).reserva`), undefined);
+  assert.strictEqual(site(`decklistTop3("e", "n", 2).reserva`), true);
+});
