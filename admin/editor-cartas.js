@@ -6,24 +6,48 @@
   "use strict";
 
   const R = RegrasCartas;
-  const ESPERA = 25000;
+  const ESPERA = 15000;
+  /* O pokemontcg.io falha com frequência (HTTP 500 ou queda passageira, que o navegador mostra como erro de rede).
+     Por isso cada busca tenta até 3 vezes, com pausa crescente, antes de mostrar o erro. */
+  const TENTATIVAS = 3;
+  const PAUSAS = [1200, 2500];
+  const pausa = ms => new Promise(r => setTimeout(r, ms));
 
-  async function lerApi(url) {
+  class ErroApi extends Error {
+    constructor(mensagem, repetir) { super(mensagem); this.repetir = repetir; }
+  }
+
+  async function lerUmaVez(url) {
     const ctrl = new AbortController();
     const relogio = setTimeout(() => ctrl.abort(), ESPERA);
     let resp;
     try {
       resp = await fetch(url, { signal: ctrl.signal, credentials: "omit", referrerPolicy: "no-referrer" });
     } catch (e) {
-      throw new Error(e.name === "AbortError" ? "A base de cartas demorou demais para responder. Tente de novo."
-        : "Não consegui falar com a base de cartas (pokemontcg.io). Confira a internet e tente de novo.");
+      throw new ErroApi(e.name === "AbortError" ? "A base de cartas (pokemontcg.io) demorou demais para responder."
+        : "A base de cartas (pokemontcg.io) não respondeu.", true);
     } finally {
       clearTimeout(relogio);
     }
-    if (resp.status === 429) throw new Error("A base de cartas limitou as buscas por agora. Espere alguns minutos ou cole a lista do TCG Live.");
-    if (!resp.ok) throw new Error(`A base de cartas respondeu com erro (HTTP ${resp.status}). Tente de novo.`);
-    const json = await resp.json();
+    if (resp.status === 429) throw new ErroApi("A base de cartas limitou as buscas por agora. Espere alguns minutos ou cole a lista do TCG Live.", false);
+    if (!resp.ok) throw new ErroApi(`A base de cartas (pokemontcg.io) respondeu com erro (HTTP ${resp.status}).`, resp.status >= 500);
+    const json = await resp.json().catch(() => { throw new ErroApi("A base de cartas mandou uma resposta incompleta.", true); });
     return { cartas: Array.isArray(json.data) ? json.data : [], total: Number(json.totalCount) || 0 };
+  }
+
+  /* aoTentarDeNovo(n): avisa a tela antes da tentativa n (2 ou 3) */
+  async function lerApi(url, aoTentarDeNovo) {
+    for (let n = 1; ; n++) {
+      try {
+        return await lerUmaVez(url);
+      } catch (e) {
+        if (!e.repetir || n >= TENTATIVAS) {
+          throw new Error(e.repetir ? `${e.message} Tentei ${TENTATIVAS} vezes; o serviço costuma voltar em instantes. Tente de novo ou cole a lista do TCG Live.` : e.message);
+        }
+        if (aoTentarDeNovo) aoTentarDeNovo(n + 1);
+        await pausa(PAUSAS[n - 1]);
+      }
+    }
   }
 
   const imgCarta = (url, classe) => R.CARTA_IMG_VALIDA.test(url || "")
@@ -64,14 +88,14 @@
           <div class="adm-montar-campo" role="search">
             <label class="campo">
               <span>Buscar carta</span>
-              <input type="search" name="termo" placeholder="Ex.: dusclops, iono, energy" autocomplete="off" spellcheck="false" maxlength="60">
+              <input type="search" name="termo" placeholder="Ex.: dusclops, ultra bola, energia psíquica" autocomplete="off" spellcheck="false" maxlength="60">
             </label>
             <button class="btn btn-ouro" type="button" data-acao="buscar">Buscar</button>
           </div>
           <div class="filtros" role="group" aria-label="Categoria da carta">
             ${["", ...R.CATEGORIAS].map(c => `<button type="button" class="chip-filtro" data-categoria="${esc(c)}" aria-pressed="${c === ""}">${c || "Todas"}</button>`).join("")}
           </div>
-          <p class="adm-msg" data-msg="busca" role="status" aria-live="polite">Só aparecem cartas legais no Expanded, sem Rule Box nem ACE SPEC. Toque numa carta para incluir.</p>
+          <p class="adm-msg" data-msg="busca" role="status" aria-live="polite">Busque em português ou inglês (a lista fica com os nomes em inglês, como no TCG Live). Só aparecem cartas legais no Expanded, sem Rule Box nem ACE SPEC. Toque numa carta para incluir.</p>
           <ul class="adm-montar-resultados"></ul>
           <button class="btn btn-line adm-btn" type="button" data-acao="mais" hidden>Mostrar mais</button>
         </div>
@@ -180,7 +204,7 @@
       botoes.forEach(b => { b.disabled = true; });
       mensagem(msgBusca, "Buscando…");
       try {
-        const resposta = await lerApi(url);
+        const resposta = await lerApi(url, n => mensagem(msgBusca, `A base de cartas falhou; tentando de novo (${n}ª tentativa)…`));
         totalBusca = resposta.total;
         const validas = resposta.cartas.filter(c => !R.motivoIlegal(c, banlist));
         escondidas += resposta.cartas.length - validas.length;
@@ -189,7 +213,7 @@
         desenharResultados(inicio);
         const vistas = pagina * R.POR_PAGINA;
         botaoMais.hidden = vistas >= totalBusca;
-        mensagem(msgBusca, !resultados.length ? "Nenhuma carta encontrada. Confira o nome (em inglês, como no TCG Live)."
+        mensagem(msgBusca, !resultados.length ? "Nenhuma carta encontrada. Confira o nome; se a carta tem nome traduzido, tente o nome em inglês."
           : `${resultados.length} ${resultados.length === 1 ? "carta" : "cartas"}${totalBusca > vistas ? ` de ${totalBusca}` : ""}` +
             `${escondidas ? ` (${escondidas} fora do GLC escondidas)` : ""}. Toque para incluir.`, resultados.length ? "ok" : "erro");
       } catch (e) {
@@ -209,7 +233,7 @@
         let achadas = [];
         let falhou = "";
         for (const url of R.consultasImportacao(linhas)) {
-          try { achadas = achadas.concat((await lerApi(url)).cartas); }
+          try { achadas = achadas.concat((await lerApi(url, n => mensagem(msgImportar, `A base de cartas falhou; tentando de novo (${n}ª tentativa)…`))).cartas); }
           catch (e) { falhou = e.message; break; }
         }
         const r = R.resolverImportacao(linhas, achadas, banlist);

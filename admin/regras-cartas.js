@@ -21,8 +21,6 @@
 
   /* GLC: sem Rule Box (EX, GX, V, ex, Radiant, Prism Star, BREAK etc.) e sem ACE SPEC. Regra oficial em gymleaderchallenge.com */
   const SUBTIPOS_RULE_BOX = ["EX", "GX", "TAG TEAM", "V", "VMAX", "VSTAR", "V-UNION", "ex", "Radiant", "BREAK", "MEGA", "Prism Star"];
-  const EXCLUSOES_CONSULTA = '-subtypes:EX -subtypes:GX -subtypes:VMAX -subtypes:VSTAR -subtypes:"V-UNION" -subtypes:"TAG TEAM" ' +
-    '-subtypes:Radiant -subtypes:BREAK -subtypes:"ACE SPEC"';
   /* Pelo nome (para listas importadas ou antigas, sem os subtipos da API) */
   const NOME_RULE_BOX = /(?:[\s-](?:EX|GX|V|VMAX|VSTAR|V-UNION|ex|BREAK)$)|◇|\{\*\}|^Radiant\s/;
 
@@ -34,16 +32,40 @@
 
   /* Termo digitado → consulta Lucene da API. Cada palavra vira name:palavra* (prefixo).
      categoria: "" | "Pokémon" | "Treinador" | "Energia". Sempre só cartas legais no Expanded e sem Rule Box/ACE SPEC. */
+  /* Busca em português: a base só tem nomes em inglês. Nomes de Pokémon são iguais nos dois idiomas;
+     Treinadores e Energias têm nome traduzido, então cada palavra conhecida vira a palavra em inglês
+     ("ultra bola" → ultra ball, "ordens do chefe" → orders boss). A ordem das palavras não importa na busca.
+     Chave sem acento, em minúsculas. Só traduções seguras; palavra desconhecida segue como foi digitada. */
+  const GLOSSARIO = {
+    energia: "energy", energias: "energy", basica: "basic", basicas: "basic", especial: "special",
+    planta: "grass", fogo: "fire", agua: "water", eletrica: "lightning", eletrico: "lightning", raio: "lightning",
+    psiquica: "psychic", psiquico: "psychic", luta: "fighting", lutador: "fighting", lutadora: "fighting",
+    escuridao: "darkness", sombria: "darkness", metalica: "metal", fada: "fairy", dragao: "dragon", incolor: "colorless",
+    bola: "ball", rapida: "quick", nivel: "level", doce: "candy", raro: "rare", rara: "rare", troca: "switch",
+    pesquisa: "research", professor: "professor", professores: "professor", professora: "professor",
+    chefe: "boss", ordens: "orders", ordem: "orders", comunicacao: "communication", ferramenta: "tool", estadio: "stadium"
+  };
+  const PALAVRAS_VAZIAS = ["de", "do", "da", "dos", "das", "e", "o", "a", "os", "as"];
+  const semAcento = p => p.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  function traduzirPalavra(p) {
+    const k = semAcento(p);
+    return GLOSSARIO[k] || p.toLowerCase();
+  }
+
   function montarConsulta(termo, categoria) {
-    const todas = String(termo || "").normalize("NFC").slice(0, 60).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+    const digitadas = String(termo || "").normalize("NFC").slice(0, 60).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+    const uteis = digitadas.filter(p => !PALAVRAS_VAZIAS.includes(semAcento(p)));
+    const todas = [...new Set((uteis.length ? uteis : digitadas).map(traduzirPalavra))];
     /* Palavra de 1 letra (o "s" de "Professor's") só entra se for a única */
     const palavras = todas.some(p => p.length > 1) ? todas.filter(p => p.length > 1).slice(0, 5) : todas.slice(0, 1);
     if (!palavras.length) return "";
-    const nome = palavras.map(p => `name:${p.toLowerCase()}*`).join(" ");
+    const nome = palavras.map(p => `name:${p}*`).join(" ");
     const cat = categoria === "Treinador" ? " supertype:trainer"
       : categoria === "Energia" ? " supertype:energy"
       : categoria === "Pokémon" ? " -supertype:trainer -supertype:energy" : "";
-    return `${nome} legalities.expanded:legal ${EXCLUSOES_CONSULTA}${cat}`;
+    /* Consulta curta: a lista de exclusões deixava a API lenta e com mais erros. Rule Box, ACE SPEC e banlist
+       saem na tela, por motivoIlegal(). */
+    return `${nome} legalities.expanded:legal${cat}`;
   }
 
   function urlBusca(termo, categoria, pagina) {
