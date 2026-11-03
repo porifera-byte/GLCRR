@@ -763,9 +763,11 @@
       {
         "qtd": 1,
         "nome": "Dragapult",
-        "colecao": "SHF",
-        "numero": "SV062",
+        "colecao": "RCL",
+        "numero": "91",
         "categoria": "Pokémon",
+        "id": "swsh2-91",
+        "img": "https://assets.tcgdex.net/en/swsh/swsh2/91/low.webp",
         "tipos": [
           "Psychic"
         ]
