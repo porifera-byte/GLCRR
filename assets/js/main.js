@@ -204,6 +204,13 @@ const PAGES = {
     }).join("");
     return interna(`<div><span class="eyebrow">Tipos e listas</span><h1>Decks</h1></div>
       <div class="filtros" role="group" aria-label="Período">${periodos.map(([v, r], i) => chip("periodo", v, esc(r), i === 0)).join("")}</div>
+      <section class="decks-sec" aria-labelledby="col-titulo">
+        <h2 id="col-titulo">Melhores colocações</h2>
+        <p class="lead">O Top 3 de cada evento, do mais recente para o mais antigo, com a decklist.</p>
+        ${filtroTipo}
+        <ol class="podio decks">${cartoes}</ol>
+        <div class="empty decks-vazio" hidden><b>Nenhuma colocação com esse filtro.</b><span>Escolha outro tipo ou período.</span></div>
+      </section>
       <section class="decks-sec" aria-labelledby="est-titulo">
         <h2 id="est-titulo">Estatísticas por tipo</h2>
         <div class="decks-est">${htmlEstatDecks("")}</div>
@@ -211,13 +218,6 @@ const PAGES = {
       <section class="decks-sec" aria-labelledby="cartas-titulo">
         <h2 id="cartas-titulo">Cartas mais usadas</h2>
         <div class="decks-cartas">${htmlEstatCartas("")}</div>
-      </section>
-      <section class="decks-sec" aria-labelledby="col-titulo">
-        <h2 id="col-titulo">Melhores colocações</h2>
-        <p class="lead">O Top 3 de cada evento, do mais recente para o mais antigo, com a decklist.</p>
-        ${filtroTipo}
-        <ol class="podio decks">${cartoes}</ol>
-        <div class="empty decks-vazio" hidden><b>Nenhuma colocação com esse filtro.</b><span>Escolha outro tipo ou período.</span></div>
       </section>`);
   },
 
