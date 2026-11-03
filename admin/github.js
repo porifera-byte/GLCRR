@@ -6,7 +6,7 @@
   "use strict";
 
   const API = "https://api.github.com";
-  const DONO = "porifera-byte";
+  const DONO = "trz-co";
   const REPOS = { publico: "GLCRR", privado: "GLC-privado" };
   const RAMO = "main";
   const utf8 = new TextEncoder();
